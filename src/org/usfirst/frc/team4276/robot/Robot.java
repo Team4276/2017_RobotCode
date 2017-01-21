@@ -2,130 +2,66 @@
 package org.usfirst.frc.team4276.robot;
 
 
-import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.SampleRobot;
+import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-
+/**
+ * This is a demo program showing the use of the RobotDrive class.
+ * The SampleRobot class is the base of a robot application that will automatically call your
+ * Autonomous and OperatorControl methods at the right time as controlled by the switches on
+ * the driver station or the field controls.
+ *
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to each mode, as described in the SampleRobot
+ * documentation. If you change the name of this class or the package after
+ * creating this project, you must also update the manifest file in the resource
+ * directory.
+ *
+ * WARNING: While it may look like a good choice to use for your code if you're inexperienced,
+ * don't. Unless you know what you are doing, complex code will be much more difficult under
+ * this system. Use IterativeRobot or Command-Based instead if you're new.
+ */
 public class Robot extends SampleRobot {
-	
-	TankDrive drive;
-	Arm arm;
-	//LidarSpin spinny;
-	LIDAR mylid;
-	Shooter shoot;
-	LEDOut led;
-	Timer autotimer;
-	DashboardOutput dash;
-	CameraServer camera;
-	IMU myIMU;
-	AutoModeSwitch automodeswitch;
-	
-	Thread visionThread;
-	
-	
 
-	
-	//ADIS16448_IMU imu;
-	public static int g_nSequenceLidar = 0;
-	public static double g_lidarDistanceCentimeters = 0.0;
-	
-	public static int g_nSequenceVisionSystem = 0;
-	public static boolean g_isVisionSystemGoalDetected = false;
-	public static double g_visionSystemAngleRobotToGoal = -181.0;
-	public static double g_visionSystemPixelX = -181.0;
-
-	public static boolean g_isImuDataValid = false;
-	public static double g_imuYawDegrees = -181.00;
-    
-
+	mecanumDrive driveSystem;
+	Joystick driveJoy;
     public Robot() {
-    	camera = CameraServer.getInstance();
-        camera.setQuality(50);
-        camera.startAutomaticCapture("cam0");
-        drive = new TankDrive(3,4,5,0,1,2,6,7); //RF,RM,RB,LF,LM,LB,DriveEnc1,DriveEnc2
-    	arm = new Arm(6,7,3,0,1,2); //PowerMotor,IntakeMotor,BallStopLimit,ArmEnc,ArmEnc,HallSwitch
-    	autotimer = new Timer();
-    	//imu = new ADIS16448_IMU();
-    	//spinny = new LidarSpin(9);
-    	mylid = new LIDAR(Port.kMXP);
-    	mylid.start(20);
-    	shoot = new Shooter(8,9,4,5); //ShooterLeft,ShooterRight,enc1,enc2
-    	//led = new LEDOut(20,19,18,27);
-       // dash = new DashboardOutput();
-    	myIMU = new IMU();
-    	automodeswitch = new AutoModeSwitch();
-    	dash = new DashboardOutput();
-    	
-        
-    }
-    
-    public void robotInit() {
-    	
-       	dash.start();
-       	visionThread = new Thread(new JVisionSystemReceiverRunnable());
-       	visionThread.start();
-	
-    	
-    	
-    	
-    	
+       // driveJoy = new Joystick(1);
+        driveSystem = new mecanumDrive(0,1,8,9);
     }
 
-	
+    /**
+     * Drive left & right motors for 2 seconds then stop
+     */
     public void autonomous() {
-    	drive.driveenc.reset();
-    	while(true)
-    	{
-    		if(drive.autodrive(3000, .8, 180.0))
-    				break;
-    		SmartDashboard.putString("Auto: ", "Running!");
-    	}
-    	SmartDashboard.putString("Auto: ", "NOT!");
-    	/*String autoSelected = (String) chooser.getSelected();
-//		String autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);
-    	
-    	switch(autoSelected) {
-    	case customAuto:
-            myRobot.setSafetyEnabled(false);
-            myRobot.drive(-0.5, 1.0);	// spin at half speed
-            Timer.delay(2.0);		//    for 2 seconds
-            myRobot.drive(0.0, 0.0);	// stop robot
-            break;
-    	case defaultAuto:
-    	default:
-            myRobot.setSafetyEnabled(false);
-            myRobot.drive(-0.5, 0.0);	// drive forwards half speed
-            Timer.delay(2.0);		//    for 2 seconds
-            myRobot.drive(0.0, 0.0);	// stop robot
-            break;
-    	}*/
+       
     }
 
-
+    /**
+     * Runs the motors with arcade steering.
+     */
     public void operatorControl() {
-        
-    
-    	
+       
         while (isOperatorControl() && isEnabled()) {
-        	
-        	arm.collector();
-        	//spinny.spinnerex();
-        	drive.run();
-        	shoot.run();
-        	SmartDashboard.putNumber("Shooter speed: ", Shooter.shooterenc.getRate());
-        	
-        	//lead.output();
-        	
-            
-            Timer.delay(0.005);		// wait for a motor update time
+           // SmartDashboard.putNumber("Y", driveJoy.getY());
+            //SmartDashboard.putNumber("X", driveJoy.getX());
+           //SmartDashboard.putNumber("Twist", driveJoy.getTwist());
+        	driveSystem.drive();
+        	driveSystem.modeReadout();
+            Timer.delay(.05);
         }
     }
 
-
+    /**
+     * Runs during test mode
+     */
     public void test() {
+    	driveSystem.YTest();
+    	driveSystem.XTest();
+    	driveSystem.TwistTest();
+    	
     }
 }

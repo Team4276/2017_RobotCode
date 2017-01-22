@@ -3,10 +3,8 @@ package org.usfirst.frc.team4276.robot;
 
 
 import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This is a demo program showing the use of the RobotDrive class.
@@ -26,9 +24,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends SampleRobot {
 
+	static ADIS16448_IMU imu;
+
 	mecanumDrive driveSystem;
 	Joystick driveJoy;
-    public Robot() {
+    
+	public Robot() {
+		imu = new ADIS16448_IMU();
        // driveJoy = new Joystick(1);
         driveSystem = new mecanumDrive(0,1,8,9);
     }

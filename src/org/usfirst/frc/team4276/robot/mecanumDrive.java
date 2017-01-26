@@ -19,9 +19,6 @@ RobotDrive mecanumControl;
 	boolean Ytest;
 	boolean Twisttest;
 	
-	ADIS16448_IMU imu;
-
-	
 	int mode = 0;
 	
 public mecanumDrive( int pwm0, int pwm1, int pwm8, int pwm9)
@@ -32,8 +29,6 @@ public mecanumDrive( int pwm0, int pwm1, int pwm8, int pwm9)
 	forwardLeftMotor = new VictorSP(pwm1);
 	backRightMotor = new VictorSP(pwm8);
 	backLeftMotor = new VictorSP(pwm9);
-	
-	imu = new ADIS16448_IMU();
 	
 	mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
 }
@@ -46,8 +41,6 @@ void robotFrameDrive()
 	Xtest = false;
 	Ytest = false;
 	Twisttest = false;
-	
-	imu = new ADIS16448_IMU();
 	
 	double X = mecanumJoystick.getX();
 	double Y = mecanumJoystick.getY();
@@ -84,10 +77,7 @@ void fieldFrameDrive()
 	robotFrame = false;
 	Xtest = false;
 	Ytest = false;
-	Twisttest = false;
-	
-	imu = new ADIS16448_IMU();
-	
+	Twisttest = false;	
 	
 	double yaw = 0.0;
 	double X = 0.0;

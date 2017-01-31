@@ -3,19 +3,14 @@ package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
 
-import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
-import edu.wpi.cscore.CvSink;
-import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.vision.VisionPipeline;
-import edu.wpi.first.wpilibj.vision.VisionRunner;
 import edu.wpi.first.wpilibj.vision.VisionThread;
 
 /**
@@ -46,12 +41,23 @@ public class Robot extends SampleRobot {
 	private final Object imgLock = new Object();
 	double gripCameraCenterX = 0.0;
 
+	// Autonomous Route Plans
+	RoutePlanList planList = new RoutePlanList();
+	
+	// TODO:  Use Joystick button controls to select the auto route to be used 
+	//        Hard coded to route '2' for testing
+	int autoPlanSelection = 2;
+	RoutePlan planForThisMatch = planList.get(autoPlanSelection);
+
 	mecanumDrive driveSystem;
 	Joystick driveJoy;
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
 
+	    SmartDashboard.putString("Auto Plan", planForThisMatch.name);
+		SmartDashboard.putString("Auto Status", "Auto  " + autoPlanSelection + "  waiting to start");
+		
 		// GRIP vision camera
 		UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
 		camera.setExposureManual(20);
@@ -76,6 +82,23 @@ public class Robot extends SampleRobot {
 	 * Drive left & right motors for 2 seconds then stop
 	 */
 	public void autonomous() {
+		
+		
+		
+		for (int i = 0; i < planForThisMatch.size(); i++) {
+			planForThisMatch.get(i).exec();
+			
+			// TMP TMP TMP - so can see auto status displayed 
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+        }
+		
+		SmartDashboard.putString("Auto Status", "Auto Complete");
+		
+		
 		
 	}
 

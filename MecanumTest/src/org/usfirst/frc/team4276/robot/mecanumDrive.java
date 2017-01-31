@@ -21,14 +21,14 @@ RobotDrive mecanumControl;
 	
 	int mode = 0;
 	
-public mecanumDrive( int pwm0, int pwm1, int pwm8, int pwm9)
+public mecanumDrive( int pwm0, int pwm1, int pwm2, int pwm3)
 {
 
 	mecanumJoystick = new Joystick(0);
 	forwardRightMotor = new VictorSP(pwm0);
 	forwardLeftMotor = new VictorSP(pwm1);
-	backRightMotor = new VictorSP(pwm8);
-	backLeftMotor = new VictorSP(pwm9);
+	backRightMotor = new VictorSP(pwm2);
+	backLeftMotor = new VictorSP(pwm3);
 	
 	mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
 }

@@ -5,7 +5,7 @@ public class robotLocation {
 	
 	void startingLocation(double X, double Y)
 	{
-		Robot.imu.get
+		//Robot.imu.get
 	}
 	
 }

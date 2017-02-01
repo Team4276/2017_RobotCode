@@ -214,4 +214,19 @@ void modeReadout()
 	SmartDashboard.putBoolean("X Test", Xtest);
 }
 
+boolean gearAllignment (double targetXOffset)
+{
+	double yaw = Robot.imu.getYaw();
+	double deadband = 5; //pixels
+	double k = .01;//power applied for every pixel off from center
+	double power = k*targetXOffset;
+	
+	if(Math.abs(targetXOffset) > deadband)
+	{
+		mecanumControl.mecanumDrive_Cartesian(power, 0, 0, 0);
+		return false;
+	}
+	return true;
+}
+
 }

@@ -83,10 +83,14 @@ public class Robot extends SampleRobot {
 	 */
 	public void autonomous() {
 		
-		
-		
+		Boolean isError = false;
 		for (int i = 0; i < planForThisMatch.size(); i++) {
-			planForThisMatch.get(i).exec();
+			RouteTask.ReturnValue retVal = planForThisMatch.get(i).exec();
+			if (retVal != RouteTask.ReturnValue.SUCCESS) {
+				isError = true;
+				SmartDashboard.putString("Auto Status", "Auto Failed step " + i);
+				break;
+			}
 			
 			// TMP TMP TMP - so can see auto status displayed 
 			try {
@@ -95,10 +99,9 @@ public class Robot extends SampleRobot {
 				e.printStackTrace();
 			}
         }
-		
+		if (!isError) {
 		SmartDashboard.putString("Auto Status", "Auto Complete");
-		
-		
+		}
 		
 	}
 

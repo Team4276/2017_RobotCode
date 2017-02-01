@@ -11,7 +11,7 @@ public class RouteTask {
 	}
 
 	public Operation op = Operation.INIT_POS;
-	public RobotPosition endPos;
+	public RobotPosition endPos = new RobotPosition(0.0, 0.0, 0.0);
 	public long delayMillisecs = 0;
 
 

@@ -1,6 +1,7 @@
 package org.usfirst.frc.team4276.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 
 public class mecanumNavigation extends Thread implements Runnable  {
 	
@@ -14,18 +15,20 @@ public class mecanumNavigation extends Thread implements Runnable  {
 	 * movement in the field's coordinate system (shown below) 
 	 * using the Direction Cosine Matrix. The absolute robot 
 	 * position is then calculated with the accumulating deltas.
+	 * 
+	 * Field Coordinate System
 	 *                             ^
 	 *    _________________________|__________________________
 	 *    |                        |						 |
-	 *    |						   |+Y						 |
- 	 *    |						   |						 |
- 	 *    |						   |						 |
- 	 *    |		-X				   |				+X		 |
+	 *    |                        |+Y						 |
+ 	 *    |                        |						 |
+ 	 *    |                        |						 |
+ 	 *    |     -X                 |              +X         |
  	 *  <-|------------------------|-------------------------|->
- 	 *    |						   |						 |
- 	 *    |						   |						 |
- 	 *    |	Red Alliance		   |		Blue Alliance	 | 
- 	 *    |						   |-Y						 |
+ 	 *    |                        |                         |
+ 	 *    |                        |                         |
+ 	 *    |	Red Alliance           |        Blue Alliance    | 
+ 	 *    |                        |-Y                       |
  	 *    |________________________|_________________________|
  	 *    Boiler				   |					Boiler
  	 *                             V
@@ -183,12 +186,15 @@ public void run()
 	
 	try
 	{
+		
 		while(true)
 		{
 		ERROR = false;
 		
 		findDeltaMovement_RobotFrame();
 		findAbsoluteLocation_FieldFrame();
+		
+		Timer.delay(.005);
 		
 		}
 	}

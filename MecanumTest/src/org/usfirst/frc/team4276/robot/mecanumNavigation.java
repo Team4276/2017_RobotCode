@@ -3,6 +3,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Encoder;
 
 public class mecanumNavigation extends Thread implements Runnable  {
+	
+	
+	/*
+	 * This continuously running thread receives input from the 
+	 * encoders on the robot's mecanum drive train and uses the
+	 * linear directionality transformation to solve for the delta
+	 * movement of the robot in the robot's X and Y axii. This 
+	 * thread then uses these deltas to solve for the robots 
+	 * movement in the field's coordinate system (shown below) 
+	 * using the Direction Cosine Matrix. The absolute robot 
+	 * position is then calculated with the accumulating deltas.
+	 * 							   ^
+	 *    _________________________|__________________________
+	 *    |						   |						 |
+	 *    |						   |+Y						 |
+ 	 *    |						   |						 |
+ 	 *    |						   |						 |
+ 	 *    |		-X				   |				+X		 |
+ 	 *  <-|------------------------|-------------------------|->
+ 	 *    |						   |						 |
+ 	 *    |						   |						 |
+ 	 *    |	Red Alliance		   |		Blue Alliance	 | 
+ 	 *    |						   |-Y						 |
+ 	 *    |________________________|_________________________|
+ 	 *    Boiler				   |					Boiler
+ 	 *                             V
+ 	 *                             
+ 	 *   @author Avery                         
+ 	 *                             
+	*/
 
 	double robotDeltaX;
 	double robotDeltaY;
@@ -34,7 +64,7 @@ static double oldX_FieldFrame;
 static double oldY_FieldFrame;
 
 static double theta;
-static double thetaStartingOffset;
+static double thetaStartingOffset = 0; //default
 
 boolean ERROR;
 
@@ -62,7 +92,7 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 {
 	double leftWheelsY = FL+BL;
 	double rightWheelsY = BR+FR;
-	double Ynet = .5*Kx*((leftWheelsY)+(rightWheelsY));
+	double Ynet = .5*Ky*((leftWheelsY)+(rightWheelsY));
 	return Ynet;
 }
 
@@ -85,7 +115,7 @@ void findDeltaMovement_RobotFrame()
 	totalBRWheelDistance = totalBRWheelDistance + backRightWheelDelta; //adds recorded delta of the Back Right wheel to update the total distance value
 }
 
-static void setStartingPostion(double X, double Y)
+static void setStartingPosition(double X, double Y)
 {
 	/*
 	 * Records the starting position and

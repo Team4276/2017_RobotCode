@@ -50,15 +50,16 @@ void limitSwitchStop()
 }
 
 void joystickToggle(){
-	Utilities.toggle(climbing);
+	
 	if(BallShooter.XBox1.getRawButton(XBox.Back)) {
 		if(previousStateButton == false)
 		{
-			//toggle();
+			climbing = Utilities.toggle(climbing);
 			previousStateButton = true;
 		}
 		else
 		{
+			
 			previousStateButton = true;
 		}
 	

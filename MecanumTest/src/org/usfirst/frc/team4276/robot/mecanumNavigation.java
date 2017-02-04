@@ -10,8 +10,8 @@ public class mecanumNavigation extends Thread implements Runnable  {
 	 * This continuously running thread receives input from the 
 	 * encoders on the robot's mecanum drive train and uses the
 	 * linear directionality transformation to solve for the delta
-	 * movement of the robot in the robot's X and Y axii. This 
-	 * thread then uses these deltas to solve for the robots 
+	 * movement of the robot in the robot's X and Y axes. This 
+	 * thread then uses these deltas to solve for the robot's 
 	 * movement in the field's coordinate system (shown below) 
 	 * using the Direction Cosine Matrix. The absolute robot 
 	 * position is then calculated with the accumulating deltas.
@@ -76,7 +76,7 @@ public mecanumNavigation(int dio1, int dio2, int dio3, int dio4, int dio5, int d
 	frontLeftWheel = new Encoder(dio1, dio2);
 	backLeftWheel = new Encoder(dio3, dio4);
 	frontRightWheel = new Encoder(dio5, dio6);
-	backRightWheel =new Encoder(dio7, dio8);
+	backRightWheel = new Encoder(dio7, dio8);
 	frontLeftWheel.setDistancePerPulse(1); //place holder
 	backLeftWheel.setDistancePerPulse(1); //place holder
 	frontRightWheel.setDistancePerPulse(1); //place holder
@@ -153,7 +153,7 @@ void findAbsoluteLocation_FieldFrame()
 	 * Qfy = -Sin*Qrx + Cos*Qry + 0*Qrz
 	 * Qfz =   0*Qrx  +  0*Qry  + 1*Qrz
 	 * 
-	 *Used (more practical) Matrix:
+	 * Used (more practical) Matrix:
 	 * 
 	 * Qfx =  Cos*Qrx + Sin*Qry
 	 * Qfy = -Sin*Qrx + Cos*Qry
@@ -162,13 +162,13 @@ void findAbsoluteLocation_FieldFrame()
 	 * Qf_ = movement in field's frame in given axis
 	 */
 	
-	double C11 = Math.cos(theta); //x solved from X
-	double C12 = Math.sin(theta); //x solved from Y
-	double C21 = -1*Math.sin(theta); //y solved from X
-	double C22 = Math.cos(theta); //y solved from Y
+	double cosine_x_RobotFrame = Math.cos(theta); //x solved from X
+	double sine_y_RobotFrame = Math.sin(theta); //x solved from Y
+	double sine_x_RobotFrame = -1*Math.sin(theta); //y solved from X
+	double cosine_y_RobotFrame = Math.cos(theta); //y solved from Y
 	
-	deltaX_FieldFrame = C11*robotDeltaX+C12*robotDeltaY;
-	deltaY_FieldFrame = C21*robotDeltaX+C22*robotDeltaY;
+	deltaX_FieldFrame = cosine_x_RobotFrame*robotDeltaX+sine_y_RobotFrame*robotDeltaY;
+	deltaY_FieldFrame = sine_x_RobotFrame*robotDeltaX+cosine_y_RobotFrame*robotDeltaY;
 	
 	currentFieldX = deltaX_FieldFrame + oldX_FieldFrame;
 	currentFieldY = deltaY_FieldFrame + oldY_FieldFrame;

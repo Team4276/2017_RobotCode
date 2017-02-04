@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Joystick;
 
 public class BallCollector {
 
-	VictorSP ballCollectorRelay;
+	VictorSP ballCollectorMotor;
 	Joystick ballCollectorJoystick;
 	
 	boolean collecting = false;
@@ -14,16 +14,17 @@ public class BallCollector {
 	
 	public BallCollector(int pwm7) {
 		
-		ballCollectorRelay = new VictorSP(pwm7);
+		ballCollectorMotor = new VictorSP(pwm7);
 		ballCollectorJoystick = new Joystick(2);
 		
 	}
 
 void joystick(){
+	Utilities.toggle(collecting);
 	if(ballCollectorJoystick.getRawButton(3)) {
 		if(previousState == false)
 		{
-			toggle();
+			//toggle();
 			previousState = true;
 		}
 		else
@@ -40,7 +41,7 @@ void joystick(){
 	
 }
 
-void toggle(){
+/*void toggle(){
 	if(collecting == true){
 		collecting = false;
 	}
@@ -50,15 +51,15 @@ void toggle(){
 		
 	
 }
-
+*/
 	void run(){
 		joystick();
 		if(collecting == true){
-			ballCollectorRelay.set(1);
+			ballCollectorMotor.set(1);
 		}
 		
 		else{
-			ballCollectorRelay.set(0);
+			ballCollectorMotor.set(0);
 		}
 		
 		SmartDashboard.putBoolean("Collector", collecting);

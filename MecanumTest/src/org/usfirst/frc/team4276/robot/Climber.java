@@ -28,7 +28,7 @@ void limitSwitchStop()
 		{
 			time1 = time.get();
 			previousStateLimit = true;
-			toggle();
+			joystickToggle();
 		}
 		else
 		{
@@ -38,22 +38,23 @@ void limitSwitchStop()
 			}
 			else
 			{
-				toggle();
+				joystickToggle();
 			}
 		}
 	}
 	else
 	{
-		toggle();
+		joystickToggle();
 	}
 	
 }
 
 void joystickToggle(){
+	Utilities.toggle(climbing);
 	if(BallShooter.XBox1.getRawButton(XBox.Back)) {
 		if(previousStateButton == false)
 		{
-			toggle();
+			//toggle();
 			previousStateButton = true;
 		}
 		else
@@ -69,7 +70,7 @@ void joystickToggle(){
 	
 	
 }
-	void toggle ()
+	/*void toggle ()
 	{
 		if(climbing == true){
 			climbing = false;
@@ -78,7 +79,7 @@ void joystickToggle(){
 			climbing = true;
 			}	
 	}
-	
+	*/
 	void run ()
 	{
 		joystickToggle();

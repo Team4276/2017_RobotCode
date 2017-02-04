@@ -50,17 +50,16 @@ void robotFrameDrive()
 	double rotation;
 	
 	
-	if (Math.abs(X)<.02||Math.abs(Y)<.02)
+	if (Math.abs(X)>.02||Math.abs(Y)>.02)
 		magnitude = Math.sqrt((X*X)+(Y*Y));
 	else
 	magnitude = 0;
 	
 	
 	if(Math.abs(X)<.02||Math.abs(Y)<.02)
-		direction = (180/Math.PI)*Math.atan2(Y, X);
+		direction = Math.toDegrees(Math.atan2(Y, X));
 	else
 		direction = 0;
-	
 	
 	if(Math.abs(Twist)>.02)
 		rotation = Twist;
@@ -212,21 +211,6 @@ void modeReadout()
 	SmartDashboard.putBoolean("Twist Test", Twisttest);
 	SmartDashboard.putBoolean("Y Test", Ytest);
 	SmartDashboard.putBoolean("X Test", Xtest);
-}
-
-boolean gearAllignment (double targetXOffset)
-{
-	double yaw = Robot.imu.getYaw();
-	double deadband = 5; //pixels
-	double k = .01;//power applied for every pixel off from center
-	double power = k*targetXOffset;
-	
-	if(Math.abs(targetXOffset) > deadband)
-	{
-		mecanumControl.mecanumDrive_Cartesian(power, 0, 0, 0);
-		return false;
-	}
-	return true;
 }
 
 }

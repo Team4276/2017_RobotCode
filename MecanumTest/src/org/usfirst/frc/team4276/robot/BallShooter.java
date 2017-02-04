@@ -73,14 +73,40 @@ void shooter()
 	assignConstants();
 	if(XBox1.getRawButton(XBox.RTrigger))
 	{
-		flyWheel(assignedPower);
 		feedingWheel.set(.5); //.5 = place holder
+		flyWheel(desiredRate);
 	}
 	else
 	{
-		flyWheel(0);
 		feedingWheel.set(0);
+		flyWheel(0);
 	}
+}
+
+static void autoShoot(){
+	double RobotXposition = mecanumNavigation.currentFieldX;
+	double RobotYposition = mecanumNavigation.currentFieldY;
+	double XRedBoiler = -27.17;//feet
+	double YRedBoiler = -13.5;//feet
+	double XBlueBoiler = 27.17;//feet
+	double YBlueBoiler = 13.5;//feet
+	double distanceToGoal = 0;//default
+	
+	if(RobotXposition > 0) //blue alliance
+	{
+		distanceToGoal = Math.sqrt(Math.pow(XBlueBoiler-RobotXposition,2) + Math.pow(YBlueBoiler-RobotYposition,2));
+	}
+	else if(RobotXposition < 0) //red alliance
+	{
+		distanceToGoal = Math.sqrt(Math.pow(XRedBoiler-RobotXposition,2) + Math.pow(YRedBoiler-RobotYposition,2));
+	}
+//distacneToGoal can be used to calculate speed of shooter	
+
+		feedingWheel.set(.5); //.5 = place holder
+		flyWheel(desiredRate);
+	
+	
+
 }
 	
 

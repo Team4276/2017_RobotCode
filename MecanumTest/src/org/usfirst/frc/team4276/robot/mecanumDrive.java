@@ -197,11 +197,149 @@ void modeReadout()
 	SmartDashboard.putBoolean("X Test", Xtest);
 }
 
-static boolean gearAllignment (double targetXOffset)
+static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal)
+{
+	boolean Xacheived = false; //default
+	boolean Yacheived = false; //default
+	boolean rotationAcheived = false; //default
+	
+	double linearDeadband = .05;//feet
+	double rotationDeadband = 5;//degrees
+	
+	double yaw = Robot.imu.getYaw();
+	double Xdiff = Xgoal - mecanumNavigation.currentFieldX;
+	double Ydiff = Ygoal - mecanumNavigation.currentFieldY;
+	double RotationDiff = RotationGoal - yaw;
+	
+	double XpowerConstant = .2; //place holder
+	double YpowerConstant = .2; // place holder
+	double rotationPowerConstant = .2; // place holder
+	
+	double Xpower = Xdiff*XpowerConstant; //
+	if (Math.abs(Xpower) > .75)
+	{
+		Xpower = .75;
+	}
+	//This if statement prevent the power in the X direction of the field from being too high
+	
+	
+	
+	
+	if( Math.abs(Xdiff) < linearDeadband )
+	{
+		Xpower = 0;
+		Xacheived = true;
+	}
+	/*if the difference between the robot's X position on the field and
+	 * the goal is less than the deadband, so if the robot is getting close
+	 * then the power in the X direction is set to 0, so that the robot stops moving
+	 * in the X direction of the field
+	 */
+	
+	
+	
+	
+	
+	double Ypower = Ydiff*YpowerConstant;
+	if (Math.abs(Ypower) > .75)
+	{
+		Ypower = .75;
+	}
+	//This if statement prevent the power in the Y direction of the field from being too high
+	
+	
+	
+	if( Math.abs(Ydiff) < linearDeadband )
+	{
+		Ypower = 0;
+		Yacheived = true;
+	}
+	/*if the difference between the robot's Y position on the field and
+	 * the goal is less than the deadband, so if the robot is getting close
+	 * then the power in the Y direction is set to 0, so that the robot stops moving
+	 * in the Y direction of the field
+	 */
+	
+	
+	double rotationPower = RotationDiff*rotationPowerConstant;
+	if (Math.abs(rotationPower) > .75)
+	{
+		rotationPower = .75;
+	}
+	/* This if statement prevent the rotational power from being too high
+	 * So that the robot won't rotate too fast
+	 */
+	
+	if( Math.abs(RotationDiff) < rotationDeadband )
+	{
+		rotationPower = 0;
+		rotationAcheived = true;
+	}
+	/*if the difference in rotation is less than the deadband, so if the robot has
+	 * less of an angle to rotate to get to its desired angle
+	 * then the rotational power is less than 0, so that the robot stops rotating
+	 */
+	
+	mecanumControl.mecanumDrive_Cartesian(Xpower, Ypower, rotationPower, yaw);
+	
+	if(Xacheived == true && Yacheived == true && rotationAcheived == true)
+	{
+	return true;
+	
+	}
+	else 
+	{
+		return false;
+	}
+}
+
+static boolean Rotation(double RotationGoal){
+	double yaw = Robot.imu.getYaw();
+	double rotationDeadband = 5;//degrees, place holder
+	double RotationDiff = RotationGoal - yaw;
+	double rotationConstant = 0.2;//place holder
+	double rotationPower = rotationConstant*RotationDiff;
+	
+	if(Math.abs(rotationPower) > 0.75){
+		rotationPower = 0.75;
+	}
+	//this if statement needs to be fixed later
+	/* This if statement prevent the rotational power from being too high
+	 * So that the robot won't rotate too fast
+	 */
+	
+	if(Math.abs(RotationDiff) < rotationDeadband){
+		rotationPower = 0;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	/*if the difference in rotation is less than the deadband, so if the robot has
+	 * less of an angle to rotate to get to its desired angle
+	 * then the rotational power is less than 0, so that the robot stops rotating
+	 */
+}
+/*
+static boolean boilerAlignment(double boilerAngleOffset)
+{
+	double rotationConstant = 0.2;
+	double rotationPower;
+	if(boilerAngleOffset > 0){
+		
+	}
+		
+	return true;
+}
+*/
+//edit later (rotation for boiler in auto)
+static boolean gearAlignment (double targetXOffset)
 {
 	double yaw = Robot.imu.getYaw();
+	//this yaw variable isn't used. Should it be deleted?
 	double deadband = 5; //pixels
-	double k = .01;//power applied for every pixel off from center
+	double k = .02;//power applied for every pixel off from center
 	double power = k*targetXOffset;
 	
 	if(Math.abs(targetXOffset) > deadband)

@@ -14,9 +14,9 @@ public class mecanumNavigation extends Thread implements Runnable  {
 	 * movement in the field's coordinate system (shown below) 
 	 * using the Direction Cosine Matrix. The absolute robot 
 	 * position is then calculated with the accumulating deltas.
-	 * 							   ^
+	 *                             ^
 	 *    _________________________|__________________________
-	 *    |						   |						 |
+	 *    |                        |						 |
 	 *    |						   |+Y						 |
  	 *    |						   |						 |
  	 *    |						   |						 |
@@ -146,14 +146,14 @@ void findAbsoluteLocation_FieldFrame()
 	 * 
 	 * Complete Matrix:
 	 * 
-	 * Qfx = ( Cos + Sin + 0)*Qrx
-	 * Qfy = (-Sin + Cos + 0)*Qry
-	 * Qfz = (  0  +  0  + 1)*Qrz
+	 * Qfx =  Cos*Qrx + Sin*Qry + 0*Qrz
+	 * Qfy = -Sin*Qrx + Cos*Qry + 0*Qrz
+	 * Qfz =   0*Qrx  +  0*Qry  + 1*Qrz
 	 * 
 	 *Used (more practical) Matrix:
 	 * 
-	 * Qfx = ( Cos + Sin)*Qrx
-	 * Qfy = (-Sin + Cos)*Qry
+	 * Qfx =  Cos*Qrx + Sin*Qry
+	 * Qfy = -Sin*Qrx + Cos*Qry
 	 * 
 	 * Qr_ = movement in robot's frame in given axis
 	 * Qf_ = movement in field's frame in given axis
@@ -164,8 +164,8 @@ void findAbsoluteLocation_FieldFrame()
 	double C21 = -1*Math.sin(theta); //y solved from X
 	double C22 = Math.cos(theta); //y solved from Y
 	
-	deltaX_FieldFrame = robotDeltaX*(C11+C12);
-	deltaY_FieldFrame = robotDeltaY*(C21+C22);
+	deltaX_FieldFrame = C11*robotDeltaX+C12*robotDeltaY;
+	deltaY_FieldFrame = C21*robotDeltaX+C22*robotDeltaY;
 	
 	currentFieldX = deltaX_FieldFrame + oldX_FieldFrame;
 	currentFieldY = deltaY_FieldFrame + oldY_FieldFrame;

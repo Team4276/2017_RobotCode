@@ -19,10 +19,10 @@ public class mecanumNavigation extends Thread implements Runnable  {
 	 * Field Coordinate System
 	 *                             ^
 	 *    _________________________|__________________________
-	 *    |                        |						 |
-	 *    |                        |+Y						 |
- 	 *    |                        |						 |
- 	 *    |                        |						 |
+	 *    |                        |                         |
+	 *    |                        |+Y                       |
+ 	 *    |                        |                         |
+ 	 *    |                        |                         |
  	 *    |     -X                 |              +X         |
  	 *  <-|------------------------|-------------------------|->
  	 *    |                        |                         |
@@ -30,7 +30,7 @@ public class mecanumNavigation extends Thread implements Runnable  {
  	 *    |	Red Alliance           |        Blue Alliance    | 
  	 *    |                        |-Y                       |
  	 *    |________________________|_________________________|
- 	 *    Boiler				   |					Boiler
+ 	 *    Boiler                   |                    Boiler
  	 *                             V
  	 *                             
  	 *   @author Avery                         

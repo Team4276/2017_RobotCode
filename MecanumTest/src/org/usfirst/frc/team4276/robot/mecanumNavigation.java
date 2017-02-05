@@ -81,6 +81,11 @@ public mecanumNavigation(int dio1, int dio2, int dio3, int dio4, int dio5, int d
 	backLeftWheel.setDistancePerPulse(1); //place holder
 	frontRightWheel.setDistancePerPulse(1); //place holder
 	backRightWheel.setDistancePerPulse(1); //place holder
+	
+	frontLeftWheel.reset();
+	backLeftWheel.reset();
+	frontRightWheel.reset();
+	backRightWheel.reset();
 }
 
 double findDeltaX_RobotFrame(double FL,double BL,double FR,double BR)
@@ -141,6 +146,14 @@ static void setStartingPosition(double X, double Y)
 	}
 }
 
+static void resetDriveEncoders()
+{
+	frontLeftWheel.reset();
+	backLeftWheel.reset();
+	frontRightWheel.reset();
+	backRightWheel.reset();
+}
+
 void findAbsoluteLocation_FieldFrame() 
 {
 	/*
@@ -186,13 +199,15 @@ public void run()
 	
 	try
 	{
-		
+		resetDriveEncoders();
 		while(true)
 		{
 		ERROR = false;
 		
 		findDeltaMovement_RobotFrame();
 		findAbsoluteLocation_FieldFrame();
+		
+		mecanumDrive.modeReadout();
 		
 		Timer.delay(.005);
 		

@@ -1,6 +1,7 @@
 package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.Timer;
@@ -12,7 +13,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 public class gearCollection {
 
 	VictorSP armRotation;
-	Relay gearIntake;
+	static Relay gearIntakeLeft;
+	static Relay gearIntakeRight;
 	DigitalInput gearIn;
 	Encoder armAngle;
 	Joystick XBox1;
@@ -20,10 +22,11 @@ public class gearCollection {
 	double noGearArmPowerConstant = .5; //place holder
 	double GearArmPowerConstant = .75; //place holder
 	
-	public gearCollection(int pwm6, int relay1, int dio14, int dio8, int dio9)
+	public gearCollection(int pwm6, int relay1, int relay2, int dio14, int dio8, int dio9)
 	{
 		armRotation = new VictorSP(pwm6);
-		gearIntake = new Relay(relay1);
+		gearIntakeLeft = new Relay(relay1);
+		gearIntakeRight = new Relay(relay2);
 		gearIn = new DigitalInput(dio14);
 		armAngle = new Encoder(dio8,dio9);
 		armAngle.setDistancePerPulse(.01); //place holder
@@ -59,14 +62,14 @@ public class gearCollection {
 	{
 		double power = 0;
 		double activePowerConstant = .008; //place holder
-		double deadband = 2; //degrees
+		double armDeadband = 2; //degrees
 		double desiredArmAngle = 0;
 		
-		if(XBox1.getRawAxis(1) > .02) //axis 1 = place holder
+		if(XBox1.getRawAxis(XBox.LStickY) > .1)
 		{
 			desiredArmAngle++;
 		}
-			else if(XBox1.getRawAxis(1) < -.02) //axis 1 = place holder
+			else if(XBox1.getRawAxis(XBox.LStickY) < -.1)
 			{
 				desiredArmAngle--;
 			}
@@ -79,10 +82,12 @@ public class gearCollection {
 		desiredArmAngle = -90;
 		}
 		
-		if(Math.abs(armAngle.getDistance() - desiredArmAngle) > deadband)
+		if(Math.abs(armAngle.getDistance() - desiredArmAngle) > armDeadband)
 		{
 			power = (desiredArmAngle - armAngle.getDistance())*activePowerConstant;
 		}
+		
+		SmartDashboard.putNumber("Arm angle:", armAngle.getDistance());
 		
 		return power;
 	}
@@ -100,33 +105,42 @@ public class gearCollection {
 	
 	void gearCollection()
 	{
-		if(XBox1.getRawButton(1) == true) // button 1 =place holder
+		if(XBox1.getRawButton(XBox.LB) == true)
 		{
 			if(gearIn.get() == true)
 			{
 				XBox1.setRumble(GenericHID.RumbleType.kLeftRumble, .5);
-				gearIntake.set(Value.kOff);
+				gearIntakeLeft.set(Value.kOff);
+				gearIntakeRight.set(Value.kOff);
 			}
 			else
 			{
-				gearIntake.set(Value.kForward);
+				gearIntakeLeft.set(Value.kForward);
+				gearIntakeRight.set(Value.kForward);
 			}
 		}
 		
-		else if(XBox1.getRawButton(2) == true) // button 2 =place holder
+		else if(XBox1.getRawButton(XBox.RB) == true)
 		{
-			gearIntake.set(Value.kReverse);
+			gearIntakeLeft.set(Value.kReverse);
+			gearIntakeRight.set(Value.kReverse);
 		}
 		
 		else
 		{
-			gearIntake.set(Value.kOff);
+			gearIntakeLeft.set(Value.kOff);
+			gearIntakeRight.set(Value.kOff);
 		}
+		
+		SmartDashboard.putBoolean("Gear Collected?", gearIn.get());
+		
 	}
-	void autoGearDeposit(double timeToRun)
+	static void autoGearDeposit(double timeToRun)
 	{
-		gearIntake.set(Value.kReverse);
+		gearIntakeLeft.set(Value.kReverse);
+		gearIntakeRight.set(Value.kReverse);
 		Timer.delay(timeToRun-.05);
-		gearIntake.set(Value.kOff);
+		gearIntakeLeft.set(Value.kOff);
+		gearIntakeRight.set(Value.kOff);
 	}
 }

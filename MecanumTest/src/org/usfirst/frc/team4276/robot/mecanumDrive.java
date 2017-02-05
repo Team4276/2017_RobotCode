@@ -18,6 +18,7 @@ public class mecanumDrive {
 	boolean Xtest;
 	boolean Ytest;
 	boolean Twisttest;
+	static String driveStatus = "initiation";
 	
 	int mode = 0;
 	
@@ -36,11 +37,7 @@ public mecanumDrive( int pwm0, int pwm1, int pwm2, int pwm3)
 void robotFrameDrive()
 {
 
-	fieldFrame = false;
-	robotFrame = true;
-	Xtest = false;
-	Ytest = false;
-	Twisttest = false;
+	driveStatus = "Driving In Robot Frame";
 	
 	double X = mecanumJoystick.getX();
 	double Y = mecanumJoystick.getY();
@@ -50,13 +47,13 @@ void robotFrameDrive()
 	double rotation;
 	
 	
-	if (Math.abs(X)<.02||Math.abs(Y)<.02)
+	if (Math.abs(X)>.02||Math.abs(Y)>.02)
 		magnitude = Math.sqrt((X*X)+(Y*Y));
 	else
 	magnitude = 0;
 	
 	
-	if(Math.abs(X)<.02||Math.abs(Y)<.02)
+	if(Math.abs(X)>.02||Math.abs(Y)>.02)
 		direction = (180/Math.PI)*Math.atan2(Y, X);
 	else
 		direction = 0;
@@ -70,7 +67,7 @@ void robotFrameDrive()
 	
 	mecanumControl.mecanumDrive_Polar(magnitude, direction, rotation);
 }
-
+/*
 void fieldFrameDrive()
 {
 	fieldFrame = true;
@@ -101,7 +98,8 @@ void fieldFrameDrive()
 		Twist= 0;
 	mecanumControl.mecanumDrive_Cartesian(X, Y, Twist, yaw);
 }
-
+*/
+/*
 void XTest()
 {
 	fieldFrame = false;
@@ -157,12 +155,12 @@ void TwistTest()
 	
 	mecanumControl.mecanumDrive_Cartesian(0, 0, Twist, 0);
 }
-
-void drive()
+*/
+void Operatordrive()
 {
 		robotFrameDrive();
 }
-
+/*
 void driveTest()
 {
 	if(mode < 3 && mecanumJoystick.getRawButton(5))
@@ -187,18 +185,17 @@ void driveTest()
 		TwistTest();
 	}
 }
-
-void modeReadout()
+*/
+static void modeReadout()
 {
-	SmartDashboard.putBoolean("Robot Frame", robotFrame);
-	SmartDashboard.putBoolean("Field Frame", fieldFrame);
-	SmartDashboard.putBoolean("Twist Test", Twisttest);
-	SmartDashboard.putBoolean("Y Test", Ytest);
-	SmartDashboard.putBoolean("X Test", Xtest);
+SmartDashboard.putString("Drive Status:", driveStatus);
 }
 
 static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal)
 {
+	
+	driveStatus = "Driving to " + Xgoal + ", " + Ygoal +" with a desired rotation of" + RotationGoal;
+	
 	boolean Xacheived = false; //default
 	boolean Yacheived = false; //default
 	boolean rotationAcheived = false; //default
@@ -293,7 +290,10 @@ static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal
 	}
 }
 
-static boolean Rotation(double RotationGoal){
+static boolean rotateToHeading(double RotationGoal){
+	
+	driveStatus = "Rotating to " + RotationGoal;
+	
 	double yaw = Robot.imu.getYaw();
 	double rotationDeadband = 5;//degrees, place holder
 	double RotationDiff = RotationGoal - yaw;
@@ -321,23 +321,32 @@ static boolean Rotation(double RotationGoal){
 	 * then the rotational power is less than 0, so that the robot stops rotating
 	 */
 }
-/*
-static boolean boilerAlignment(double boilerAngleOffset)
+
+static boolean visionBoilerAlignment(double boilerAngleOffset) //boiler to the right of center = + // boiler to the left of center = -
 {
-	double rotationConstant = 0.2;
-	double rotationPower;
-	if(boilerAngleOffset > 0){
-		
+	
+	driveStatus = "Rotating to align with Boiler";
+	
+	double rotationConstant = 0.2; //place holder
+	double rotationPower = 0; //default
+	double rotationDeadband = 10; //pixels
+	if(Math.abs(boilerAngleOffset) > rotationDeadband)
+	{
+		rotationPower = boilerAngleOffset*rotationConstant;	
 	}
-		
+	else
+	{
+		rotationPower = 0;
+	}
 	return true;
 }
-*/
+
 //edit later (rotation for boiler in auto)
-static boolean gearAlignment (double targetXOffset)
+static boolean gearAlign (double targetXOffset)
 {
-	double yaw = Robot.imu.getYaw();
-	//this yaw variable isn't used. Should it be deleted?
+	
+	driveStatus = "Aligning with gear lift";
+	
 	double deadband = 5; //pixels
 	double k = .02;//power applied for every pixel off from center
 	double power = k*targetXOffset;
@@ -347,7 +356,10 @@ static boolean gearAlignment (double targetXOffset)
 		mecanumControl.mecanumDrive_Cartesian(power, 0, 0, 0);
 		return false;
 	}
+	else
+	{
 	return true;
+	}
 }
 
 }

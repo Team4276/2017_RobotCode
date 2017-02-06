@@ -6,6 +6,7 @@ public class RouteTask {
 	public enum Operation {
 		INIT_POS, DRIVE, STRAFE_ALIGN_BOILER, STRAFE_ALIGN_GEAR, SHOOT_BOILER, PLACE_GEAR, COLLECT_FUEL, COLLECT_FUEL_STOP, COLLECT_GEAR_DEPLOY, COLLECT_GEAR_PICKUP, WAIT, STOP
 	}
+
 	public enum ReturnValue {
 		SUCCESS, FAILED
 	}
@@ -14,38 +15,37 @@ public class RouteTask {
 	public RobotPosition endPos = new RobotPosition(0.0, 0.0, 0.0);
 	public long delayMillisecs = 0;
 
-
 	public RouteTask(Operation oper, int param) {
 		op = oper;
 		delayMillisecs = param;
 	}
-	
+
 	public RouteTask(Operation oper) {
 	}
-	
+
 	public RouteTask(Operation oper, RobotPosition pos) {
 		op = oper;
-		
+
 		endPos.posX = pos.posX;
 		endPos.posY = pos.posY;
 		endPos.hdg = pos.hdg;
 	}
-	
+
 	public String displayText() {
 		String sRet = opToText(op);
-		if(op == Operation.DRIVE) {
+		if (op == Operation.DRIVE) {
 			sRet += " to " + endPos.displayText();
 		} else if (op == Operation.WAIT) {
 			sRet += " ";
-		    sRet += delayMillisecs;
-		    sRet += " ms.";
+			sRet += delayMillisecs;
+			sRet += " ms.";
 		}
 		return sRet;
 	}
 
 	public ReturnValue exec() {
 		SmartDashboard.putString("Auto Status", displayText());
-		
+
 		switch (op) {
 		case INIT_POS:
 			// TODO:
@@ -104,7 +104,7 @@ public class RouteTask {
 		}
 		return ReturnValue.FAILED;
 	}
-	
+
 	public static final String opToText(Operation opr) {
 		switch (opr) {
 		case INIT_POS:
@@ -141,7 +141,7 @@ public class RouteTask {
 			return "STOP";
 
 		case WAIT:
-			return "WAIT";   // first arg is milliseconds to wait
+			return "WAIT"; // first arg is milliseconds to wait
 
 		default:
 			break;

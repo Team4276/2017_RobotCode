@@ -120,7 +120,7 @@ public class Robot extends SampleRobot {
 			// SmartDashboard.putNumber("X", driveJoy.getX());
 			// SmartDashboard.putNumber("Twist", driveJoy.getTwist());
 
-			driveSystem.drive();
+			//driveSystem.drive();
 			driveSystem.modeReadout();
 			Timer.delay(.05);
 		}
@@ -132,9 +132,9 @@ public class Robot extends SampleRobot {
 	 * Runs during test mode
 	 */
 	public void test() {
-		driveSystem.YTest();
-		driveSystem.XTest();
-		driveSystem.TwistTest();
+		//driveSystem.YTest();
+		//driveSystem.XTest();
+		//driveSystem.TwistTest();
 
 	}
 }

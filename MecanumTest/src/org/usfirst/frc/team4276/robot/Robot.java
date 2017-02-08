@@ -43,11 +43,11 @@ public class Robot extends SampleRobot {
 	// Boiler LIDAR (with GRIP camera on turntable #1)
 	static LIDAR boilerLidar;
 	static LidarSpin turntable1;
-	
-	// TODO:  Verify can set this from the driver station. 
+
+	// TODO: Verify can set this from the driver station.
 	//        Want to disable scanning in the pit (or anywhere else there is no vision target)
 	//        But need a way to turn it on from the DS in case forgot to turn it back on before the match starts
-	static Boolean isBoilerTrackerEnabled = false; 
+	static Boolean isBoilerTrackerEnabled = false;
 
 	// Autonomous Route Plans
 	// TODO: Use Joystick button controls to select the auto route to be used
@@ -61,14 +61,14 @@ public class Robot extends SampleRobot {
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
-		
+
 		boilerTracker = new BoilerTracker();
 		boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
 
 		int relay = 2;
-		int dioEnc_A = 2;
-		int dioEnc_B = 3;
-		turntable1 = new LidarSpin(relay, dioEnc_A, dioEnc_B);
+		int dio11 = 11;
+		int dio12 = 12;
+		turntable1 = new LidarSpin(relay, dio11, dio12);
 
 		planList = new RoutePlanList();
 		planForThisMatch = planList.get(autoPlanSelection);

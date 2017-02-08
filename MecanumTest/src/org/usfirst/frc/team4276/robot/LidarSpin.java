@@ -32,10 +32,10 @@ public class LidarSpin {
 		
 		public double desiredEncoderAngle = 0.0;
 
-		EncoderWithNotify(int dio1, int dio2) {
-			super(dio1, dio2);
+		EncoderWithNotify(int enc_A, int enc_B) {
+			super(enc_A, enc_B);
 
-			DigitalInput interrupt = new DigitalInput(dio1);
+			DigitalInput interrupt = new DigitalInput(enc_A);
 
 			// Register an interrupt handler
 			interrupt.requestInterrupts(new InterruptHandlerFunction<Object>() {
@@ -70,7 +70,7 @@ public class LidarSpin {
 		spinMode = SpinMode.IDLE;
 		spinner = new Relay(rlay);
 		spinner.setDirection(Relay.Direction.kBoth);
-		enc1 = new EncoderWithNotify(2, 3);
+		enc1 = new EncoderWithNotify(enc_A, enc_B);
 		enc1.reset();
 		enc1.setDistancePerPulse(0.724346);
 	}

@@ -29,21 +29,23 @@ public class LidarSpin {
 	Relay spinner;
 
 	class EncoderWithNotify extends Encoder {
-		
+
 		public double desiredEncoderAngle = 0.0;
 
 		EncoderWithNotify(int enc_A, int enc_B) {
-			super(enc_A, enc_B);
-
-			DigitalInput interrupt = new DigitalInput(enc_A);
+			super(enc_A, enc_B, false);
+			
+			SmartDashboard.putString("debug", "enc_A, enc_B " + enc_A + "    " + enc_B);
 
 			// Register an interrupt handler
-			interrupt.requestInterrupts(new InterruptHandlerFunction<Object>() {
+			m_aSource.requestInterrupts(new InterruptHandlerFunction<Object>() {
 
 				@Override
 				public void interruptFired(int interruptAssertedMask, Object param) {
-					// When the scan motor is on this interrupt happens about 60 times as often as the vision update
-					// We start scanning less often, (based on vision), and use this function to stop as soon 
+					// When the scan motor is on this interrupt happens about 60
+					// times as often as the vision update
+					// We start scanning less often, (based on vision), and use
+					// this function to stop as soon
 					// as the encoder count passes the desired angle
 					boolean prevDirection = direction;
 					yawOffsetDegrees = enc1.getDistance() - 180;
@@ -52,15 +54,15 @@ public class LidarSpin {
 					} else {
 						direction = false;
 					}
-					if(direction != prevDirection) {
-						spinner.set(Relay.Value.kOff);						
+					if (direction != prevDirection) {
+						spinner.set(Relay.Value.kOff);
 					}
 				}
 			});
 			// Listen for a falling edge
-			interrupt.setUpSourceEdge(false, true);
+			m_aSource.setUpSourceEdge(false, true);
 			// Enable digital interrupt pin
-			interrupt.enableInterrupts();
+			m_aSource.enableInterrupts();
 		}
 	}
 

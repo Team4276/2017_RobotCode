@@ -31,12 +31,12 @@ public class BallShooter {
 	static double proportionalErrorLast;
 	static Timer shooterTimer;
 	
-	public BallShooter(int pwm4,int pwm5, int dio10){
+	public BallShooter(int pwm4,int pwm5, int dio15){
 		XBox1 = new Joystick(3);
 		testJoy = new Joystick(1);
 		shooterWheel = new VictorSP(pwm4);
 		feedingWheel = new VictorSP(pwm5);
-		shooterEncoder = new Counter(dio10); //place holder for geartooth encoder
+		shooterEncoder = new Counter(dio15); //place holder for geartooth encoder
 		shooterEncoder.setDistancePerPulse(1/12); //rpm
 	}
 void assignConstants()

@@ -5,6 +5,12 @@ public class RobotPosition {
 	public double posY;
 	public double hdg;
 
+	RobotPosition() {
+		posX = 0.0;
+		posY = 0.0;
+		hdg = 0.0;
+	}
+
 	RobotPosition(double Xpos, double Ypos, double heading) {
 		posX = Xpos;
 		posY = Ypos;

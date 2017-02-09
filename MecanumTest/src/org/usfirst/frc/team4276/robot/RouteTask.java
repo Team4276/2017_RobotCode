@@ -4,15 +4,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RouteTask {
 	public enum Operation {
-		INIT_POS, DRIVE, STRAFE_ALIGN_BOILER, STRAFE_ALIGN_GEAR, SHOOT_BOILER, PLACE_GEAR, COLLECT_FUEL, COLLECT_FUEL_STOP, COLLECT_GEAR_DEPLOY, COLLECT_GEAR_PICKUP, WAIT, STOP
+		STOP, WAIT, DRIVE, STRAFE_ALIGN_BOILER, SHOOT_BOILER, PLACE_GEAR, COLLECT_FUEL, COLLECT_FUEL_STOP, COLLECT_GEAR_DEPLOY, COLLECT_GEAR_PICKUP
+	}
+
+	public enum DrivingSpeed {
+		STOPPED, SLOW_SPEED, SLOWER_SPEED, FULL_SPEED
 	}
 
 	public enum ReturnValue {
 		SUCCESS, FAILED
 	}
 
-	public Operation op = Operation.INIT_POS;
-	public RobotPosition endPos = new RobotPosition(0.0, 0.0, 0.0);
+	public Operation op = Operation.STOP;
+	public RobotPositionPolar endPos = new RobotPositionPolar(true, 0.0, 0.0, 0.0);
 	public long delayMillisecs = 0;
 
 	public RouteTask(Operation oper, int param) {
@@ -23,12 +27,13 @@ public class RouteTask {
 	public RouteTask(Operation oper) {
 	}
 
-	public RouteTask(Operation oper, RobotPosition pos) {
+	public RouteTask(Operation oper, RobotPositionPolar pos) {
 		op = oper;
 
-		endPos.posX = pos.posX;
-		endPos.posY = pos.posY;
-		endPos.hdg = pos.hdg;
+		endPos.isBlueBoiler = pos.isBlueBoiler;
+		endPos.radius = pos.radius;
+		endPos.hdgToBoiler = pos.hdgToBoiler;
+		endPos.yawOffsetRobot = pos.yawOffsetRobot;
 	}
 
 	public String displayText() {
@@ -47,19 +52,24 @@ public class RouteTask {
 		SmartDashboard.putString("Auto Status", displayText());
 
 		switch (op) {
-		case INIT_POS:
+		case STOP:
 			// TODO:
+			// All motors except for vision system off, including drive, collectors, gear collector, etc.
 			return ReturnValue.FAILED;
 
+		case WAIT:
+			try {
+				Thread.sleep(delayMillisecs);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return ReturnValue.SUCCESS;
+
 		case DRIVE:
-			// TODO:
+			// TODO:  
 			return ReturnValue.FAILED;
 
 		case STRAFE_ALIGN_BOILER:
-			// TODO:
-			return ReturnValue.FAILED;
-
-		case STRAFE_ALIGN_GEAR:
 			// TODO:
 			return ReturnValue.FAILED;
 
@@ -87,18 +97,6 @@ public class RouteTask {
 			// TODO:
 			return ReturnValue.FAILED;
 
-		case STOP:
-			// TODO:
-			return ReturnValue.FAILED;
-
-		case WAIT:
-			try {
-				Thread.sleep(delayMillisecs);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			return ReturnValue.SUCCESS;
-
 		default:
 			break;
 		}
@@ -107,17 +105,17 @@ public class RouteTask {
 
 	public static final String opToText(Operation opr) {
 		switch (opr) {
-		case INIT_POS:
-			return "INIT_POS";
+		case STOP:
+			return "STOP";
+
+		case WAIT:
+			return "WAIT"; // first arg is milliseconds to wait
 
 		case DRIVE:
 			return "DRIVE";
 
 		case STRAFE_ALIGN_BOILER:
 			return "STRAFE_ALIGN_BOILER";
-
-		case STRAFE_ALIGN_GEAR:
-			return "STRAFE_ALIGN_GEAR";
 
 		case SHOOT_BOILER:
 			return "SHOOT_BOILER";
@@ -136,12 +134,6 @@ public class RouteTask {
 
 		case COLLECT_GEAR_PICKUP:
 			return "COLLECT_GEAR_PICKUP";
-
-		case STOP:
-			return "STOP";
-
-		case WAIT:
-			return "WAIT"; // first arg is milliseconds to wait
 
 		default:
 			break;

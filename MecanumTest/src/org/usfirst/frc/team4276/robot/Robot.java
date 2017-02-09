@@ -3,11 +3,12 @@ package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
 
+import org.usfirst.frc.team4276.robot.RouteTask.DrivingSpeed;
+import org.usfirst.frc.team4276.robot.RouteTask.Operation;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.usfirst.frc.team4276.robot.RoutePlan.AllianceColor;
 
 import edu.wpi.first.wpilibj.I2C.Port;
 
@@ -32,8 +33,8 @@ public class Robot extends SampleRobot {
 
 	static ADIS16448_IMU imu;
 
-	static Boolean isValidCurrentRobotFieldPosition = false;
-	static RobotPosition currentRobotFieldPosition;
+	static boolean isValidCurrentRobotFieldPosition = false;
+	static RobotPositionPolar currentRobotFieldPosition;
 
 	static BoilerTracker boilerTracker;
 
@@ -47,7 +48,7 @@ public class Robot extends SampleRobot {
 	// TODO: Verify can set this from the driver station.
 	//        Want to disable scanning in the pit (or anywhere else there is no vision target)
 	//        But need a way to turn it on from the DS in case forgot to turn it back on before the match starts
-	static Boolean isBoilerTrackerEnabled = false;
+	static boolean isBoilerTrackerEnabled = false;
 
 	// Autonomous Route Plans
 	// TODO: Use Joystick button controls to select the auto route to be used
@@ -69,6 +70,11 @@ public class Robot extends SampleRobot {
 		int dio11 = 11;
 		int dio12 = 12;
 		turntable1 = new LidarSpin(relay, dio11, dio12);
+		// Scan limits -140 to +230 for competition  
+		//     0.0 is straight ahead robot frame.  Want to avoid extended operation with the 
+		//     back of the turntable pointed at the boiler, (small variance in robot heading 
+		//     would cause the scanner to have to switch sides).  
+		turntable1.setScanLimits(-45, 45);   // TMP TMP TMP  for prototype testing
 
 		planList = new RoutePlanList();
 		planForThisMatch = planList.get(autoPlanSelection);
@@ -89,13 +95,13 @@ public class Robot extends SampleRobot {
 	public void autonomous() {
 		turntable1.spinMode = LidarSpin.SpinMode.SCAN;
 
-		if (planForThisMatch.allianceColor == AllianceColor.BLUE) {
-			imu.resetYawOffsetToFieldFrame(0.0);
-		} else {
+		if (Robot.currentRobotFieldPosition.isBlueBoiler) {
 			imu.resetYawOffsetToFieldFrame(180.0);
+		} else {
+			imu.resetYawOffsetToFieldFrame(0.0);
 		}
 
-		Boolean isError = false;
+		boolean isError = false;
 		for (int i = 0; i < planForThisMatch.size(); i++) {
 			RouteTask.ReturnValue retVal = planForThisMatch.get(i).exec();
 			if (retVal != RouteTask.ReturnValue.SUCCESS) {

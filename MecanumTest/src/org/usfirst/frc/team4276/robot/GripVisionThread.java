@@ -20,13 +20,12 @@ public class GripVisionThread {
 	// GRIP vision camera
 	private static final int GRIPCAM_IMG_WIDTH = 320;
 	private static final int GRIPCAM_IMG_HEIGHT = 240;
-	private static final int GRIPCAM_CENTER_X = 160;
 	private static final int GRIPCAM_FOV_DEGREES = 30;
 
 	private VisionThread visionThread;
 	private final Object imgLock = new Object();
 
-	public static Boolean isValidGripCameraCenterX = false;
+	public static boolean isValidGripCameraCenterX = false;
 	public static double gripCameraCenterX = 0.0;
 
 	public GripVisionThread() {

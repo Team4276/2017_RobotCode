@@ -4,16 +4,11 @@ import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class RoutePlan extends ArrayList<RouteTask> {
-	public enum AllianceColor {
-		UNKNOWN, BLUE, RED
-	}
 
 	public String name;
-	public AllianceColor allianceColor;
 
-	RoutePlan(String planName, AllianceColor col) {
+	RoutePlan(String planName) {
 		name = planName;
-		allianceColor = col;
 	}
 
 	public String displayText() {

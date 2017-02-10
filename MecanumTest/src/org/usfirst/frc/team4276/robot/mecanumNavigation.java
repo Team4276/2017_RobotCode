@@ -71,12 +71,12 @@ static double thetaStartingOffset = 0; //default
 
 boolean ERROR;
 
-public mecanumNavigation(int dio1, int dio2, int dio3, int dio4, int dio5, int dio6, int dio7, int dio8)
+public mecanumNavigation(int dio0, int dio1, int dio2, int dio3, int dio4, int dio5, int dio6, int dio7)
 {
-	frontLeftWheel = new Encoder(dio1, dio2);
-	backLeftWheel = new Encoder(dio3, dio4);
-	frontRightWheel = new Encoder(dio5, dio6);
-	backRightWheel = new Encoder(dio7, dio8);
+	frontLeftWheel = new Encoder(dio0, dio1);
+	backLeftWheel = new Encoder(dio2, dio3);
+	frontRightWheel = new Encoder(dio4, dio5);
+	backRightWheel = new Encoder(dio6, dio7);
 	frontLeftWheel.setDistancePerPulse(1); //place holder
 	backLeftWheel.setDistancePerPulse(1); //place holder
 	frontRightWheel.setDistancePerPulse(1); //place holder

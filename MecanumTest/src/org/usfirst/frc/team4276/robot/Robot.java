@@ -58,13 +58,18 @@ public class Robot extends SampleRobot {
 	static RoutePlan planForThisMatch;
 
 	mecanumDrive driveSystem;
+	static Timer systemTimer;
 	Joystick driveJoy;
-
+	static Joystick XBoxController;
+	static Joystick logitechJoystick;
+ 
 	public Robot() {
 		imu = new ADIS16448_IMU();
 
 		boilerTracker = new BoilerTracker();
 		boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
+		XBoxController = new Joystick(3);
+		logitechJoystick = new Joystick(0);
 
 		int relay = 2;
 		int dio11 = 11;

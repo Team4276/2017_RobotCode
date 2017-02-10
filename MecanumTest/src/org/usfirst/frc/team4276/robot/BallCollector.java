@@ -1,69 +1,32 @@
 package org.usfirst.frc.team4276.robot;
+
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Joystick;
 
 public class BallCollector {
 
-	VictorSP ballCollectorMotor;
-	Joystick ballCollectorJoystick;
-	
-	boolean collecting = false;
-	boolean previousState = false;
-	
-	
+	static final double COLLECTOR_SPEED = 1.0; // -1.0 to 1.0
+
+	VictorSP ballCollector;
+
+	Toggler collectorToggler;
+
 	public BallCollector(int pwm7) {
-		
-		ballCollectorMotor = new VictorSP(pwm7);
-		ballCollectorJoystick = new Joystick(2);
-		
+		ballCollector = new VictorSP(pwm7);
+		collectorToggler = new Toggler(XBox.RB);
 	}
 
-void joystick(){
-	Utilities.toggle(collecting);
-	if(ballCollectorJoystick.getRawButton(3)) {
-		if(previousState == false)
-		{
-			//toggle();
-			previousState = true;
-		}
-		else
-		{
-			previousState = true;
-		}
-	
-	}
-	else
-	{
-		previousState = false;
-	}
-	
-	
-}
+	void performMainProcessing() {
+		collectorToggler.updateMechanismState();
 
-/*void toggle(){
-	if(collecting == true){
-		collecting = false;
+		if (collectorToggler.getMechanismState()) {
+			ballCollector.set(COLLECTOR_SPEED);
+		} else {
+			ballCollector.set(0.0);
+		}
+
+		// SmartDashboard.putBoolean("Collector", collecting);
+
 	}
-	else{
-		collecting = true;
-		}
-		
-	
-}
-*/
-	void run(){
-		joystick();
-		if(collecting == true){
-			ballCollectorMotor.set(1);
-		}
-		
-		else{
-			ballCollectorMotor.set(0);
-		}
-		
-		SmartDashboard.putBoolean("Collector", collecting);
-		
-		}
-	
+
 }

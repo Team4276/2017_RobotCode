@@ -1,75 +1,113 @@
 package org.usfirst.frc.team4276.robot;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.InterruptHandlerFunction;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class LidarSpin {
 
-	private static final int LIDAR_SCAN_MIN_DEGREES = -190;
-	private static final int LIDAR_SCAN_MAX_DEGREES = 190;
+	// We may want to navigate radially away from the boiler and if we drive
+	// directly away robot frame 180.0 will be right at the boiler so a small
+	// change in course would require the scanner to change sides
+	// We need a hard stop at this limit for initial calibration of encoder with robot frame
+	// (A limit switch would be better if we can find a DIO)
+	private static final double LIDAR_SCAN_MIN_DEGREES = -134.9;
+	private static final double LIDAR_SCAN_MAX_DEGREES = 224.9;
 
 	private static final double LIDAR_FIXED_DEADZONE_DEGREES = 1.0;
 
 	private double minScanDegrees = LIDAR_SCAN_MIN_DEGREES;
 	private double maxScanDegrees = LIDAR_SCAN_MAX_DEGREES;
 
+	// Destination angle for interrupt processing
+	private double desiredEncoderYaw = 0.0;
+
+	private EncoderWithNotify enc1;
+	private Relay spinner;
+
 	public enum SpinMode {
 		IDLE, SCAN, FIXED_OFFSET_FROM_YAW
 	}
 
-	public SpinMode spinMode = SpinMode.IDLE;
+	public String spinModeToText(LidarSpin.SpinMode val) {
+		switch (val) {
+		case IDLE:
+			return "IDLE";
 
-	boolean direction = true; // true = clockwise || false = counterclockwise
-	public double yawOffsetDegrees = 0.0; // Current encoder angle expressed as
-											// an offset from straight ahead
-											// robot frame
-	public double desiredYawOffsetDegrees = 0.0; // Angle to boiler vision
-													// target, from
-													// BoilerTracker
+		case SCAN:
+			return "SCAN";
 
-	Relay spinner;
+		case FIXED_OFFSET_FROM_YAW:
+			return "FIXED_OFFSET_FROM_YAW";
 
-	class EncoderWithNotify extends Encoder {
-
-		public double desiredEncoderAngle = 0.0;
-
-		EncoderWithNotify(int enc_A, int enc_B) {
-			super(enc_A, enc_B, false);
-
-			SmartDashboard.putString("debug", "enc_A, enc_B " + enc_A + "    " + enc_B);
-
-			// Register an interrupt handler
-			m_aSource.requestInterrupts(new InterruptHandlerFunction<Object>() {
-
-				@Override
-				public void interruptFired(int interruptAssertedMask, Object param) {
-					// When the scan motor is turning this interrupt happens
-					// about 60 times as often as the vision update
-					// We begin scanning less often, (based on vision),
-					// and use this function to stop as soon as the
-					// encoder count passes the desired angle
-					boolean prevDirection = direction;
-					yawOffsetDegrees = enc1.getDistance() - 180;
-					if (yawOffsetDegrees < desiredEncoderAngle) {
-						direction = true;
-					} else {
-						direction = false;
-					}
-					if (direction != prevDirection) {
-						spinner.set(Relay.Value.kOff);
-					}
-				}
-			});
-			// Listen for a falling edge
-			m_aSource.setUpSourceEdge(false, true);
-			// Enable digital interrupt pin
-			m_aSource.enableInterrupts();
+		default:
+			break;
 		}
+		return "???";
 	}
 
-	EncoderWithNotify enc1;
+	public SpinMode spinMode = SpinMode.IDLE;
+
+	
+	// We need to calibrate the encoder to robot frame, but we don't have a
+	// DIO to dedicate for a calibration limit switch.
+	// We therefore rely on the vision system to find the boiler so we can
+	// set the encoder to a known +90 or -90 relative to robot frame
+	// depending on blue or red alliance.
+	//
+	// The underlying Encoder class only allows us to reset the encoder to zero, 
+	// So we need to keep track of the offset between zero on the encoder and robot frame
+	// and use it to provide a turntable angle in robot frame	
+	public static double yawOffsetTurntableToRobotFrame = 0.0;
+
+	public void resetEncoderAtOffsetDegrees(double deg) {
+		enc1.reset();
+		yawOffsetTurntableToRobotFrame = deg;
+	}
+	
+	// Current encoder angle expressed as an offset from straight ahead robot
+	// frame
+	public double encoderYawDegrees() {
+		double retVal =  enc1.getDistance() + minScanDegrees + yawOffsetTurntableToRobotFrame;
+		if(retVal > 180.0) {
+			retVal -= 360.0;
+		}
+		return retVal;
+	}
+
+	// Input from Vision System: Desired yaw offset from robot frame
+	public void setDesiredEncoderYawDegrees(double val) {
+		// First get the current encoder value shifted to range MIN to MAX
+		double myVal = enc1.getDistance() + LIDAR_SCAN_MIN_DEGREES;  
+		
+		// Add desired offset 
+		myVal += (val % 360.0);
+		
+		// Make sure the value still falls into the MIN to MAX range
+		if (myVal < LIDAR_SCAN_MIN_DEGREES) {
+			myVal += 360.0;
+		}
+		else if (myVal > LIDAR_SCAN_MAX_DEGREES) {
+			myVal -= 360.0;
+		}
+		
+		// Apply scan limit
+		if(myVal < minScanDegrees)	{
+			myVal = minScanDegrees;
+		}
+		if(myVal > maxScanDegrees)	{
+			myVal = maxScanDegrees;
+		}
+		
+		desiredEncoderYaw = myVal;
+		SmartDashboard.putNumber("desiredEncoderYaw", desiredEncoderYaw);
+	}
+
+	public double desiredEncoderYawDegrees() {
+		return desiredEncoderYaw;
+	}
+
+	// true = clockwise || false = counterclockwise
+	boolean direction = true;
 
 	public LidarSpin(int rlay, int enc_A, int enc_B) {
 		spinMode = SpinMode.IDLE;
@@ -87,17 +125,21 @@ public class LidarSpin {
 			myMin = LIDAR_SCAN_MIN_DEGREES;
 		}
 		if (myMin >= 0.0) {
-			myMin = -1.0; // Change direction requires min angle less than zero
+			myMin = -1.0; // Change direction requires min scan angle < zero
 		}
-		if (myMax < LIDAR_SCAN_MAX_DEGREES) {
+		if (myMax > LIDAR_SCAN_MAX_DEGREES) {
 			myMax = LIDAR_SCAN_MAX_DEGREES;
+		}
+		if (myMax < 0.0) {
+			myMax = 1.0; // Change direction requires max scan angle > 0
 		}
 		minScanDegrees = myMin;
 		maxScanDegrees = myMax;
+		SmartDashboard.putString("debug", "scan limits = " + minScanDegrees + "    " + maxScanDegrees);
 	}
 
 	public double getTurntableAngle() {
-		return enc1.getDistance() - 180;
+		return enc1.getDistance() + minScanDegrees;
 	}
 
 	public double getMinScanDegrees() {
@@ -108,46 +150,70 @@ public class LidarSpin {
 		return maxScanDegrees;
 	}
 
+	public void encoderUpdate() {
+		// When the scan motor is turning this interrupt happens
+		// about 60 times as often as the vision update
+		// We begin scanning less often, (based on vision),
+		// and use this function to stop as soon as the
+		// encoder count passes the desired angle
+
+		boolean prevDirection = direction;
+
+		if (encoderYawDegrees() < desiredEncoderYaw) {
+			direction = true;
+		} else {
+			direction = false;
+		}
+		if (direction != prevDirection) {
+			spinner.set(Relay.Value.kOff);
+			SmartDashboard.putString("spinner", "Interrupt Off");
+		}
+		SmartDashboard.putString("debug", "enc interrupt, new yaw = " + encoderYawDegrees());
+	}
+
 	void spinnerex() {
 		// This is called once per vision camera frame, after the BoilerTracker
 		// has updated the desired turntable angle
-		yawOffsetDegrees = enc1.getDistance() - 180;
-		SmartDashboard.putNumber("Robot Frame Turntable Angle", yawOffsetDegrees);
+		double myEncoderYaw = encoderYawDegrees();
+		SmartDashboard.putNumber("encoderYawDegrees", myEncoderYaw);
 
 		if (spinMode == SpinMode.IDLE) {
 			spinner.set(Relay.Value.kOff);
+			SmartDashboard.putString("spinner", "IDLE Off");
 
 		} else if (spinMode == SpinMode.SCAN) {
-			if (yawOffsetDegrees < 0) {
-				if (yawOffsetDegrees < minScanDegrees) {
-					direction = true;
-				}
+			if (myEncoderYaw < minScanDegrees) {
+				direction = true;
+				desiredEncoderYaw = maxScanDegrees;
 			}
-			if (yawOffsetDegrees > 0) {
-				if (yawOffsetDegrees > maxScanDegrees) {
-					direction = false;
-				}
+			else if (myEncoderYaw > maxScanDegrees) {
+				direction = false;
+				desiredEncoderYaw = minScanDegrees;
 			}
 			if (direction) {
 				spinner.set(Relay.Value.kForward);
+				SmartDashboard.putString("spinner", "SCAN FWD");
 			} else {
 				spinner.set(Relay.Value.kReverse);
+				SmartDashboard.putString("spinner", "SCAN REV");
 			}
 
 		} else if (spinMode == SpinMode.FIXED_OFFSET_FROM_YAW) {
-			enc1.desiredEncoderAngle = Robot.imu.getYaw() + desiredYawOffsetDegrees;
-			if (Math.abs(yawOffsetDegrees - enc1.desiredEncoderAngle) < LIDAR_FIXED_DEADZONE_DEGREES) {
+			if (Math.abs(myEncoderYaw - desiredEncoderYaw) < LIDAR_FIXED_DEADZONE_DEGREES) {
 				spinner.set(Relay.Value.kOff);
+				SmartDashboard.putString("spinner", "FIX Off");
 			} else {
-				if (yawOffsetDegrees < enc1.desiredEncoderAngle) {
+				if (myEncoderYaw < desiredEncoderYaw) {
 					direction = true;
 				} else {
 					direction = false;
 				}
 				if (direction) {
 					spinner.set(Relay.Value.kForward);
+					SmartDashboard.putString("spinner", "FIX FWD");
 				} else {
 					spinner.set(Relay.Value.kReverse);
+					SmartDashboard.putString("spinner", "FIX FWD");
 				}
 			}
 		}

@@ -43,7 +43,7 @@ public class GripVisionThread {
 					gripCameraCenterX = rLargest.x + (rLargest.width / 2);
 					SmartDashboard.putNumber("gripCameraCenterX_000", gripCameraCenterX);
 
-					isValidGripCameraCenterX = true;
+					isValidGripCameraCenterX = false;  // TMP TMP TMP true;
 
 					Mat frm = GripPipeline.blurInput;
 					Scalar colorGreen = new Scalar(0, 255, 0);

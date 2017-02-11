@@ -121,17 +121,6 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
   private double m_roll = 0.0;
   private double m_pitch = 0.0;
 
-  // Field frame yaw offset - m_yaw deltas are added to produce an estimate of
-  // offset from m_yaw to the field frame
-  public double m_yawOffsetToFieldFrame = 0.0;
-
-  // Reset to 0.0 (if red), or 180.0 (if blue) at start of match
-  // Reset to other known offsets when possible, like when flat against the
-  // base of the boiler
-  public void resetYawOffsetToFieldFrame(double val) {
-	m_yawOffsetToFieldFrame = val;
-  }
-
   private AtomicBoolean m_freed = new AtomicBoolean(false);
 
   private SPI m_spi;

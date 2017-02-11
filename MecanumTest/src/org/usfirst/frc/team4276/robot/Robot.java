@@ -3,9 +3,6 @@ package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
 
-import org.usfirst.frc.team4276.robot.RouteTask.DrivingSpeed;
-import org.usfirst.frc.team4276.robot.RouteTask.Operation;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,21 +30,36 @@ public class Robot extends SampleRobot {
 
 	static ADIS16448_IMU imu;
 
+	// Boiler LIDAR (with GRIP camera on turntable #1)
+	static LIDAR boilerLidar;
+	static LidarSpin turntable1;
+
+	// yawOffsetToFieldFrame is set at start of autonomous when the robot heading is either 0.0 or 180.0
+	// Get Field north reference by adding this to imu.getYaw()
+	//
+	// This loses accuracy over the course of the game, but should be very
+	// reliable during autonomous.
+	// 
+	// It is still pretty good in teleop because the errors affect only the polar
+	// angle, not the LIDAR range that is continually measured by the vision
+	// system. Therefore drive toward an increasingly sloppy range on an arc,
+	// but once found you can slide precisely down the arc to the destination.
+	static boolean isValidYawOffsetToFieldFrame = false;
+	static double yawOffsetToFieldFrame = 0.0;
+	
 	static boolean isValidCurrentRobotFieldPosition = false;
 	static RobotPositionPolar currentRobotFieldPosition;
-
+	
 	static BoilerTracker boilerTracker;
 
 	// GRIP vision camera
 	static GripVisionThread gripVisionThread;
 
-	// Boiler LIDAR (with GRIP camera on turntable #1)
-	static LIDAR boilerLidar;
-	static LidarSpin turntable1;
-
 	// TODO: Verify can set this from the driver station.
-	//        Want to disable scanning in the pit (or anywhere else there is no vision target)
-	//        But need a way to turn it on from the DS in case forgot to turn it back on before the match starts
+	// Want to disable scanning in the pit (or anywhere else there is no vision
+	// target)
+	// But need a way to turn it on from the DS in case forgot to turn it back
+	// on before the match starts
 	static boolean isBoilerTrackerEnabled = false;
 
 	// Autonomous Route Plans
@@ -62,7 +74,7 @@ public class Robot extends SampleRobot {
 	Joystick driveJoy;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
- 
+
 	public Robot() {
 		imu = new ADIS16448_IMU();
 
@@ -75,11 +87,13 @@ public class Robot extends SampleRobot {
 		int dio11 = 11;
 		int dio12 = 12;
 		turntable1 = new LidarSpin(relay, dio11, dio12);
-		// Scan limits -140 to +230 for competition  
-		//     0.0 is straight ahead robot frame.  Want to avoid extended operation with the 
-		//     back of the turntable pointed at the boiler, (small variance in robot heading 
-		//     would cause the scanner to have to switch sides).  
-		turntable1.setScanLimits(-45, 45);   // TMP TMP TMP  for prototype testing
+		// Scan limits -140 to +230 for competition
+		// 0.0 is straight ahead robot frame. Want to avoid extended operation
+		// with the
+		// back of the turntable pointed at the boiler, (small variance in robot
+		// heading
+		// would cause the scanner to have to switch sides).
+		turntable1.setScanLimits(-45, 45); // TMP TMP TMP for prototype testing
 
 		planList = new RoutePlanList();
 		planForThisMatch = planList.get(autoPlanSelection);
@@ -94,17 +108,28 @@ public class Robot extends SampleRobot {
 		driveSystem = new mecanumDrive(0, 1, 8, 9);
 	}
 
-	/**
-	 * Drive left & right motors for 2 seconds then stop
-	 */
 	public void autonomous() {
-		turntable1.spinMode = LidarSpin.SpinMode.SCAN;
-
-		if (Robot.currentRobotFieldPosition.isBlueBoiler) {
-			imu.resetYawOffsetToFieldFrame(180.0);
-		} else {
-			imu.resetYawOffsetToFieldFrame(0.0);
+		isValidYawOffsetToFieldFrame = false;
+		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
+		if (isValidCurrentRobotFieldPosition) {
+			if (currentRobotFieldPosition.isBlueBoiler) {
+				yawOffsetToFieldFrame += 180.0;
+				if (yawOffsetToFieldFrame > 180.0) {
+					yawOffsetToFieldFrame -= 360.0;
+				}
+			}
+			isValidYawOffsetToFieldFrame = true;
 		}
+
+		if (Robot.turntable1.spinMode == LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW) {
+			if (currentRobotFieldPosition.isBlueBoiler) {
+				Robot.turntable1.resetEncoderAtOffsetDegrees(-90.0);
+			} else {
+				Robot.turntable1.resetEncoderAtOffsetDegrees(90.0);
+			}
+		}
+
+		turntable1.spinMode = LidarSpin.SpinMode.SCAN;
 
 		boolean isError = false;
 		for (int i = 0; i < planForThisMatch.size(); i++) {
@@ -131,7 +156,7 @@ public class Robot extends SampleRobot {
 			// SmartDashboard.putNumber("X", driveJoy.getX());
 			// SmartDashboard.putNumber("Twist", driveJoy.getTwist());
 
-			//driveSystem.drive();
+			// driveSystem.drive();
 			driveSystem.modeReadout();
 			Timer.delay(.05);
 		}
@@ -143,9 +168,9 @@ public class Robot extends SampleRobot {
 	 * Runs during test mode
 	 */
 	public void test() {
-		//driveSystem.YTest();
-		//driveSystem.XTest();
-		//driveSystem.TwistTest();
+		// driveSystem.YTest();
+		// driveSystem.XTest();
+		// driveSystem.TwistTest();
 
 	}
 }

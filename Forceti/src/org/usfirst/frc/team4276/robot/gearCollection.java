@@ -101,7 +101,7 @@ public class gearCollection {
 		armMotor.set(netPower);
 	}
 	
-	void gearCollection()
+	void performMainProcessing()
 	{
 		if(Robot.XBoxController.getRawButton(1) == true) // button 1 =place holder
 		{

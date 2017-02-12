@@ -73,26 +73,30 @@ boolean ERROR;
 
 public mecanumNavigation(int dio0, int dio1, int dio2, int dio3, int dio4, int dio5, int dio6, int dio7)
 {
-	frontLeftWheel = new Encoder(dio0, dio1);
-	backLeftWheel = new Encoder(dio2, dio3);
-	frontRightWheel = new Encoder(dio4, dio5);
-	backRightWheel = new Encoder(dio6, dio7);
-	frontLeftWheel.setDistancePerPulse(1); //place holder
-	backLeftWheel.setDistancePerPulse(1); //place holder
-	frontRightWheel.setDistancePerPulse(1); //place holder
-	backRightWheel.setDistancePerPulse(1); //place holder
-	
-	frontLeftWheel.reset();
-	backLeftWheel.reset();
-	frontRightWheel.reset();
-	backRightWheel.reset();
+	try {
+		frontLeftWheel = new Encoder(dio0, dio1);
+		backLeftWheel = new Encoder(dio2, dio3);
+		frontRightWheel = new Encoder(dio4, dio5);
+		backRightWheel = new Encoder(dio6, dio7);
+		frontLeftWheel.setDistancePerPulse(1); //place holder
+		backLeftWheel.setDistancePerPulse(1); //place holder
+		frontRightWheel.setDistancePerPulse(1); //place holder
+		backRightWheel.setDistancePerPulse(1); //place holder
+		
+		frontLeftWheel.reset();
+		backLeftWheel.reset();
+		frontRightWheel.reset();
+		backRightWheel.reset();
+	} catch(Exception e) {
+		
+	}
 }
 
 double findDeltaX_RobotFrame(double FL,double BL,double FR,double BR)
 {
 	double leftWheelsX = FL-BL;
 	double rightWheelsX = BR-FR;
-	double Xnet = .5*Kx*((leftWheelsX)+(rightWheelsX));
+	double Xnet = Kx*((leftWheelsX));
 	return Xnet;
 }
 
@@ -100,7 +104,7 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 {
 	double leftWheelsY = FL+BL;
 	double rightWheelsY = BR+FR;
-	double Ynet = .5*Ky*((leftWheelsY)+(rightWheelsY));
+	double Ynet = Ky*((leftWheelsY));
 	return Ynet;
 }
 
@@ -121,6 +125,10 @@ void findDeltaMovement_RobotFrame()
 	totalBLWheelDistance = totalBLWheelDistance + backLeftWheelDelta; //adds recorded delta of the Back Left wheel to update the total distance value
 	totalFRWheelDistance = totalFRWheelDistance + frontRightWheelDelta; //adds recorded delta of the Front Right wheel to update the total distance value
 	totalBRWheelDistance = totalBRWheelDistance + backRightWheelDelta; //adds recorded delta of the Back Right wheel to update the total distance value
+	SmartDashboard.putNumber("FL", totalFLWheelDistance);
+	SmartDashboard.putNumber("FR", totalFRWheelDistance);
+	SmartDashboard.putNumber("BL", totalBLWheelDistance);
+	SmartDashboard.putNumber("BR", totalBRWheelDistance);
 }
 
 static void setStartingPosition(double X, double Y)
@@ -209,6 +217,8 @@ public void run()
 		
 		mecanumDrive.modeReadout();
 		
+		SmartDashboard.putBoolean("Mecanum Location Error", ERROR);
+		
 		Timer.delay(.005);
 		
 		}
@@ -216,8 +226,9 @@ public void run()
 		catch (Exception e)
 		{
 		ERROR = true;
+		SmartDashboard.putBoolean("Mecanum Location Error", ERROR);
 		}
-	SmartDashboard.putBoolean("Mecanum Location Error", ERROR);
+	
 }
 
 }

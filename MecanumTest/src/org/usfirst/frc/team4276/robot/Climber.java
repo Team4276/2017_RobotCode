@@ -16,30 +16,39 @@ public class Climber {
 	static SoftwareTimer limitSwitchDelayTimer;
 
 	public Climber(int pwm8, int dio13) {
-		climber = new VictorSP(pwm8);
-		climberLimitSwitch = new DigitalInput(dio13);
-		climberToggler = new Toggler(XBox.Back);
+		try {
+			climber = new VictorSP(pwm8);
+		
+			climberLimitSwitch = new DigitalInput(dio13);
+			climberToggler = new Toggler(XBox.Back);
+		} catch(Exception e) {
+			SmartDashboard.putString("debug", "Climber constructor failed");
+		}
 	}
 
 	void performMainProcessing() {
-		climberToggler.updateMechanismState();
-		if (climberToggler.getMechanismState()) {
-			if (climberLimitSwitch.get() == true) {
-				if (initializeLimitSwitchDelay) {
-					limitSwitchDelayTimer.setTimer(LIMIT_SWITCH_DELAY);
-					initializeLimitSwitchDelay = false;
-				} else if (limitSwitchDelayTimer.isExpired()) {
-					climber.set(0.0);
+		try {
+			climberToggler.updateMechanismState();
+			if (climberToggler.getMechanismState()) {
+				if (climberLimitSwitch.get() == true) {
+					if (initializeLimitSwitchDelay) {
+						limitSwitchDelayTimer.setTimer(LIMIT_SWITCH_DELAY);
+						initializeLimitSwitchDelay = false;
+					} else if (limitSwitchDelayTimer.isExpired()) {
+						climber.set(0.0);
+					}
+				} else {
+					climber.set(CLIMBER_POWER);
 				}
-			} else {
-				climber.set(CLIMBER_POWER);
 			}
-		}
+	
+			else {
+				climber.set(0.0);
+			}
 
-		else {
-			climber.set(0.0);
+			//SmartDashboard.putBoolean("Climber", climbing);
+		} catch(Exception e) {
+			SmartDashboard.putString("debug", "Climber.performMainProcessing failed");
 		}
-
-		//SmartDashboard.putBoolean("Climber", climbing);
 	}
 }

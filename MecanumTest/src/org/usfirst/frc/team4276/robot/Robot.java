@@ -3,6 +3,7 @@ package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
 
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,26 +31,39 @@ public class Robot extends SampleRobot {
 
 	static ADIS16448_IMU imu;
 
+	mecanumNavigation robotLocation;
+	mecanumDrive driveSystem;
+	Climber climbingSystem;
+	gearCollection gearMechanism;
+	BallShooter Shooter;
+	BallCollector ballCollectingMechanism;
+
+	static Timer systemTimer;
+	static Joystick XBoxController;
+	static Joystick logitechJoystick;
+
 	// Boiler LIDAR (with GRIP camera on turntable #1)
 	static LIDAR boilerLidar;
 	static LidarSpin turntable1;
 
-	// yawOffsetToFieldFrame is set at start of autonomous when the robot heading is either 0.0 or 180.0
+	// yawOffsetToFieldFrame is set at start of autonomous when the robot
+	// heading is either 0.0 or 180.0
 	// Get Field north reference by adding this to imu.getYaw()
 	//
 	// This loses accuracy over the course of the game, but should be very
 	// reliable during autonomous.
-	// 
-	// It is still pretty good in teleop because the errors affect only the polar
+	//
+	// It is still pretty good in teleop because the errors affect only the
+	// polar
 	// angle, not the LIDAR range that is continually measured by the vision
 	// system. Therefore drive toward an increasingly sloppy range on an arc,
 	// but once found you can slide precisely down the arc to the destination.
 	static boolean isValidYawOffsetToFieldFrame = false;
 	static double yawOffsetToFieldFrame = 0.0;
-	
+
 	static boolean isValidCurrentRobotFieldPosition = false;
 	static RobotPositionPolar currentRobotFieldPosition;
-	
+
 	static BoilerTracker boilerTracker;
 
 	// GRIP vision camera
@@ -69,24 +83,28 @@ public class Robot extends SampleRobot {
 	static RoutePlanList planList;
 	static RoutePlan planForThisMatch;
 
-	mecanumDrive driveSystem;
-	static Timer systemTimer;
-	Joystick driveJoy;
-	static Joystick XBoxController;
-	static Joystick logitechJoystick;
-
 	public Robot() {
 		imu = new ADIS16448_IMU();
 
-		boilerTracker = new BoilerTracker();
-		boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
+		robotLocation = new mecanumNavigation(0,1,2,3,4,5,6,7);//dio ports
+		driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
+		climbingSystem = new Climber(8, 13);// pwm port 8, dio port 13
+		gearMechanism = new gearCollection(6,1,2,14,11,12);//pwm port 6, relay ports 1 & 2, dio ports 14, 11, 12
+		Shooter = new BallShooter(4, 5, 10);// pwm ports 4 & 5, dio port 10
+		ballCollectingMechanism = new BallCollector(7);// pwm port 7
+
+		robotLocation.start();
+
 		XBoxController = new Joystick(3);
 		logitechJoystick = new Joystick(0);
 
-		int relay = 2;
-		int dio11 = 11;
-		int dio12 = 12;
-		turntable1 = new LidarSpin(relay, dio11, dio12);
+		boilerTracker = new BoilerTracker();
+		boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
+
+		int relay3 = 3;
+		int dio8 = 8;
+		int dio9 = 9;
+		turntable1 = new LidarSpin(relay3, dio8, dio9);
 		// Scan limits -140 to +230 for competition
 		// 0.0 is straight ahead robot frame. Want to avoid extended operation
 		// with the
@@ -104,44 +122,51 @@ public class Robot extends SampleRobot {
 		SmartDashboard.putString("Auto Plan", planForThisMatch.name);
 		SmartDashboard.putString("Auto Status", "Auto  " + autoPlanSelection + "  waiting to start");
 
-		// driveJoy = new Joystick(1);
-		driveSystem = new mecanumDrive(0, 1, 8, 9);
+		driveSystem = new mecanumDrive(0, 1, 2, 3);
 	}
 
+	/**
+	 * Drive left & right motors for 2 seconds then stop
+	 */
 	public void autonomous() {
-		isValidYawOffsetToFieldFrame = false;
-		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
-		if (isValidCurrentRobotFieldPosition) {
-			if (currentRobotFieldPosition.isBlueBoiler) {
-				yawOffsetToFieldFrame += 180.0;
-				if (yawOffsetToFieldFrame > 180.0) {
-					yawOffsetToFieldFrame -= 360.0;
+
+		if (isBoilerTrackerEnabled) {
+			isValidYawOffsetToFieldFrame = false;
+			yawOffsetToFieldFrame = 0.0 - imu.getYaw();
+			if (isValidCurrentRobotFieldPosition) {
+				if (currentRobotFieldPosition.isBlueBoiler) {
+					yawOffsetToFieldFrame += 180.0;
+					if (yawOffsetToFieldFrame > 180.0) {
+						yawOffsetToFieldFrame -= 360.0;
+					}
+				}
+				isValidYawOffsetToFieldFrame = true;
+			}
+
+			if (Robot.turntable1.spinMode == LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW) {
+				if (currentRobotFieldPosition.isBlueBoiler) {
+					Robot.turntable1.resetEncoderAtOffsetDegrees(-90.0);
+				} else {
+					Robot.turntable1.resetEncoderAtOffsetDegrees(90.0);
 				}
 			}
-			isValidYawOffsetToFieldFrame = true;
-		}
 
-		if (Robot.turntable1.spinMode == LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW) {
-			if (currentRobotFieldPosition.isBlueBoiler) {
-				Robot.turntable1.resetEncoderAtOffsetDegrees(-90.0);
-			} else {
-				Robot.turntable1.resetEncoderAtOffsetDegrees(90.0);
+			turntable1.spinMode = LidarSpin.SpinMode.SCAN;
+
+			boolean isError = false;
+			for (int i = 0; i < planForThisMatch.size(); i++) {
+				RouteTask.ReturnValue retVal = planForThisMatch.get(i).exec();
+				if (retVal != RouteTask.ReturnValue.SUCCESS) {
+					isError = true;
+					SmartDashboard.putString("Auto Status", "Auto Failed step " + i);
+					break;
+				}
 			}
-		}
-
-		turntable1.spinMode = LidarSpin.SpinMode.SCAN;
-
-		boolean isError = false;
-		for (int i = 0; i < planForThisMatch.size(); i++) {
-			RouteTask.ReturnValue retVal = planForThisMatch.get(i).exec();
-			if (retVal != RouteTask.ReturnValue.SUCCESS) {
-				isError = true;
-				SmartDashboard.putString("Auto Status", "Auto Failed step " + i);
-				break;
+			if (!isError) {
+				SmartDashboard.putString("Auto Status", "Auto Complete");
 			}
-		}
-		if (!isError) {
-			SmartDashboard.putString("Auto Status", "Auto Complete");
+		} else {
+			// TODO: use mecanumNavigation() instead of vision system
 		}
 	}
 
@@ -149,19 +174,21 @@ public class Robot extends SampleRobot {
 	 * Runs the motors with arcade steering.
 	 */
 	public void operatorControl() {
+		isBoilerTrackerEnabled = true;
+
 		turntable1.spinMode = LidarSpin.SpinMode.SCAN;
 
 		while (isOperatorControl() && isEnabled()) {
-			// SmartDashboard.putNumber("Y", driveJoy.getY());
-			// SmartDashboard.putNumber("X", driveJoy.getX());
-			// SmartDashboard.putNumber("Twist", driveJoy.getTwist());
-
-			// driveSystem.drive();
-			driveSystem.modeReadout();
+			driveSystem.Operatordrive();
+			climbingSystem.performMainProcessing();
+			gearMechanism.performMainProcessing();
+			Shooter.performMainProcessing();
+			ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.05);
 		}
 
 		turntable1.spinMode = LidarSpin.SpinMode.IDLE;
+		isBoilerTrackerEnabled = false;
 	}
 
 	/**

@@ -24,13 +24,17 @@ public class LIDAR implements PIDSource {
 	private final int LIDAR_DISTANCE_REGISTER = 0x8f;
 
 	public LIDAR(String nam, Port port, int addr) {
-		name = nam;
-		i2c = new I2C(port, addr);
-
-		distance = new byte[2];
-
-		task = new LIDARUpdater();
-		updater = new java.util.Timer();
+		try {
+			name = nam;
+			i2c = new I2C(port, addr);
+	
+			distance = new byte[2];
+	
+			task = new LIDARUpdater();
+			updater = new java.util.Timer();
+		} catch(Exception e) {
+			SmartDashboard.putString("debug", "LIDAR constructor failed");
+		}
 	}
 
 	// Distance in cm

@@ -12,20 +12,29 @@ public class BallCollector {
 	Toggler collectorToggler;
 
 	public BallCollector(int pwm7) {
-		ballCollector = new VictorSP(pwm7);
-		collectorToggler = new Toggler(XBox.RB);
+		try {
+			ballCollector = new VictorSP(pwm7);
+			collectorToggler = new Toggler(XBox.RB);
+		} catch(Exception e) {
+			SmartDashboard.putString("debug", "BallCollector constructor failed");
+			
+		}
 	}
 
 	void performMainProcessing() {
-		collectorToggler.updateMechanismState();
-
-		if (collectorToggler.getMechanismState()) {
-			ballCollector.set(COLLECTOR_SPEED);
-		} else {
-			ballCollector.set(0.0);
+		try {
+			collectorToggler.updateMechanismState();
+	
+			if (collectorToggler.getMechanismState()) {
+				ballCollector.set(COLLECTOR_SPEED);
+			} else {
+				ballCollector.set(0.0);
+			}
+	
+			// SmartDashboard.putBoolean("Collector", collecting);
+		} catch(Exception e) {
+			SmartDashboard.putString("debug", "BallCollector.performMainProcessing failed");
 		}
-
-		// SmartDashboard.putBoolean("Collector", collecting);
 
 	}
 

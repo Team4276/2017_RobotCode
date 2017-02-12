@@ -6,30 +6,32 @@ import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID;
 
 public class gearCollection {
 
-	VictorSP armRotation;
+	VictorSP armMotor;
 	static Relay gearIntakeLeft;
 	static Relay gearIntakeRight;
-	DigitalInput gearIn;
+	DigitalInput gearLimitSwitch;
 	Encoder armAngle;
-	Joystick XBox1;
 	
 	double noGearArmPowerConstant = .5; //place holder
 	double GearArmPowerConstant = .75; //place holder
 	
-	public gearCollection(int pwm6, int relay1, int relay2, int dio14, int dio8, int dio9)
+	public gearCollection(int pwm6, int relay1, int relay2, int dio14, int dio11, int dio12)
 	{
-		armRotation = new VictorSP(pwm6);
-		gearIntakeLeft = new Relay(relay1);
-		gearIntakeRight = new Relay(relay2);
-		gearIn = new DigitalInput(dio14);
-		armAngle = new Encoder(dio8,dio9);
-		armAngle.setDistancePerPulse(.01); //place holder
+		try {
+			armMotor = new VictorSP(pwm6);
+			gearIntakeLeft = new Relay(relay1);
+			gearIntakeRight = new Relay(relay2);
+			gearLimitSwitch = new DigitalInput(dio14);
+			armAngle = new Encoder(dio11,dio12);
+			armAngle.setDistancePerPulse(.01); //place holder
+		} catch(Exception e) {
+			SmartDashboard.putString("debug", "gearCollection constructor failed");
+		}
 	}
 	
 	/*
@@ -40,7 +42,7 @@ public class gearCollection {
 	{
 		double power;
 		double theta = armAngle.getDistance();
-		if (gearIn.get() == true)
+		if (gearLimitSwitch.get() == true)
 		{
 			power = GearArmPowerConstant*Math.cos(theta);
 		
@@ -65,11 +67,11 @@ public class gearCollection {
 		double armDeadband = 2; //degrees
 		double desiredArmAngle = 0;
 		
-		if(XBox1.getRawAxis(XBox.LStickY) > .1)
+		if(Robot.XBoxController.getRawAxis(XBox.LStickY) > .1)
 		{
 			desiredArmAngle++;
 		}
-			else if(XBox1.getRawAxis(XBox.LStickY) < -.1)
+			else if(Robot.XBoxController.getRawAxis(XBox.LStickY) < -.1)
 			{
 				desiredArmAngle--;
 			}
@@ -100,41 +102,46 @@ public class gearCollection {
 	void runArm()
 	{
 		double netPower = staticArmPower() + activeArmPower();
-		armRotation.set(netPower);
+		armMotor.set(netPower);
 	}
 	
-	void gearCollection()
+	void performMainProcessing()
 	{
-		if(XBox1.getRawButton(XBox.LB) == true)
-		{
-			if(gearIn.get() == true)
+		try {
+			if(Robot.XBoxController.getRawButton(1) == true) // button 1 =place holder
 			{
-				XBox1.setRumble(GenericHID.RumbleType.kLeftRumble, .5);
+				if(gearLimitSwitch.get() == true)
+				{
+					Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, .5);
+					gearIntakeLeft.set(Value.kOff);
+					gearIntakeRight.set(Value.kOff);
+				}
+				else
+				{
+					Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
+					gearIntakeLeft.set(Value.kForward);
+					gearIntakeRight.set(Value.kForward);
+				}
+			}
+			
+			else if(Robot.XBoxController.getRawButton(2) == true) // button 2 =place holder
+			{
+				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
+				gearIntakeLeft.set(Value.kReverse);
+				gearIntakeRight.set(Value.kReverse);
+			}
+			
+			else
+			{
+				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
 				gearIntakeLeft.set(Value.kOff);
 				gearIntakeRight.set(Value.kOff);
 			}
-			else
-			{
-				gearIntakeLeft.set(Value.kForward);
-				gearIntakeRight.set(Value.kForward);
-			}
+		} catch(Exception e) {
+			SmartDashboard.putString("debug", "gearCollection.performMainProcessing failed");
 		}
-		
-		else if(XBox1.getRawButton(XBox.RB) == true)
-		{
-			gearIntakeLeft.set(Value.kReverse);
-			gearIntakeRight.set(Value.kReverse);
-		}
-		
-		else
-		{
-			gearIntakeLeft.set(Value.kOff);
-			gearIntakeRight.set(Value.kOff);
-		}
-		
-		SmartDashboard.putBoolean("Gear Collected?", gearIn.get());
-		
 	}
+
 	static void autoGearDeposit(double timeToRun)
 	{
 		gearIntakeLeft.set(Value.kReverse);

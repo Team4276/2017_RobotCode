@@ -24,14 +24,18 @@ public class mecanumDrive {
 	
 public mecanumDrive( int pwm0, int pwm1, int pwm2, int pwm3)
 {
-
-	mecanumJoystick = new Joystick(0);
-	forwardRightMotor = new VictorSP(pwm0);
-	forwardLeftMotor = new VictorSP(pwm1);
-	backRightMotor = new VictorSP(pwm2);
-	backLeftMotor = new VictorSP(pwm3);
+	try {
+		mecanumJoystick = new Joystick(0);
+		forwardRightMotor = new VictorSP(pwm0);
+		forwardLeftMotor = new VictorSP(pwm1);
+		backRightMotor = new VictorSP(pwm2);
+		backLeftMotor = new VictorSP(pwm3);
 	
-	mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
+		mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
+	} catch(Exception e) {
+		SmartDashboard.putString("debug", "mecanumDrive constructor failed");
+		
+	}
 }
 
 void robotFrameDrive()
@@ -47,19 +51,19 @@ void robotFrameDrive()
 	double rotation;
 	
 	
-	if (Math.abs(X)>.02||Math.abs(Y)>.02)
+	if (Math.abs(X)>.02||Math.abs(Y)>.05)
 		magnitude = Math.sqrt((X*X)+(Y*Y));
 	else
 	magnitude = 0;
 	
 	
-	if(Math.abs(X)>.02||Math.abs(Y)>.02)
+	if(Math.abs(X)>.02||Math.abs(Y)>.05)
 		direction = (180/Math.PI)*Math.atan2(Y, X);
 	else
 		direction = 0;
 	
 	
-	if(Math.abs(Twist)>.02)
+	if(Math.abs(Twist)>.05)
 		rotation = Twist;
 	else
 		rotation = 0;
@@ -67,38 +71,36 @@ void robotFrameDrive()
 	
 	mecanumControl.mecanumDrive_Polar(magnitude, direction, rotation);
 }
-/*
+
 void fieldFrameDrive()
 {
-	fieldFrame = true;
-	robotFrame = false;
-	Xtest = false;
-	Ytest = false;
-	Twisttest = false;	
+	driveStatus = "Driving In Robot Frame";
 	
 	double yaw = 0.0;
 	double X = 0.0;
 	double Y = 0.0;
 	double Twist = 0.0;
 	
-	yaw = Robot.imu.getYaw();
+	yaw = 0;
 	
-	if(Math.abs(mecanumJoystick.getX())>.02)
+	if(Math.abs(mecanumJoystick.getX())>.05)
 		X = mecanumJoystick.getX();
 	else 
 		X= 0;
 		
-	if(Math.abs(mecanumJoystick.getY())>.02)
+	if(Math.abs(mecanumJoystick.getY())>.05)
 		Y = mecanumJoystick.getY();
 	else 
 		Y= 0;
-	if(Math.abs(mecanumJoystick.getTwist())>.02)
+	if(Math.abs(mecanumJoystick.getTwist())>.05)
 		Twist = mecanumJoystick.getTwist();
 	else 
 		Twist= 0;
-	mecanumControl.mecanumDrive_Cartesian(X, Y, Twist, yaw);
+	
+	
+	mecanumControl.mecanumDrive_Cartesian(X, Y, Twist, yaw);;
 }
-*/
+
 /*
 void XTest()
 {
@@ -158,7 +160,11 @@ void TwistTest()
 */
 void Operatordrive()
 {
-		robotFrameDrive();
+	try {
+		fieldFrameDrive();
+	} catch(Exception e) {
+		SmartDashboard.putString("debug", "mechanumDrive.Operatordrive failed");
+	}
 }
 /*
 void driveTest()
@@ -212,14 +218,16 @@ static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal
 	double YpowerConstant = .2; // place holder
 	double rotationPowerConstant = .2; // place holder
 	
-	double Xpower = Xdiff*XpowerConstant; //
-	if (Math.abs(Xpower) > .75)
+	double Xpower = Xdiff*XpowerConstant;
+	if (Xpower > .75)
 	{
 		Xpower = .75;
 	}
+	else if (Xpower < -.75)
+	{
+		Xpower = -.75;
+	}
 	//This if statement prevent the power in the X direction of the field from being too high
-	
-	
 	
 	
 	if( Math.abs(Xdiff) < linearDeadband )
@@ -238,12 +246,15 @@ static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal
 	
 	
 	double Ypower = Ydiff*YpowerConstant;
-	if (Math.abs(Ypower) > .75)
+	if (Ypower > .75)
 	{
 		Ypower = .75;
 	}
+	else if (Ypower < -.75)
+	{
+		Ypower = -.75;
+	}
 	//This if statement prevent the power in the Y direction of the field from being too high
-	
 	
 	
 	if( Math.abs(Ydiff) < linearDeadband )
@@ -258,10 +269,15 @@ static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal
 	 */
 	
 	
+	
 	double rotationPower = RotationDiff*rotationPowerConstant;
-	if (Math.abs(rotationPower) > .75)
+	if (rotationPower > .75)
 	{
 		rotationPower = .75;
+	}
+	else if (rotationPower < -.75)
+	{
+		rotationPower = -.75;
 	}
 	/* This if statement prevent the rotational power from being too high
 	 * So that the robot won't rotate too fast
@@ -277,7 +293,7 @@ static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal
 	 * then the rotational power is less than 0, so that the robot stops rotating
 	 */
 	
-	mecanumControl.mecanumDrive_Cartesian(Xpower, Ypower, rotationPower, yaw);
+	mecanumControl.mecanumDrive_Cartesian(rotationPower, Ypower, rotationPower, yaw);
 	
 	if(Xacheived == true && Yacheived == true && rotationAcheived == true)
 	{

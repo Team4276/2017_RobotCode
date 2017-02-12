@@ -20,13 +20,13 @@ public class gearCollection {
 	double noGearArmPowerConstant = .5; //place holder
 	double GearArmPowerConstant = .75; //place holder
 	
-	public gearCollection(int pwm6, int relay1, int relay2, int dio14, int dio8, int dio9)
+	public gearCollection(int pwm6, int relay1, int relay2, int dio14, int dio11, int dio12)
 	{
 		armMotor = new VictorSP(pwm6);
 		gearIntakeLeft = new Relay(relay1);
 		gearIntakeRight = new Relay(relay2);
 		gearLimitSwitch = new DigitalInput(dio14);
-		armAngle = new Encoder(dio8,dio9);
+		armAngle = new Encoder(dio11,dio12);
 		armAngle.setDistancePerPulse(.01); //place holder
 	}
 	

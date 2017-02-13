@@ -15,8 +15,8 @@ public class Climber {
 	static Toggler climberToggler;
 	static SoftwareTimer limitSwitchDelayTimer;
 
-	public Climber(int pwm8, int dio13) {
-		climber = new VictorSP(pwm8);
+	public Climber(int pwm9, int dio13) {
+		climber = new VictorSP(pwm9);
 		climberLimitSwitch = new DigitalInput(dio13);
 		climberToggler = new Toggler(XBox.Back);
 	}

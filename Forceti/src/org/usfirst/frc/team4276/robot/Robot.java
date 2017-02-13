@@ -31,6 +31,7 @@ public class Robot extends SampleRobot {
 
 	static ADIS16448_IMU imu;
 	
+	AutoCases autonomous;
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
@@ -41,22 +42,24 @@ public class Robot extends SampleRobot {
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
- 
+	static Joystick autoSelector;
+	
 	public Robot() {
 		imu = new ADIS16448_IMU();
-
+		autonomous = new AutoCases();
+		
 		robotLocation = new mecanumNavigation(0,1,2,3,4,5,6,7);//dio ports
 		driveSystem = new mecanumDrive(0,1,2,3);//pwm ports
-		climbingSystem = new Climber(8,13);//pwm port 8, dio port 13
-		gearMechanism = new gearCollection(6,1,2,14,11,12);//pwm port 6, relay ports 1 & 2, dio ports 14, 11, 12
-		Shooter = new BallShooter(4,5,10);//pwm ports 4 & 5, dio port 10
-		ballCollectingMechanism = new BallCollector(7);//pwm port 7
+		climbingSystem = new Climber(9,13);//pwm port 9, dio port 13
+		gearMechanism = new gearCollection(6,7,14,8,9);//pwm ports 6 and 7, dio ports 14, 8, 9
+		Shooter = new BallShooter(4,5,15);//pwm ports 4 & 5, dio port 15
+		ballCollectingMechanism = new BallCollector(8);//pwm port 8
 		
 		robotLocation.start();
 		
 		XBoxController = new Joystick(3);
 		logitechJoystick = new Joystick(0);
-
+		autoSelector = new Joystick(1);
 
 		driveSystem = new mecanumDrive(0, 1, 2, 3);
 	}
@@ -66,7 +69,7 @@ public class Robot extends SampleRobot {
 	 */
 	public void autonomous() {
 		
-
+		autonomous.autoModes();
 	}
 
 	/**

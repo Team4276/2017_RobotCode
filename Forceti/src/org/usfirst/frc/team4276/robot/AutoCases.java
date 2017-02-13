@@ -27,8 +27,9 @@ package org.usfirst.frc.team4276.robot;
 public class AutoCases {
 
 	void autoModes() {
-		int automode = autoModeSelector.autonomousModeNumber;
-
+		//int automode = autoModeSelector.autonomousModeNumber;
+		
+		
 		final int nothing = 0;
 		final int redAuto2_ScoreGear = 1;
 		final int redAuto2_GearandZone = 2;
@@ -36,6 +37,8 @@ public class AutoCases {
 		final int redAuto1_GearandZone = 4;
 		final int redAuto1_ShootFromHopper = 5;
 		final int redAuto2_ShootFromHopper = 6;
+		final int redAuto1_GearandShootFromHopper = 7;
+		final int redAuto1_HopperandShootFromBoiler = 8;
 		
 		final int blueAuto2_ScoreGear = 21;
 		final int blueAuto2_GearandZone = 22;
@@ -43,6 +46,12 @@ public class AutoCases {
 		final int blueAuto1_GearandZone = 24;
 		final int blueAuto1_ShootFromHopper = 25;
 		final int blueAuto2_ShootFromHopper = 26;
+		final int blueAuto1_GearandShootFromHopper = 27;
+		final int blueAuto1_HopperandShootFromBoiler = 28;
+		
+		final int testGearCollection = 40;
+		
+		int automode = testGearCollection;
 		
 		switch (automode) {
 		case nothing:
@@ -111,6 +120,12 @@ public class AutoCases {
 
 		case redAuto2_ShootFromHopper:
 
+			break;
+		case testGearCollection:
+			
+			gearCollection.autoGearDeposit(1);
+			gearCollection.setArmPosition(0);
+			
 			break;
 		default:
 		}

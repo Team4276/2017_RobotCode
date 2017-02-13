@@ -8,8 +8,8 @@ public class Climber {
 	DigitalInput climberLimitSwitch;
 	VictorSP climber;
 
-	static double LIMIT_SWITCH_DELAY = 1.0; // seconds
-	static double CLIMBER_POWER = 1.0; // -1.0 to 1.0
+	final static double LIMIT_SWITCH_DELAY = 1.0; // seconds
+	final static double CLIMBER_POWER = 1.0; // -1.0 to 1.0
 
 	static boolean initializeLimitSwitchDelay = true;
 	static Toggler climberToggler;
@@ -18,7 +18,7 @@ public class Climber {
 	public Climber(int pwm9, int dio13) {
 		climber = new VictorSP(pwm9);
 		climberLimitSwitch = new DigitalInput(dio13);
-		climberToggler = new Toggler(XBox.Back);
+		climberToggler = new Toggler(XBox.A);
 	}
 
 	void performMainProcessing() {

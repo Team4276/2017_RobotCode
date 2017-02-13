@@ -56,14 +56,14 @@ public class ArmPID extends Thread implements Runnable{
 				}
 				
 				
-				if(setpoint>=150)
-					setpoint=150;
-				if(setpoint<=-20)
-					setpoint=-20;
+				if(setpoint>=0)
+					setpoint=0;
+				if(setpoint<=-85)
+					setpoint=-85;
 				if(Robot.XBoxController.getRawButton(XBox.Y))
 					setpoint=0;
 				if(Robot.XBoxController.getRawButton(XBox.X))
-					setpoint=-90;
+					setpoint=-85;
 				
 				SmartDashboard.putNumber("Arm Offset: ", offset);
 				SmartDashboard.putNumber("Setpoint: ", setpoint);
@@ -72,12 +72,7 @@ public class ArmPID extends Thread implements Runnable{
 				SmartDashboard.putNumber("Encoder Value: ", gearCollection.armAngle.getDistance());
 				SmartDashboard.putNumber("Arm Start Angle", startang);
 				
-				/*if(!SET_90_OPTICAL.get())
-				{
-					Arm.enc.reset();
-					angle=startang-Arm.enc.getDistance();
-					setpoint = angle;
-				}*/
+
 			
 				Timer.delay(0.02);
 				

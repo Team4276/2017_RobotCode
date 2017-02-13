@@ -92,7 +92,7 @@ double findDeltaX_RobotFrame(double FL,double BL,double FR,double BR)
 {
 	double leftWheelsX = FL-BL;
 	double rightWheelsX = BR-FR;
-	double Xnet = Kx*((leftWheelsX));
+	double Xnet = .5*Kx*((leftWheelsX)+(rightWheelsX));
 	return Xnet;
 }
 
@@ -100,7 +100,7 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 {
 	double leftWheelsY = FL+BL;
 	double rightWheelsY = BR+FR;
-	double Ynet = Ky*((leftWheelsY));
+	double Ynet = .5*Ky*((leftWheelsY)+(rightWheelsY));
 	return Ynet;
 }
 

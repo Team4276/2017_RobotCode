@@ -124,15 +124,17 @@ public class BallShooter {
 	}
 
 	static void autoShoot() {
-		double RobotXposition = mecanumNavigation.currentFieldX;
-		double RobotYposition = mecanumNavigation.currentFieldY;
+		//double RobotXposition = mecanumNavigation.currentFieldX;
+		//double RobotYposition = mecanumNavigation.currentFieldY;
 		double XRedBoiler = -27.17;// feet
 		double YRedBoiler = -13.5;// feet
 		double XBlueBoiler = 27.17;// feet
 		double YBlueBoiler = 13.5;// feet
 		double distanceToGoal = 0;// default
 
-		if (RobotXposition > 0) // blue alliance
+		double assignedPower;
+		
+	/*	if (RobotXposition > 0) // blue alliance
 		{
 			distanceToGoal = Math
 					.sqrt(Math.pow(XBlueBoiler - RobotXposition, 2) + Math.pow(YBlueBoiler - RobotYposition, 2));
@@ -142,8 +144,16 @@ public class BallShooter {
 					.sqrt(Math.pow(XRedBoiler - RobotXposition, 2) + Math.pow(YRedBoiler - RobotYposition, 2));
 		}
 		// distanceToGoal can be used to calculate speed of shooter
+*/
 
-		feedingWheel.set(.5); // .5 = place holder
-		computeFlyWheelPower(FLYWHEEL_SPEED);
+		if (initializeShooter) {
+			// if initializeShooter is true, then this if statement runs
+			feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
+			initializeShooter = false;
+		} else if (feederStartDelayTimer.isExpired()) {
+			feedingWheel.set(FEEDER_POWER);
+		}
+		assignedPower = computeFlyWheelPower(FLYWHEEL_SPEED);
+		shooterWheel.set(assignedPower);
 	}
 }

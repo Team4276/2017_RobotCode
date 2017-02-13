@@ -14,11 +14,10 @@ public class gearCollection {
 	DigitalInput gearLimitSwitch;
 	static Encoder armAngle;
 	
-	double noGearArmPowerConstant = 0; //place holder
-	double GearArmPowerConstant = 0; //place holder
+	static final double INTAKE_POWER = .8; //testing needed
+	static final double OUTTAKE_POWER = -.4; //testing needed
+	static final double OFF = 0;
 	
-	static final double activePowerConstant = .008; //place holder
-	static final double armDeadband = 2; //degrees
 	static double desiredArmAngle = 0;
 	
 	public gearCollection(int pwm6, int pwm7, int dio14, int dio8, int dio9)
@@ -30,31 +29,7 @@ public class gearCollection {
 		armAngle.setDistancePerPulse(1/497); //testing needed
 	}
 	
-	/*
-	 * returns the "static power" that must be 
-	 *applied to keep the arm at a fixed position
-	 */
-/*
-	double staticArmPower() 
-	{
-		double power;
-		double theta = armAngle.getDistance();
-		if (gearLimitSwitch.get() == true)
-		{
-			power = GearArmPowerConstant*Math.cos(theta);
-		
-		}
-		else
-		{
-			power = noGearArmPowerConstant*Math.cos(theta);
-		}
-		return power;
-	}*/
-	
-	/*
-	 * Proportional control to slow the motor
-	 * as it gets closer to its desired position
-	 */
+
 	
 	void performMainProcessing()
 	{
@@ -63,13 +38,13 @@ public class gearCollection {
 			if(gearLimitSwitch.get() == true)
 			{
 				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, .5);
-				gearIntake.set(0);
+				gearIntake.set(OFF);
 
 			}
 			else
 			{
 				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
-				gearIntake.set(1);
+				gearIntake.set(INTAKE_POWER);
 
 			}
 		}
@@ -77,14 +52,14 @@ public class gearCollection {
 		else if(Robot.XBoxController.getRawButton(XBox.RB) == true) 
 		{
 			Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
-			gearIntake.set(-1);
+			gearIntake.set(OUTTAKE_POWER);
 
 		}
 		
 		else
 		{
 			Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
-			gearIntake.set(0);
+			gearIntake.set(OFF);
 
 		}
 	}
@@ -96,10 +71,10 @@ public class gearCollection {
 	
 	static void autoGearDeposit(double timeToRun)
 	{
-		gearIntake.set(-1);
+		gearIntake.set(OUTTAKE_POWER);
 		setArmPosition(-45);
 		Timer.delay(timeToRun-.05);
-		gearIntake.set(0);
+		gearIntake.set(OFF);
 
 	}
 }

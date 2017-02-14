@@ -8,47 +8,38 @@ public class Climber {
 	DigitalInput climberLimitSwitch;
 	VictorSP climber;
 
-	static double LIMIT_SWITCH_DELAY = 1.0; // seconds
-	static double CLIMBER_POWER = 1.0; // -1.0 to 1.0
+	final static double LIMIT_SWITCH_DELAY = 1.0; // seconds
+	final static double CLIMBER_POWER = 1.0; // -1.0 to 1.0
 
 	static boolean initializeLimitSwitchDelay = true;
 	static Toggler climberToggler;
 	static SoftwareTimer limitSwitchDelayTimer;
 
-	public Climber(int pwm8, int dio13) {
-		try {
-			climber = new VictorSP(pwm8);
-		
-			climberLimitSwitch = new DigitalInput(dio13);
-			climberToggler = new Toggler(XBox.Back);
-		} catch(Exception e) {
-			SmartDashboard.putString("debug", "Climber constructor failed");
-		}
+	public Climber(int pwm9, int dio13) {
+		climber = new VictorSP(pwm9);
+		climberLimitSwitch = new DigitalInput(dio13);
+		climberToggler = new Toggler(XBox.A);
 	}
 
 	void performMainProcessing() {
-		try {
-			climberToggler.updateMechanismState();
-			if (climberToggler.getMechanismState()) {
-				if (climberLimitSwitch.get() == true) {
-					if (initializeLimitSwitchDelay) {
-						limitSwitchDelayTimer.setTimer(LIMIT_SWITCH_DELAY);
-						initializeLimitSwitchDelay = false;
-					} else if (limitSwitchDelayTimer.isExpired()) {
-						climber.set(0.0);
-					}
-				} else {
-					climber.set(CLIMBER_POWER);
+		climberToggler.updateMechanismState();
+		if (climberToggler.getMechanismState()) {
+			if (climberLimitSwitch.get() == true) {
+				if (initializeLimitSwitchDelay) {
+					limitSwitchDelayTimer.setTimer(LIMIT_SWITCH_DELAY);
+					initializeLimitSwitchDelay = false;
+				} else if (limitSwitchDelayTimer.isExpired()) {
+					climber.set(0.0);
 				}
+			} else {
+				climber.set(CLIMBER_POWER);
 			}
-	
-			else {
-				climber.set(0.0);
-			}
-
-			//SmartDashboard.putBoolean("Climber", climbing);
-		} catch(Exception e) {
-			SmartDashboard.putString("debug", "Climber.performMainProcessing failed");
 		}
+
+		else {
+			climber.set(0.0);
+		}
+
+		//SmartDashboard.putBoolean("Climber", climbing);
 	}
 }

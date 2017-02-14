@@ -73,30 +73,26 @@ boolean ERROR;
 
 public mecanumNavigation(int dio0, int dio1, int dio2, int dio3, int dio4, int dio5, int dio6, int dio7)
 {
-	try {
-		frontLeftWheel = new Encoder(dio0, dio1);
-		backLeftWheel = new Encoder(dio2, dio3);
-		frontRightWheel = new Encoder(dio4, dio5);
-		backRightWheel = new Encoder(dio6, dio7);
-		frontLeftWheel.setDistancePerPulse(1); //place holder
-		backLeftWheel.setDistancePerPulse(1); //place holder
-		frontRightWheel.setDistancePerPulse(1); //place holder
-		backRightWheel.setDistancePerPulse(1); //place holder
-		
-		frontLeftWheel.reset();
-		backLeftWheel.reset();
-		frontRightWheel.reset();
-		backRightWheel.reset();
-	} catch(Exception e) {
-		
-	}
+	frontLeftWheel = new Encoder(dio0, dio1);
+	backLeftWheel = new Encoder(dio2, dio3);
+	frontRightWheel = new Encoder(dio4, dio5);
+	backRightWheel = new Encoder(dio6, dio7);
+	frontLeftWheel.setDistancePerPulse(1); //place holder
+	backLeftWheel.setDistancePerPulse(1); //place holder
+	frontRightWheel.setDistancePerPulse(1); //place holder
+	backRightWheel.setDistancePerPulse(1); //place holder
+	
+	frontLeftWheel.reset();
+	backLeftWheel.reset();
+	frontRightWheel.reset();
+	backRightWheel.reset();
 }
 
 double findDeltaX_RobotFrame(double FL,double BL,double FR,double BR)
 {
 	double leftWheelsX = FL-BL;
 	double rightWheelsX = BR-FR;
-	double Xnet = Kx*((leftWheelsX));
+	double Xnet = .5*Kx*((leftWheelsX)+(rightWheelsX));
 	return Xnet;
 }
 
@@ -104,7 +100,7 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 {
 	double leftWheelsY = FL+BL;
 	double rightWheelsY = BR+FR;
-	double Ynet = Ky*((leftWheelsY));
+	double Ynet = .5*Ky*((leftWheelsY)+(rightWheelsY));
 	return Ynet;
 }
 

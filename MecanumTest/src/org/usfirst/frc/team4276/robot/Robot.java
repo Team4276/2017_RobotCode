@@ -3,8 +3,14 @@ package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.TimerTask;
+
+import org.usfirst.frc.team4276.robot.PIXY.Frame;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -31,6 +37,7 @@ public class Robot extends SampleRobot {
 
 	static ADIS16448_IMU imu;
 
+	AutoCases autonomous;
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
@@ -41,6 +48,11 @@ public class Robot extends SampleRobot {
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
+	static Joystick autoSelector;
+
+	// PIXY camera I2C
+	static PIXY pixyI2C;
+	static ArrayList<Frame> pixyFrames;
 
 	// Boiler LIDAR (with GRIP camera on turntable #1)
 	static LIDAR boilerLidar;
@@ -83,46 +95,83 @@ public class Robot extends SampleRobot {
 	static RoutePlanList planList;
 	static RoutePlan planForThisMatch;
 
+	static Preferences prefs;
+
 	public Robot() {
 		imu = new ADIS16448_IMU();
 
-		robotLocation = new mecanumNavigation(0,1,2,3,4,5,6,7);//dio ports
-		driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
-		climbingSystem = new Climber(8, 13);// pwm port 8, dio port 13
-		gearMechanism = new gearCollection(6,1,2,14,11,12);//pwm port 6, relay ports 1 & 2, dio ports 14, 11, 12
-		Shooter = new BallShooter(4, 5, 10);// pwm ports 4 & 5, dio port 10
-		ballCollectingMechanism = new BallCollector(7);// pwm port 7
+		try {
+			autonomous = new AutoCases();
 
-		robotLocation.start();
+			robotLocation = new mecanumNavigation(0, 1, 2, 3, 4, 5, 6, 7);// dio
+																			// ports
+			driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
+			climbingSystem = new Climber(9, 13);// pwm port 9, dio port 13
+			gearMechanism = new gearCollection(6, 7, 14, 11, 12);// pwm ports 6
+																	// and 7,
+																	// dio ports
+																	// 14,
+																	// 8,
+																	// 9
+			Shooter = new BallShooter(4, 5, 15);// pwm ports 4 & 5, dio port 15
+			ballCollectingMechanism = new BallCollector(8);// pwm port 8
 
-		XBoxController = new Joystick(3);
-		logitechJoystick = new Joystick(0);
+			robotLocation.start();
 
-		boilerTracker = new BoilerTracker();
-		boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
+			XBoxController = new Joystick(3);
+			logitechJoystick = new Joystick(0);
+			autoSelector = new Joystick(1);
 
-		int relay3 = 3;
-		int dio8 = 8;
-		int dio9 = 9;
-		turntable1 = new LidarSpin(relay3, dio8, dio9);
-		// Scan limits -140 to +230 for competition
-		// 0.0 is straight ahead robot frame. Want to avoid extended operation
-		// with the
-		// back of the turntable pointed at the boiler, (small variance in robot
-		// heading
-		// would cause the scanner to have to switch sides).
-		turntable1.setScanLimits(-45, 45); // TMP TMP TMP for prototype testing
+			driveSystem = new mecanumDrive(0, 1, 2, 3);
+		} catch (Exception e) {
+			SmartDashboard.putString("debug", "robot constructor failed");
+		}
 
-		planList = new RoutePlanList();
-		planForThisMatch = planList.get(autoPlanSelection);
+	}
 
-		gripVisionThread = new GripVisionThread();
-		gripVisionThread.start();
+	public void robotInit() {
+		SmartDashboard.putString("debug", "robot constructor 1");
+		try {
 
-		SmartDashboard.putString("Auto Plan", planForThisMatch.name);
-		SmartDashboard.putString("Auto Status", "Auto  " + autoPlanSelection + "  waiting to start");
+			pixyI2C = new PIXY("pixyI2C", Port.kMXP, 0x54);
 
-		driveSystem = new mecanumDrive(0, 1, 2, 3);
+			boilerTracker = new BoilerTracker();
+			boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
+			SmartDashboard.putString("debug", "robot constructor 2");
+
+			currentRobotFieldPosition = new RobotPositionPolar();
+			int relay3 = 3;
+			int dio8 = 8;
+			int dio9 = 9;
+			turntable1 = new LidarSpin(relay3, dio8, dio9);
+			// Scan limits -140 to +230 for competition
+			// 0.0 is straight ahead robot frame. Want to avoid extended
+			// operation
+			// with the back of the turntable pointed at the boiler, (small
+			// variance
+			// in robot heading would cause the scanner to have to switch
+			// sides).
+			turntable1.setScanLimits(-45, 45); // TMP TMP TMP for prototype
+												// testing
+
+			planList = new RoutePlanList();
+			planForThisMatch = planList.get(autoPlanSelection);
+
+			SmartDashboard.putString("debug", "robot constructor 3");
+			gripVisionThread = new GripVisionThread();
+
+			// robotInit() is called later in the initialization process than
+			// the
+			// Robot() constructor, after the robot preferences have been read
+			// in.
+			prefs = Preferences.getInstance();
+			gripVisionThread.gripCameraExposure = (int) prefs.getDouble("GripCameraExposure", 80.0);
+
+			gripVisionThread.start();
+			SmartDashboard.putString("debug", "robot constructor 4");
+		} catch (Exception e) {
+			SmartDashboard.putString("debug", "robot constructor failed");
+		}
 	}
 
 	/**
@@ -130,51 +179,56 @@ public class Robot extends SampleRobot {
 	 */
 	public void autonomous() {
 
-		if (isBoilerTrackerEnabled) {
-			isValidYawOffsetToFieldFrame = false;
-			yawOffsetToFieldFrame = 0.0 - imu.getYaw();
-			if (isValidCurrentRobotFieldPosition) {
-				if (currentRobotFieldPosition.isBlueBoiler) {
-					yawOffsetToFieldFrame += 180.0;
-					if (yawOffsetToFieldFrame > 180.0) {
-						yawOffsetToFieldFrame -= 360.0;
-					}
-				}
-				isValidYawOffsetToFieldFrame = true;
-			}
+		autonomous.autoModes();
 
-			if (Robot.turntable1.spinMode == LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW) {
-				if (currentRobotFieldPosition.isBlueBoiler) {
-					Robot.turntable1.resetEncoderAtOffsetDegrees(-90.0);
-				} else {
-					Robot.turntable1.resetEncoderAtOffsetDegrees(90.0);
-				}
-			}
+		/*
+	  isBoilerTrackerEnabled = true;
 
-			turntable1.spinMode = LidarSpin.SpinMode.SCAN;
 
-			boolean isError = false;
-			for (int i = 0; i < planForThisMatch.size(); i++) {
-				RouteTask.ReturnValue retVal = planForThisMatch.get(i).exec();
-				if (retVal != RouteTask.ReturnValue.SUCCESS) {
-					isError = true;
-					SmartDashboard.putString("Auto Status", "Auto Failed step " + i);
-					break;
-				}
-			}
-			if (!isError) {
-				SmartDashboard.putString("Auto Status", "Auto Complete");
-			}
+		SmartDashboard.putString("debug", "auto 1");
+
+		// Assume field crew will set camera to point straight to boiler
+		isValidYawOffsetToFieldFrame = true;
+		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
+		SmartDashboard.putString("debug", "auto 2");
+		if (currentRobotFieldPosition.isBlueBoiler) {
+			Robot.turntable1.resetEncoderAtOffsetDegrees(-90.0);
+			yawOffsetToFieldFrame += 180.0;
 		} else {
-			// TODO: use mecanumNavigation() instead of vision system
+			Robot.turntable1.resetEncoderAtOffsetDegrees(90.0);
 		}
+		SmartDashboard.putString("debug", "auto 3");
+		if (yawOffsetToFieldFrame > 180.0) {
+			yawOffsetToFieldFrame -= 360.0;
+		}
+		SmartDashboard.putString("debug", "auto 4");
+
+		turntable1.spinMode = LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW;
+		SmartDashboard.putString("debug", "auto 5");
+
+		while (isEnabled()) {
+			Timer.delay(.05);
+		}
+
+		
+		 * boolean isError = false; for (int i = 0; i < planForThisMatch.size();
+		 * i++) { RouteTask.ReturnValue retVal = planForThisMatch.get(i).exec();
+		 * if (retVal != RouteTask.ReturnValue.SUCCESS) { isError = true;
+		 * SmartDashboard.putString("Auto Status", "Auto Failed step " + i);
+		 * break; } } if (!isError) { SmartDashboard.putString("Auto Status",
+		 * "Auto Complete"); } } else { // TODO: use mecanumNavigation() instead
+		 * of vision system }
+		
+
+		turntable1.spinMode = LidarSpin.SpinMode.IDLE;
+		isBoilerTrackerEnabled = false;
+ */
 	}
 
 	/**
 	 * Runs the motors with arcade steering.
 	 */
 	public void operatorControl() {
-		isBoilerTrackerEnabled = true;
 
 		turntable1.spinMode = LidarSpin.SpinMode.SCAN;
 
@@ -186,9 +240,6 @@ public class Robot extends SampleRobot {
 			ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.05);
 		}
-
-		turntable1.spinMode = LidarSpin.SpinMode.IDLE;
-		isBoilerTrackerEnabled = false;
 	}
 
 	/**

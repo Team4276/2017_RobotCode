@@ -20,6 +20,13 @@ public class RobotPositionPolar {
 		yawOffsetRobot = yawRobot;
 	}
 
+	public RobotPositionPolar() {
+		isBlueBoiler = false;
+		radius = 0.0;
+		hdgToBoiler = 0.0;
+		yawOffsetRobot = 0.0;
+	}
+
 	RobotPosition positionXY() {
 		RobotPosition retVal = new RobotPosition();
 

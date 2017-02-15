@@ -61,11 +61,8 @@ public class LidarSpin {
 	public static double yawOffsetTurntableToRobotFrame = 0.0;
 
 	public void resetEncoderAtOffsetDegrees(double deg) {
-		SmartDashboard.putString("debug", "auto 2.1");
 		enc1.reset();
-		SmartDashboard.putString("debug", "auto 2.2");
 		yawOffsetTurntableToRobotFrame = deg;
-		SmartDashboard.putString("debug", "auto 2.3");
 	}
 
 	// Current encoder angle expressed as an offset from straight ahead robot
@@ -185,7 +182,7 @@ public class LidarSpin {
 
 		if (spinMode == SpinMode.IDLE) {
 			spinner.set(Relay.Value.kOff);
-			//SmartDashboard.putString("spinner", "IDLE Off");
+			SmartDashboard.putString("spinner", "IDLE Off");
 
 		} else if (spinMode == SpinMode.SCAN) {
 			if (myEncoderYaw < minScanDegrees) {

@@ -1,5 +1,6 @@
 package org.usfirst.frc.team4276.robot;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /*
  * 	
@@ -8,13 +9,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *    _________________________|__________________________
  *    |                        |                         |
  *    |                        |+Y                       |
- *    |                        |                         |
+ *    | 3                      |                      3  |
  *    |                        |                         |
  *    |     -X                 |              +X         |
- *  <-|------------------------|-------------------------|->
+ *  <-|-2----------------------|-----------------------2-|->
  *    |                        |                         |
  *    |                        |                         |
- *    |	Red Alliance           |        Blue Alliance    | 
+ *    | 1   Red Alliance       |      Blue Alliance    1 | 
  *    |                        |-Y                       |
  *    |________________________|_________________________|
  *    Boiler                   |                    Boiler
@@ -23,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *   @author Avery                         
 */
  //need to actually test and calibrate all the different coordinates
-//I'm so done trying to calculate and re-calculate the starting positions --Brian
+
 
 
 
@@ -32,23 +33,25 @@ public class AutoCases {
 	void autoModes() {
 		//int automode = autoModeSelector.autonomousModeNumber;
 		
-		double RED_STARTING_X = -25.8;//feet
-		double BLUE_STARTING_X = 25.8;//feet
+		final double RED_STARTING_X = -25.8;//feet
+		final double BLUE_STARTING_X = 25.8;//feet
 		//these starting X coordinates are true for all mode numbers
 		//each side only has one starting X coordinate
 		
-		double MODE_1_STARTING_Y = -6.7;//feet
-		double MODE_2_STARTING_Y = 0;//feet
-		double MODE_3_STARTING_Y = 6.7;//feet
+		final double MODE_1_STARTING_Y = -6.7;//feet
+		final double MODE_2_STARTING_Y = 0;//feet
+		final double MODE_3_STARTING_Y = 6.7;//feet
 		//these starting Y coordinates are true for both alliance colors 
 		//each mode only has one starting Y coordinate
 		/*order of modes: 1, 2, 3, with 1 being the positions
 		 * on both sides that are closest to the boilers
-		 * while 3 are the positions on both sides that
-		 * are closest to the retrieval zones
-		 * 2 are the positions on both sides that are 
+		 * while 3 positions are on sides that are closest 
+		 * to the retrieval zones 
+		 * 2 positions are the positions on both sides that are 
 		 * in the middle between the boilers and the retrieval zones
 		 */
+		
+		final double TIME_TO_COLLECT_BOILER = 3.0;
 		
 		final int nothing = 0;
 		final int redAuto2_ScoreGear = 1;
@@ -69,9 +72,9 @@ public class AutoCases {
 		final int blueAuto1_GearandShootFromHopper = 27;
 		final int blueAuto1_HopperandShootFromBoiler = 28;
 		
-		final int testGearCollection = 40;
+		final int testGearDeposit = 40;
 		
-		int autoMode = testGearCollection;
+		int autoMode = testGearDeposit;
 		
 		switch (autoMode) {
 		case nothing:
@@ -80,7 +83,7 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, MODE_2_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(-18.2, 0, 0));
 			
-			while(!mecanumDrive.gearAlign(0));//place holder
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			gearCollection.autoGearDeposit(1);
 			gearCollection.setArmPosition(0);
@@ -90,7 +93,7 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, MODE_2_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(-18.2, 0, 0));
 			
-			while(!mecanumDrive.gearAlign(0));//place holder
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			gearCollection.autoGearDeposit(.5);
 			gearCollection.setArmPosition(0);
@@ -105,12 +108,11 @@ public class AutoCases {
 
 		case redAuto3_GearandZone:
 			mecanumNavigation.setStartingPosition(RED_STARTING_X,MODE_3_STARTING_Y);
-			while(!mecanumDrive.driveToCoordinate(-17.5,6.7,0));
+			while(!mecanumDrive.driveToCoordinate(-17.5,6.7,-60));
 			
-			while(!mecanumDrive.rotateToHeading(-60));
+			//while(!mecanumDrive.rotateToHeading(-60));
 			
-			while(!mecanumDrive.gearAlign(0));//place holder, still need to determine the
-										// targetXOffset
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			while(!mecanumDrive.driveToCoordinate(-15,3.3,-60));
 			
 			gearCollection.autoGearDeposit(1);
@@ -120,11 +122,11 @@ public class AutoCases {
 		case redAuto1_GearandZone:
 
 			mecanumNavigation.setStartingPosition(RED_STARTING_X,MODE_1_STARTING_Y);
-			while(!mecanumDrive.driveToCoordinate(-16.3,-6.7,0));
+			while(!mecanumDrive.driveToCoordinate(-16.3,-6.7,60));
 			
-			while(!mecanumDrive.rotateToHeading(60));
+			//while(!mecanumDrive.rotateToHeading(60));
 			
-			while(!mecanumDrive.gearAlign(0));//place holder
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			while(!mecanumDrive.driveToCoordinate(-15,-3.3,60));
 			
@@ -138,7 +140,7 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(RED_STARTING_X,MODE_1_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(-18.9,-12,180));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 			
@@ -148,7 +150,7 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, MODE_2_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(-18.9,-12,180));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 
@@ -156,11 +158,11 @@ public class AutoCases {
 			
 		case redAuto1_GearandShootFromHopper:
 			mecanumNavigation.setStartingPosition(RED_STARTING_X,MODE_1_STARTING_Y);
-			while(!mecanumDrive.driveToCoordinate(-16.3,-6.7,0));
+			while(!mecanumDrive.driveToCoordinate(-16.3,-6.7,60));
 			
-			while(!mecanumDrive.rotateToHeading(60));
+			//while(!mecanumDrive.rotateToHeading(60));
 			
-			while(!mecanumDrive.gearAlign(0));//place holder
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));//place holder
 			
 			while(!mecanumDrive.driveToCoordinate(-15,-3.3,60));
 			
@@ -169,7 +171,7 @@ public class AutoCases {
 			
 			while(!mecanumDrive.driveToCoordinate(-18.9,-12,180));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 			break;
@@ -178,20 +180,23 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(RED_STARTING_X,MODE_1_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(-18.9,-12,180));
 			
+			Timer.delay(TIME_TO_COLLECT_BOILER);
+			
 			while(!mecanumDrive.driveToCoordinate(-22.9,-9.2,-135));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 			
 			break;
-			
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			//blue
 		
 		case blueAuto2_ScoreGear:
 			mecanumNavigation.setStartingPosition(BLUE_STARTING_X, MODE_2_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(15, 0, 180));
 			
-			while(!mecanumDrive.gearAlign(0));
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			gearCollection.autoGearDeposit(.5);
 			gearCollection.setArmPosition(0);
@@ -202,7 +207,7 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(BLUE_STARTING_X, MODE_2_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(15, 0, 180));
 			
-			while(!mecanumDrive.gearAlign(0));
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			gearCollection.autoGearDeposit(.5);
 			gearCollection.setArmPosition(0);
@@ -217,11 +222,11 @@ public class AutoCases {
 		case blueAuto3_GearandZone:
 			mecanumNavigation.setStartingPosition(BLUE_STARTING_X, MODE_3_STARTING_Y);
 			
-			while(!mecanumDrive.driveToCoordinate(17.5, 6.7, 180));
+			while(!mecanumDrive.driveToCoordinate(17.5, 6.7, -120));
 			
-			while(!mecanumDrive.rotateToHeading(-120));
+			//while(!mecanumDrive.rotateToHeading(-120));
 			
-			while(!mecanumDrive.gearAlign(0));
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			while(!mecanumDrive.driveToCoordinate(15,3.3,-120));
 			
@@ -232,11 +237,11 @@ public class AutoCases {
 		case blueAuto1_GearandZone:
 			mecanumNavigation.setStartingPosition(BLUE_STARTING_X,MODE_1_STARTING_Y);
 			
-			while(!mecanumDrive.driveToCoordinate(16.3,-6.7,180));
+			while(!mecanumDrive.driveToCoordinate(16.3,-6.7,120));
 			
-			while(!mecanumDrive.rotateToHeading(120));
+			//while(!mecanumDrive.rotateToHeading(120));
 			
-			while(!mecanumDrive.gearAlign(0));
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			while(!mecanumDrive.driveToCoordinate(15,3.3,-120));
 			
@@ -249,7 +254,7 @@ public class AutoCases {
 			
 			while(!mecanumDrive.driveToCoordinate(18.9,-12,0));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 			
@@ -260,7 +265,7 @@ public class AutoCases {
 			
 			while(!mecanumDrive.driveToCoordinate(18.9,-12,0));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 			break;
@@ -268,18 +273,18 @@ public class AutoCases {
 		case blueAuto1_GearandShootFromHopper:
 			mecanumNavigation.setStartingPosition(BLUE_STARTING_X,MODE_1_STARTING_Y);
 			
-			while(!mecanumDrive.driveToCoordinate(16.3,-6.7,180));
+			while(!mecanumDrive.driveToCoordinate(16.3,-6.7,-120));
 			
-			while(!mecanumDrive.rotateToHeading(-120));
+			//while(!mecanumDrive.rotateToHeading(-120));
 			
-			while(!mecanumDrive.gearAlign(0));
+			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			
 			gearCollection.autoGearDeposit(.5);
 			gearCollection.setArmPosition(0);
 			
 			while(!mecanumDrive.driveToCoordinate(18.9,-12,0));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 			break;
@@ -288,14 +293,16 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(BLUE_STARTING_X,MODE_1_STARTING_Y);
 			while(!mecanumDrive.driveToCoordinate(18.9,-12,0));
 			
+			Timer.delay(TIME_TO_COLLECT_BOILER);
+			
 			while(!mecanumDrive.driveToCoordinate(22.9,-9.2,-45));
 			
-			while(!mecanumDrive.visionBoilerAlignment(1));//place holder
+			while(!mecanumDrive.visionBoilerAlignment(Robot.boilerOffset));
 			
 			BallShooter.autoShoot();
 			break;
 			
-		case testGearCollection:
+		case testGearDeposit:
 			
 			gearCollection.autoGearDeposit(1);
 			gearCollection.setArmPosition(0);
@@ -303,7 +310,6 @@ public class AutoCases {
 			break;
 			
 		default:
-			SmartDashboard.putString("A message from one of your fellow programmers:", "I'm so f*cking done coding this");
 			break;
 		}
 	}

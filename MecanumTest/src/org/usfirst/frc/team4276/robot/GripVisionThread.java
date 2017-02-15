@@ -8,6 +8,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
 
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -15,7 +16,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.vision.VisionThread;
 
-public class GripVisionThread {
+public class GripVisionThread extends Thread implements Runnable {
 
 	// The VEX Spike relay used to control turntable position
 	// can open or close no more often than 20 times per second.
@@ -29,11 +30,18 @@ public class GripVisionThread {
 
 	// Microsoft Lifecam HD-3000 diagonal field of view is 68.5 degrees
 	private static final double CAM_HORIZ_FOV_DEGREES = 61.0;
-	private static final int CAM_IMG_WIDTH = 160;
-	private static final int CAM_IMG_HEIGHT = 120;
+	private static final int CAM_IMG_WIDTH = 424;
+	private static final int CAM_IMG_HEIGHT = 240;
 
-	private VisionThread visionThread;
-	private final Object imgLock = new Object();
+	public static final int CAP_PROP_FPS = 5;
+	public static final int CAP_PROP_FRAME_WIDTH = 3;
+	public static final int CAP_PROP_FRAME_HEIGHT = 4;
+	public static final int CAP_PROP_BRIGHTNESS = 10;
+	public static final int CAP_PROP_CONTRAST = 11;
+	public static final int CAP_PROP_SATURATION = 12;
+	public static final int CAP_PROP_HUE = 13;
+	public static final int CAP_PROP_EXPOSURE = 15;
+	public static final int CAP_PROP_AUTO_EXPOSURE = 21;
 
 	// Using a relay to control turntable position means it stops abruptly,
 	// blurring the camera image.
@@ -47,94 +55,89 @@ public class GripVisionThread {
 	public GripPipeline myGripPipeline;
 	public static boolean isValidGripCameraCenterX = false;
 	public static double gripCameraCenterX = 0.0;
-	
+
 	public int gripCameraExposure = 80;
 	public int gripCameraFrameSequence = 0;
 
 	public GripVisionThread() {
-
-		CvSource outputStreamStd = CameraServer.getInstance().putVideo("Gray", CAM_IMG_WIDTH, CAM_IMG_HEIGHT);
-		UsbCamera camGRIP = CameraServer.getInstance().startAutomaticCapture("GRIPcam", 0);
-		//camGRIP.setExposureManual(89);
-		//camGRIP.setFPS(GRIPCAM_FRAMES_PER_SECOND);
-		//camGRIP.setResolution(CAM_IMG_WIDTH, CAM_IMG_HEIGHT);
-
-		//UsbCamera camPIXY = CameraServer.getInstance().startAutomaticCapture("PIXYcam", 1);
-		//camPIXY.setExposureAuto();
-		//camPIXY.setFPS(PIXYCAM_FRAMES_PER_SECOND);
-		
-		//UsbCamera camDriver = CameraServer.getInstance().startAutomaticCapture("Drivercam", 2);
-		//camDriver.setExposureAuto();
-		//camDriver.setResolution(CAM_IMG_WIDTH, CAM_IMG_HEIGHT);
-
-		SmartDashboard.putString("debug4", "Before ctor");
 		myGripPipeline = new GripPipeline();
-		SmartDashboard.putString("debug4", "after ctor1");
-		visionThread = new VisionThread(camGRIP, myGripPipeline, pipeline -> {
-
-			gripCameraFrameSequence++;
-			Mat frame = myGripPipeline.blurInput;
-			SmartDashboard.putString("debug5", "after cap");
-
-			if (pipeline.findContoursOutput().isEmpty()) {
-				isValidGripCameraCenterX = false;
-			} else {
-				SmartDashboard.putString("debug5", "valid");
-				Rect emptyRect = new Rect();
-				Rect rLargest = findLargestContour(pipeline.findContoursOutput());
-				if (rLargest == emptyRect) {
-=			} else {
-					synchronized (imgLock) {
-						gripCameraCenterX = rLargest.x + (rLargest.width / 2);
-						SmartDashboard.putNumber("gripCameraCenterX_000", gripCameraCenterX);
-
-						isValidGripCameraCenterX = true;
-
-						Scalar colorGreen = new Scalar(0, 255, 0);
-
-						// Find midpoints of the 4 sides of the rectangle, and
-						// draw
-						// from those points to the center
-						Point pt0 = new Point(rLargest.x, rLargest.y);
-						Point pt1 = new Point(rLargest.x + rLargest.width, rLargest.y);
-						Point pt2 = new Point(rLargest.x, rLargest.y + rLargest.height);
-						Point pt3 = new Point(rLargest.x + rLargest.width, rLargest.y + rLargest.height);
-
-						Imgproc.line(frame, pt0, pt3, colorGreen, 2);
-						Imgproc.line(frame, pt1, pt2, colorGreen, 2);
-					}
-				}
-			}
-			outputStreamStd.putFrame(frame);
-			SmartDashboard.putNumber("camGRIP frame#", gripCameraFrameSequence);
-			if (!Robot.isBoilerTrackerEnabled) {
-				Robot.turntable1.spinMode = LidarSpin.SpinMode.IDLE;
-			} else if (GripVisionThread.isValidGripCameraCenterX) {
-				if (Robot.turntable1.spinMode == LidarSpin.SpinMode.SCAN) {
-					delayCountForSpinModeChange = NUMBER_OF_FRAMES_BEFORE_CHANGE_SPIN_MODE;
-					Robot.turntable1.spinMode = LidarSpin.SpinMode.IDLE;
-				}
-				if (delayCountForSpinModeChange-- <= 0) {
-					Robot.turntable1.spinMode = LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW;
-				}
-			} else {
-				// !isValidGripCameraCenterX
-				if (Robot.turntable1.spinMode == LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW) {
-					delayCountForSpinModeChange = NUMBER_OF_FRAMES_BEFORE_CHANGE_SPIN_MODE;
-					Robot.turntable1.spinMode = LidarSpin.SpinMode.IDLE;
-				}
-				if (delayCountForSpinModeChange-- <= 0) {
-					Robot.turntable1.spinMode = LidarSpin.SpinMode.SCAN;
-				}
-			}
-
-			Robot.boilerTracker.visionUpdate();
-			Robot.turntable1.spinnerex();
-		});
+		start();
 	}
 
-	public void start() {
-		visionThread.start();
+	// DC1394: exposure control done by camera, user can adjust refernce level
+	// using this feature
+	@Override
+	public void run() {
+
+		CvSource outputStreamStd = CameraServer.getInstance().putVideo("Boiler Tracker", CAM_IMG_WIDTH, CAM_IMG_HEIGHT);
+		VideoCapture camGRIP = new VideoCapture(0);
+
+		camGRIP.set(CAP_PROP_FPS, GRIPCAM_FRAMES_PER_SECOND);
+		camGRIP.set(CAP_PROP_EXPOSURE, gripCameraExposure);
+		camGRIP.set(CAP_PROP_FRAME_WIDTH, CAM_IMG_WIDTH);
+		camGRIP.set(CAP_PROP_FRAME_HEIGHT, CAM_IMG_HEIGHT);
+
+		Scalar colorGreen = new Scalar(0, 255, 0);
+		Mat frame = new Mat();
+		camGRIP.read(frame);
+		if (!camGRIP.isOpened()) {
+			System.out.println("Error");
+		} else {
+			while (true) {
+				if (camGRIP.read(frame)) {
+					gripCameraFrameSequence++;
+					myGripPipeline.process(frame);
+					if (myGripPipeline.findContoursOutput().isEmpty()) {
+						isValidGripCameraCenterX = false;
+					} else {
+						Rect emptyRect = new Rect();
+						Rect rLargest = findLargestContour(myGripPipeline.findContoursOutput());
+						if (rLargest != emptyRect) {
+							gripCameraCenterX = rLargest.x + (rLargest.width / 2);
+							SmartDashboard.putNumber("gripCameraCenterX", gripCameraCenterX);
+
+							isValidGripCameraCenterX = true;
+
+							// Find midpoints of the 4 sides of the rectangle,
+							// and draw from those points to the center
+							Point pt0 = new Point(rLargest.x, rLargest.y);
+							Point pt1 = new Point(rLargest.x + rLargest.width, rLargest.y);
+							Point pt2 = new Point(rLargest.x, rLargest.y + rLargest.height);
+							Point pt3 = new Point(rLargest.x + rLargest.width, rLargest.y + rLargest.height);
+
+							Imgproc.line(frame, pt0, pt3, colorGreen, 2);
+							Imgproc.line(frame, pt1, pt2, colorGreen, 2);
+						}
+					}
+
+					outputStreamStd.putFrame(frame);
+					SmartDashboard.putNumber("camGRIP frame#", gripCameraFrameSequence);
+					if (!Robot.isBoilerTrackerEnabled) {
+						Robot.turntable1.spinMode = LidarSpin.SpinMode.IDLE;
+					} else if (GripVisionThread.isValidGripCameraCenterX) {
+						if (Robot.turntable1.spinMode == LidarSpin.SpinMode.SCAN) {
+							delayCountForSpinModeChange = NUMBER_OF_FRAMES_BEFORE_CHANGE_SPIN_MODE;
+							Robot.turntable1.spinMode = LidarSpin.SpinMode.IDLE;
+						}
+						if (delayCountForSpinModeChange-- <= 0) {
+							Robot.turntable1.spinMode = LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW;
+						}
+					} else {
+						// !isValidGripCameraCenterX
+						if (Robot.turntable1.spinMode == LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW) {
+							delayCountForSpinModeChange = NUMBER_OF_FRAMES_BEFORE_CHANGE_SPIN_MODE;
+							Robot.turntable1.spinMode = LidarSpin.SpinMode.IDLE;
+						}
+						if (delayCountForSpinModeChange-- <= 0) {
+							Robot.turntable1.spinMode = LidarSpin.SpinMode.SCAN;
+						}
+					}
+
+					Robot.boilerTracker.visionUpdate();
+					Robot.turntable1.spinnerex();
+				}
+			}
+		}
 	}
 
 	public static double degreesOffCenterX() {

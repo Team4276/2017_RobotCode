@@ -37,11 +37,15 @@ public class Robot extends SampleRobot {
 
 	static ADIS16448_IMU imu;
 
+	static double gearPegOffset = 0; // PLACE HOLDER
+	static double boilerOffset = 0; // PLACE HOLDER
+
 	AutoCases autonomous;
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
 	gearCollection gearMechanism;
+	ArmPID gearArmControl;
 	BallShooter Shooter;
 	BallCollector ballCollectingMechanism;
 
@@ -107,22 +111,19 @@ public class Robot extends SampleRobot {
 																			// ports
 			driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
 			climbingSystem = new Climber(9, 13);// pwm port 9, dio port 13
-			gearMechanism = new gearCollection(6, 7, 14, 11, 12);// pwm ports 6
-																	// and 7,
-																	// dio ports
-																	// 14,
-																	// 8,
-																	// 9
+			gearMechanism = new gearCollection(6, 7, 14, 8, 9);// pwm ports 6
+																// and 7, dio
+																// ports 14, 8,
+																// 9
 			Shooter = new BallShooter(4, 5, 15);// pwm ports 4 & 5, dio port 15
 			ballCollectingMechanism = new BallCollector(8);// pwm port 8
 
 			robotLocation.start();
+			gearArmControl.start();
 
 			XBoxController = new Joystick(3);
 			logitechJoystick = new Joystick(0);
 			autoSelector = new Joystick(1);
-
-			driveSystem = new mecanumDrive(0, 1, 2, 3);
 		} catch (Exception e) {
 			SmartDashboard.putString("debug", "robot constructor failed");
 		}
@@ -141,9 +142,9 @@ public class Robot extends SampleRobot {
 
 			currentRobotFieldPosition = new RobotPositionPolar();
 			int relay3 = 3;
-			int dio8 = 8;
-			int dio9 = 9;
-			turntable1 = new LidarSpin(relay3, dio8, dio9);
+			int dio21 = 21; // 10 + DIO11 on the more board
+			int dio22 = 22;
+			turntable1 = new LidarSpin(relay3, dio21, dio22);
 			// Scan limits -140 to +230 for competition
 			// 0.0 is straight ahead robot frame. Want to avoid extended
 			// operation
@@ -179,11 +180,9 @@ public class Robot extends SampleRobot {
 	 */
 	public void autonomous() {
 
-		autonomous.autoModes();
+		// autonomous.autoModes();
 
-		/*
-	  isBoilerTrackerEnabled = true;
-
+		isBoilerTrackerEnabled = true;
 
 		SmartDashboard.putString("debug", "auto 1");
 
@@ -210,7 +209,7 @@ public class Robot extends SampleRobot {
 			Timer.delay(.05);
 		}
 
-		
+		/*
 		 * boolean isError = false; for (int i = 0; i < planForThisMatch.size();
 		 * i++) { RouteTask.ReturnValue retVal = planForThisMatch.get(i).exec();
 		 * if (retVal != RouteTask.ReturnValue.SUCCESS) { isError = true;
@@ -218,11 +217,11 @@ public class Robot extends SampleRobot {
 		 * break; } } if (!isError) { SmartDashboard.putString("Auto Status",
 		 * "Auto Complete"); } } else { // TODO: use mecanumNavigation() instead
 		 * of vision system }
-		
+		 */
 
 		turntable1.spinMode = LidarSpin.SpinMode.IDLE;
 		isBoilerTrackerEnabled = false;
- */
+
 	}
 
 	/**

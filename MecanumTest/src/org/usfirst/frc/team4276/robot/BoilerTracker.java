@@ -31,7 +31,7 @@ public class BoilerTracker {
 			Robot.isValidCurrentRobotFieldPosition = false;
 			SmartDashboard.putString("Robot Field Position", "*** Not valid ***");
 		} else {
-			boilerRangeFeet = Robot.boilerLidar.lidarDistanceCentimeters / 2.54;
+			boilerRangeFeet = Robot.boilerLidar.lidarDistanceCentimeters / (12.0 * 2.54);
 			isBoilerRangeValid = (boilerRangeFeet != 0.0);
 			if(isBoilerRangeValid) {
 				SmartDashboard.putNumber("LIDAR Range feet", boilerRangeFeet);

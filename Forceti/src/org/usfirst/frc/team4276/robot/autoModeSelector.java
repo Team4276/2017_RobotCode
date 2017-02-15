@@ -38,7 +38,7 @@ public class autoModeSelector extends Thread implements Runnable{
  	{
  		while(true)
  		{
- 			Timer.delay(.05);
+ 			Timer.delay(1);
  			autonomousModeNumber = AutonomousMode();
  		}
  	}

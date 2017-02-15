@@ -31,11 +31,15 @@ public class Robot extends SampleRobot {
 
 	static ADIS16448_IMU imu;
 	
+	static double gearPegOffset = 0; //PLACE HOLDER 
+	static double boilerOffset = 0; //PLACE HOLDER 
+	
 	AutoCases autonomous;
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
 	gearCollection gearMechanism;
+	ArmPID gearArmControl;
 	BallShooter Shooter;
 	BallCollector ballCollectingMechanism;
 	
@@ -56,12 +60,12 @@ public class Robot extends SampleRobot {
 		ballCollectingMechanism = new BallCollector(8);//pwm port 8
 		
 		robotLocation.start();
+		gearArmControl.start();
 		
 		XBoxController = new Joystick(3);
 		logitechJoystick = new Joystick(0);
 		autoSelector = new Joystick(1);
 
-		driveSystem = new mecanumDrive(0, 1, 2, 3);
 	}
 
 	/**

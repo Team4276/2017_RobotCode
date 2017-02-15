@@ -74,7 +74,7 @@ public class ArmPID extends Thread implements Runnable{
 				
 
 			
-				Timer.delay(0.02);
+				Timer.delay(0.05);
 				
 				
 				}

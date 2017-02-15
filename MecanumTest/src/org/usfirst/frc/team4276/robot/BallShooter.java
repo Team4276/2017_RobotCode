@@ -32,19 +32,15 @@ public class BallShooter {
 	static Toggler shooterToggler;
 	static SoftwareTimer feederStartDelayTimer;
 
-	public BallShooter(int pwm4, int pwm5, int dio10) {
-		try {
-			testJoy = new Joystick(1);
-			shooterWheel = new VictorSP(pwm4);
-			feedingWheel = new VictorSP(pwm5);
-			shooterEncoder = new Counter(dio10); // placeholder for geartooth
-													// encoder
-			shooterEncoder.setDistancePerPulse(1 / 12); // rpm
-			shooterToggler = new Toggler(XBox.RTrigger);
-			feederStartDelayTimer = new SoftwareTimer();
-		} catch(Exception e) {
-			SmartDashboard.putString("debug", "BallShooter constructor failed");
-		}
+	public BallShooter(int pwm4, int pwm5, int dio15) {
+		testJoy = new Joystick(1);
+		shooterWheel = new VictorSP(pwm4);
+		feedingWheel = new VictorSP(pwm5);
+		shooterEncoder = new Counter(dio15); // placeholder for geartooth
+												// encoder
+		shooterEncoder.setDistancePerPulse(1 / 12); // rpm
+		shooterToggler = new Toggler(XBox.RTrigger);
+		feederStartDelayTimer = new SoftwareTimer();
 	}
 
 	void updateGainsFromDriverInput() {
@@ -104,43 +100,41 @@ public class BallShooter {
 	}
 
 	void performMainProcessing() {
-		try {
-			double assignedPower;
-	
-			updateGainsFromDriverInput();
-			shooterToggler.updateMechanismState();
-	
-			if (shooterToggler.getMechanismState()) {
-				if (initializeShooter) {
-					// if initializeShooter is true, then this if statement runs
-					feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
-					initializeShooter = false;
-				} else if (feederStartDelayTimer.isExpired()) {
-					feedingWheel.set(FEEDER_POWER);
-				}
-				assignedPower = computeFlyWheelPower(FLYWHEEL_SPEED);
-				shooterWheel.set(assignedPower);
-			} else {
-				feedingWheel.set(0.0);
-				shooterWheel.set(0.0);
-				initializePID = true;
-				initializeShooter = true;
+		double assignedPower;
+
+		updateGainsFromDriverInput();
+		shooterToggler.updateMechanismState();
+
+		if (shooterToggler.getMechanismState()) {
+			if (initializeShooter) {
+				// if initializeShooter is true, then this if statement runs
+				feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
+				initializeShooter = false;
+			} else if (feederStartDelayTimer.isExpired()) {
+				feedingWheel.set(FEEDER_POWER);
 			}
-		} catch(Exception e) {
-			SmartDashboard.putString("debug", "BallShooter.performMainProcessing failed");
+			assignedPower = computeFlyWheelPower(FLYWHEEL_SPEED);
+			shooterWheel.set(assignedPower);
+		} else {
+			feedingWheel.set(0.0);
+			shooterWheel.set(0.0);
+			initializePID = true;
+			initializeShooter = true;
 		}
 	}
 
 	static void autoShoot() {
-		double RobotXposition = mecanumNavigation.currentFieldX;
-		double RobotYposition = mecanumNavigation.currentFieldY;
+		//double RobotXposition = mecanumNavigation.currentFieldX;
+		//double RobotYposition = mecanumNavigation.currentFieldY;
 		double XRedBoiler = -27.17;// feet
 		double YRedBoiler = -13.5;// feet
 		double XBlueBoiler = 27.17;// feet
 		double YBlueBoiler = 13.5;// feet
 		double distanceToGoal = 0;// default
 
-		if (RobotXposition > 0) // blue alliance
+		double assignedPower;
+		
+	/*	if (RobotXposition > 0) // blue alliance
 		{
 			distanceToGoal = Math
 					.sqrt(Math.pow(XBlueBoiler - RobotXposition, 2) + Math.pow(YBlueBoiler - RobotYposition, 2));
@@ -150,8 +144,16 @@ public class BallShooter {
 					.sqrt(Math.pow(XRedBoiler - RobotXposition, 2) + Math.pow(YRedBoiler - RobotYposition, 2));
 		}
 		// distanceToGoal can be used to calculate speed of shooter
+*/
 
-		feedingWheel.set(.5); // .5 = place holder
-		computeFlyWheelPower(FLYWHEEL_SPEED);
+		if (initializeShooter) {
+			// if initializeShooter is true, then this if statement runs
+			feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
+			initializeShooter = false;
+		} else if (feederStartDelayTimer.isExpired()) {
+			feedingWheel.set(FEEDER_POWER);
+		}
+		assignedPower = computeFlyWheelPower(FLYWHEEL_SPEED);
+		shooterWheel.set(assignedPower);
 	}
 }

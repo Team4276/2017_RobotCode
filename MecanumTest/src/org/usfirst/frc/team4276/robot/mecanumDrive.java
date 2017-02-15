@@ -24,18 +24,14 @@ public class mecanumDrive {
 	
 public mecanumDrive( int pwm0, int pwm1, int pwm2, int pwm3)
 {
-	try {
-		mecanumJoystick = new Joystick(0);
-		forwardRightMotor = new VictorSP(pwm0);
-		forwardLeftMotor = new VictorSP(pwm1);
-		backRightMotor = new VictorSP(pwm2);
-		backLeftMotor = new VictorSP(pwm3);
+
+	mecanumJoystick = new Joystick(0);
+	forwardRightMotor = new VictorSP(pwm0);
+	forwardLeftMotor = new VictorSP(pwm1);
+	backRightMotor = new VictorSP(pwm2);
+	backLeftMotor = new VictorSP(pwm3);
 	
-		mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
-	} catch(Exception e) {
-		SmartDashboard.putString("debug", "mecanumDrive constructor failed");
-		
-	}
+	mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
 }
 
 void robotFrameDrive()
@@ -160,11 +156,7 @@ void TwistTest()
 */
 void Operatordrive()
 {
-	try {
 		fieldFrameDrive();
-	} catch(Exception e) {
-		SmartDashboard.putString("debug", "mechanumDrive.Operatordrive failed");
-	}
 }
 /*
 void driveTest()

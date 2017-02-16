@@ -68,8 +68,6 @@ static double oldY_FieldFrame;
 
 static double theta;
 static double thetaStartingOffset = 0; //default
-	
-static boolean killAuto = false; //EG: kills Auto mode tasking if in progress
 
 boolean ERROR;
 

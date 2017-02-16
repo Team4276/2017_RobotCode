@@ -50,7 +50,7 @@ public class Robot extends SampleRobot {
 	
 	public Robot() {
 		imu = new ADIS16448_IMU();
-		autonomous = new AutoCases();
+		autonomous = new AutoCases(this);
 		
 		robotLocation = new mecanumNavigation(0,1,2,3,4,5,6,7);//dio ports
 		driveSystem = new mecanumDrive(0,1,2,3);//pwm ports

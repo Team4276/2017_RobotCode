@@ -14,7 +14,7 @@ public class LidarSpin {
 	private static final double LIDAR_SCAN_MIN_DEGREES = -134.9;
 	private static final double LIDAR_SCAN_MAX_DEGREES = 224.9;
 
-	private static final double LIDAR_FIXED_DEADZONE_DEGREES = 1.0;
+	private static final double LIDAR_FIXED_DEADZONE_DEGREES = 5.0;
 
 	private double _minScanDegrees = LIDAR_SCAN_MIN_DEGREES;
 	private double _maxScanDegrees = LIDAR_SCAN_MAX_DEGREES;

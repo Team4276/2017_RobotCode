@@ -5,8 +5,6 @@ import edu.wpi.first.wpilibj.SampleRobot;
 
 import java.util.ArrayList;
 
-import org.usfirst.frc.team4276.robot.PIXY.Frame;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,23 +35,11 @@ public class Robot extends SampleRobot {
 	static double gearPegOffset = 0; // PLACE HOLDER
 	static double boilerOffset = 0; // PLACE HOLDER
 
-	AutoCases autonomous;
-	mecanumNavigation robotLocation;
-	mecanumDrive driveSystem;
-	Climber climbingSystem;
-	gearCollection gearMechanism;
-	ArmPID gearArmControl;
-	BallShooter Shooter;
-	BallCollector ballCollectingMechanism;
 
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
 	static Joystick autoSelector;
-
-	// PIXY camera I2C
-	static PIXY pixyI2C;
-	static ArrayList<Frame> pixyFrames;
 
 	// Boiler LIDAR (with GRIP camera on turntable #1)
 	static LIDAR boilerLidar;
@@ -100,18 +86,6 @@ public class Robot extends SampleRobot {
 		imu = new ADIS16448_IMU();
 
 		try {
-			autonomous = new AutoCases();
-
-			robotLocation = new mecanumNavigation(0,1,2,3,4,5,6,7);//dio ports
-			driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
-			climbingSystem = new Climber(9, 13);// pwm port 9, dio port 13
-		gearMechanism = new gearCollection(6,7,14,8,9);//pwm ports 6 and 7, dio ports 14, 8, 9
-			Shooter = new BallShooter(4, 5, 15);// pwm ports 4 & 5, dio port 15
-			ballCollectingMechanism = new BallCollector(8);// pwm port 8
-
-			robotLocation.start();
-			gearArmControl.start();
-
 			XBoxController = new Joystick(3);
 			logitechJoystick = new Joystick(0);
 			autoSelector = new Joystick(1);
@@ -125,16 +99,14 @@ public class Robot extends SampleRobot {
 		SmartDashboard.putString("debug", "robot constructor 1");
 		try {
 
-			pixyI2C = new PIXY("pixyI2C", Port.kMXP, 0x54);
-
 			boilerTracker = new BoilerTracker();
 			boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
 			SmartDashboard.putString("debug", "robot constructor 2");
 
-			int relay1 = 1;
+			int relay3 = 3;
 			int dio21 = 21; // 10 + DIO11 on the more board
 			int dio22 = 22;
-			turntable1 = new LidarSpin(relay1, dio21, dio22);
+			turntable1 = new LidarSpin(relay3, dio21, dio22);
 			// Scan limits -140 to +230 for competition
 			// 0.0 is straight ahead robot frame. Want to avoid extended
 			// operation
@@ -148,12 +120,12 @@ public class Robot extends SampleRobot {
 			planList = new RoutePlanList();
 			planForThisMatch = planList.get(autoPlanSelection);
 
-			SmartDashboard.putString("debug", "robot constructor 3");
+			//SmartDashboard.putString("debug", "robot constructor 3");
 			
 			gripVisionThread = new GripVisionThread();
 			gripVisionThread.start();
-
-			SmartDashboard.putString("debug", "robot constructor 4");
+			
+			//SmartDashboard.putString("debug", "robot constructor 4");
 		} catch (Exception e) {
 			SmartDashboard.putString("debug", "robot constructor failed");
 		}
@@ -188,6 +160,9 @@ public class Robot extends SampleRobot {
 
 		turntable1.setSpinMode(LidarSpin.SpinMode.FIXED_OFFSET_FROM_YAW);
 
+		while (isEnabled()) {
+			Timer.delay(.05);
+		}
 
 		/*
 		 * boolean isError = false; for (int i = 0; i < planForThisMatch.size();
@@ -199,9 +174,8 @@ public class Robot extends SampleRobot {
 		 * of vision system }
 		 */
 
-		while (isOperatorControl() && isEnabled()) {
-			Timer.delay(0.005); // wait 
-		}
+		turntable1.setSpinMode(LidarSpin.SpinMode.IDLE);
+		isBoilerTrackerEnabled = false;
 
 	}
 
@@ -209,16 +183,11 @@ public class Robot extends SampleRobot {
 	 * Runs the motors with arcade steering.
 	 */
 	public void operatorControl() {
-		isBoilerTrackerEnabled = true;
 
+		isBoilerTrackerEnabled = true;
 		turntable1.setSpinMode(LidarSpin.SpinMode.SCAN);
 
 		while (isOperatorControl() && isEnabled()) {
-			driveSystem.Operatordrive();
-			//climbingSystem.performMainProcessing();
-			//gearMechanism.performMainProcessing();
-			//Shooter.performMainProcessing();
-			//ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.05);
 		}
 		isBoilerTrackerEnabled = false;
@@ -228,7 +197,6 @@ public class Robot extends SampleRobot {
 	 * Runs during test mode
 	 */
 	public void test() {
-		turntable1.setSpinMode(LidarSpin.SpinMode.IDLE);
 		// driveSystem.YTest();
 		// driveSystem.XTest();
 		// driveSystem.TwistTest();

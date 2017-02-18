@@ -32,13 +32,13 @@ public class BallShooter {
 	static Toggler shooterToggler;
 	static SoftwareTimer feederStartDelayTimer;
 
-	public BallShooter(int pwm4, int pwm5, int dio15) {
+	public BallShooter(int pwm4, int pwm5, int dio19) {
 		testJoy = new Joystick(1);
 		shooterWheel = new VictorSP(pwm4);
 		feedingWheel = new VictorSP(pwm5);
-		shooterEncoder = new Counter(dio15); // placeholder for geartooth
+		shooterEncoder = new Counter(dio19); // placeholder for geartooth
 												// encoder
-		shooterEncoder.setDistancePerPulse(1 / 12); // rpm
+		shooterEncoder.setDistancePerPulse(1.0 / 12.0); //change for versa encoder RPM
 		shooterToggler = new Toggler(XBox.RTrigger);
 		feederStartDelayTimer = new SoftwareTimer();
 	}

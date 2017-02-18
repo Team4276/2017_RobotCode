@@ -11,9 +11,9 @@ public class BallCollector {
 
 	Toggler collectorToggler;
 
-	public BallCollector(int pwm7) {
-		ballCollector = new VictorSP(pwm7);
-		collectorToggler = new Toggler(XBox.RB);
+	public BallCollector(int pwm8) {
+		ballCollector = new VictorSP(pwm8);
+		collectorToggler = new Toggler(XBox.B);
 	}
 
 	void performMainProcessing() {

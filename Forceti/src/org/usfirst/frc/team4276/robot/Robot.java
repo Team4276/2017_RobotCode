@@ -49,6 +49,29 @@ public class Robot extends SampleRobot {
 	static GripVisionThread gripVisionThread;
 
 	public Robot() {
+<<<<<<< HEAD
+		imu = new ADIS16448_IMU();
+		autonomous = new AutoCases();
+		
+		systemTimer = new Timer();
+		
+		systemTimer.start();
+		
+		gearArmControl = new ArmPID();
+		robotLocation = new mecanumNavigation(0,1,2,3,4,5,6,7);//dio ports
+		driveSystem = new mecanumDrive(0,1,2,3);//pwm ports
+		climbingSystem = new Climber(9,13);//pwm port 9, dio port 13
+		gearMechanism = new gearCollection(6,7,18,8,9);//pwm ports 6 and 7, dio ports 18, 8, 9
+		Shooter = new BallShooter(4,5,19);//pwm ports 4 & 5, dio port 19
+		ballCollectingMechanism = new BallCollector(8);//pwm port 8
+		
+		robotLocation.start();
+		gearArmControl.start();
+		
+		XBoxController = new Joystick(3);
+		logitechJoystick = new Joystick(0);
+		autoSelector = new Joystick(1);
+=======
 		try {
 			imu = new ADIS16448_IMU();
 			
@@ -73,6 +96,7 @@ public class Robot extends SampleRobot {
 		} catch (Exception e) {
 			SmartDashboard.putString("debug", "Robot constructor failed " + e.getMessage());
 		}
+>>>>>>> 4a59ea5a491b94751ae1e443cb1836bb5596dd28
 
 	}
 

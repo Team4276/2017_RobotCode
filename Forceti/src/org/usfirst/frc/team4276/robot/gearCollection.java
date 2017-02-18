@@ -20,22 +20,23 @@ public class gearCollection {
 	
 	static double desiredArmAngle = 0;
 	
-	public gearCollection(int pwm6, int pwm7, int dio14, int dio8, int dio9)
+	public gearCollection(int pwm6, int pwm7, int dio18, int dio8, int dio9)
 	{
 		armMotor = new VictorSP(pwm6);
 		gearIntake = new VictorSP(pwm7);
-		gearLimitSwitch = new DigitalInput(dio14);
+		gearLimitSwitch = new DigitalInput(dio18);
 		armAngle = new Encoder(dio8,dio9);
-		armAngle.setDistancePerPulse(1/497); //testing needed
+		armAngle.setDistancePerPulse(90.0/142.5); //testing needed
 	}
 	
 
 	
 	void performMainProcessing()
 	{
+		SmartDashboard.putNumber("Arm:", armAngle.getDistance());
 		if(Robot.XBoxController.getRawButton(XBox.LB) == true) 
 		{
-			if(gearLimitSwitch.get() == true)
+			if(!(gearLimitSwitch.get() == true))
 			{
 				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, .5);
 				gearIntake.set(OFF);

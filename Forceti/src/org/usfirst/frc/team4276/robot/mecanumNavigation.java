@@ -77,10 +77,10 @@ public mecanumNavigation(int dio0, int dio1, int dio2, int dio3, int dio4, int d
 	backLeftWheel = new Encoder(dio2, dio3);
 	frontRightWheel = new Encoder(dio4, dio5);
 	backRightWheel = new Encoder(dio6, dio7);
-	frontLeftWheel.setDistancePerPulse(1); //place holder
-	backLeftWheel.setDistancePerPulse(1); //place holder
-	frontRightWheel.setDistancePerPulse(1); //place holder
-	backRightWheel.setDistancePerPulse(1); //place holder
+	frontLeftWheel.setDistancePerPulse(1.0); //place holder
+	backLeftWheel.setDistancePerPulse(1.0); //place holder
+	frontRightWheel.setDistancePerPulse(1.0); //place holder
+	backRightWheel.setDistancePerPulse(1.0); //place holder
 	
 	frontLeftWheel.reset();
 	backLeftWheel.reset();

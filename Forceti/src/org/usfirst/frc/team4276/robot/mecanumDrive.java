@@ -76,22 +76,21 @@ public class mecanumDrive {
 
 		yaw = 0;
 
-		if (Math.abs(mecanumJoystick.getX()) > .05)
+		if (Math.abs(mecanumJoystick.getX()) > .1)
 			X = mecanumJoystick.getX();
 		else
 			X = 0;
 
-		if (Math.abs(mecanumJoystick.getY()) > .05)
+		if (Math.abs(mecanumJoystick.getY()) > .1)
 			Y = mecanumJoystick.getY();
 		else
 			Y = 0;
-		if (Math.abs(mecanumJoystick.getTwist()) > .05)
+		if (Math.abs(mecanumJoystick.getTwist()) > .1)
 			Twist = mecanumJoystick.getTwist();
 		else
 			Twist = 0;
 
 		mecanumControl.mecanumDrive_Cartesian(X, Y, Twist, yaw);
-		;
 	}
 
 	/*
@@ -252,8 +251,13 @@ public class mecanumDrive {
 		 * This if statement prevent the rotational power from being too high So
 		 * that the robot won't rotate too fast
 		 */
+<<<<<<< HEAD
+
+		if (Math.abs(RotationDiff) < rotationDeadband) {
+=======
 		
 		if (Math.abs(RotationDiff) < rotationDeadband || r.isOperatorControl()) {
+>>>>>>> 4a59ea5a491b94751ae1e443cb1836bb5596dd28
 			rotationPower = 0;
 			value = true;
 		} else {
@@ -268,7 +272,14 @@ public class mecanumDrive {
 		return value;
 	}
 
-	static boolean visionBoilerAlignment(double boilerAngleOffset) // boiler to the right of center = + boiler to the left of center = -
+	static boolean visionBoilerAlignment(double boilerAngleOffset) // boiler to
+																	// the right
+																	// of center
+																	// = +
+																	// boiler to
+																	// the left
+																	// of center
+																	// = -
 	{
 
 		driveStatus = "Rotating to align with Boiler";

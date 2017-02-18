@@ -1,5 +1,7 @@
 package org.usfirst.frc.team4276.robot;
 
+import edu.wpi.first.wpilibj.Timer;
+
 public class SoftwareTimer {
 
 	static double expirationTime;
@@ -7,7 +9,7 @@ public class SoftwareTimer {
 	static double robotTime;
 
 	void setTimer(double timerValue) {
-		robotTime = Robot.systemTimer.get();
+		robotTime = Timer.getFPGATimestamp();
 		expirationTime = robotTime + timerValue;
 		/*
 		 * I replaced the Robot.systemTimer.get() in that equation with the

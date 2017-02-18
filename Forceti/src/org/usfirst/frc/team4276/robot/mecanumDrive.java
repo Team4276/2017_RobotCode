@@ -19,10 +19,12 @@ public class mecanumDrive {
 	boolean Ytest;
 	boolean Twisttest;
 	static String driveStatus = "initiation";
+	
+	Robot r;
 
 	int mode = 0;
 
-	public mecanumDrive(int pwm0, int pwm1, int pwm2, int pwm3) {
+	public mecanumDrive(int pwm0, int pwm1, int pwm2, int pwm3,Robot r) {
 
 		mecanumJoystick = new Joystick(0);
 		forwardRightMotor = new VictorSP(pwm0);
@@ -31,6 +33,8 @@ public class mecanumDrive {
 		backLeftMotor = new VictorSP(pwm3);
 
 		mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
+		
+		this.r=r;
 	}
 
 	void robotFrameDrive() {
@@ -221,7 +225,7 @@ public class mecanumDrive {
 
 		mecanumControl.mecanumDrive_Cartesian(rotationPower, Ypower, rotationPower, yaw);
 
-		if (Xacheived == true && Yacheived == true && rotationAcheived == true) {
+		if ((Xacheived == true && Yacheived == true && rotationAcheived == true) || r.isOperatorControl()) {
 			return true;
 
 		} else {
@@ -249,7 +253,7 @@ public class mecanumDrive {
 		 * that the robot won't rotate too fast
 		 */
 		
-		if (Math.abs(RotationDiff) < rotationDeadband) {
+		if (Math.abs(RotationDiff) < rotationDeadband || r.isOperatorControl()) {
 			rotationPower = 0;
 			value = true;
 		} else {
@@ -273,7 +277,7 @@ public class mecanumDrive {
 		double rotationConstant = 0.2; // place holder
 		double rotationPower = 0; // default
 		double rotationDeadband = 10; // pixels
-		if (Math.abs(boilerAngleOffset) > rotationDeadband) {
+		if (Math.abs(boilerAngleOffset) > rotationDeadband && !r.isOperatorControl()) {
 			rotationPower = boilerAngleOffset * rotationConstant;
 			value = false;
 		} else {
@@ -293,7 +297,7 @@ public class mecanumDrive {
 		double k = .02;// power applied for every pixel off from center
 		double power = k * targetXOffset;
 
-		if (Math.abs(targetXOffset) > deadband) {
+		if (Math.abs(targetXOffset) > deadband && !r.isOperatorControl()) {
 			mecanumControl.mecanumDrive_Cartesian(power, 0, 0, 0);
 			return false;
 		} else {

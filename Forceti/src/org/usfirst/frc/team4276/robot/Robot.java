@@ -53,7 +53,7 @@ public class Robot extends SampleRobot {
 		autonomous = new AutoCases();
 		
 		robotLocation = new mecanumNavigation(0,1,2,3,4,5,6,7);//dio ports
-		driveSystem = new mecanumDrive(0,1,2,3);//pwm ports
+		driveSystem = new mecanumDrive(0,1,2,3,this);//pwm ports
 		climbingSystem = new Climber(9,13);//pwm port 9, dio port 13
 		gearMechanism = new gearCollection(6,7,14,8,9);//pwm ports 6 and 7, dio ports 14, 8, 9
 		Shooter = new BallShooter(4,5,15);//pwm ports 4 & 5, dio port 15

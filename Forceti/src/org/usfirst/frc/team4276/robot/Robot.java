@@ -63,10 +63,10 @@ public class Robot extends SampleRobot {
 																		// ports
 		driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
 		climbingSystem = new Climber(5, 13);// pwm port 5, dio port 13
-		gearMechanism = new gearCollection(6, 7, 18, 8, 9);// pwm ports 6 and 7,
+		gearMechanism = new gearCollection(6, 7, 18, 19, 20);// pwm ports 6 and 7,
 															// dio ports 18, 8,
 															// 9
-		Shooter = new BallShooter(4, 9, 19, 20);// pwm ports 4 & 9, dio ports 19 & 20
+		Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 19 & 20
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
 
 		robotLocation.start();

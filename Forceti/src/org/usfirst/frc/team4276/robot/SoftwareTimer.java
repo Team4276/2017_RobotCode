@@ -4,23 +4,20 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class SoftwareTimer {
 
-	double expirationTime;
+	private double expirationTime;
+	
 
-	static double robotTime;
+	static Long robotTimeLong;
+	static double robotTimeDouble;
 
 	void setTimer(double timerValue) {
-		robotTime = Timer.getFPGATimestamp();
-		expirationTime = robotTime + timerValue;
-		/*
-		 * I replaced the Robot.systemTimer.get() in that equation with the
-		 * double robotTime
-		 * 
-		 * @Brian
-		 */
+		robotTimeLong = System.currentTimeMillis();
+		robotTimeDouble = robotTimeLong.doubleValue();
+		expirationTime = robotTimeDouble + timerValue;
 	}
 
 	boolean isExpired() {
-		return (robotTime > expirationTime);
+		return (robotTimeDouble > expirationTime);
 		// if robotTime is greater than expirationTime, then this boolean is
 		// true
 	}

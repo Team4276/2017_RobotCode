@@ -11,7 +11,7 @@ public class Climber {
 	final static double LIMIT_SWITCH_DELAY = 1.0; // seconds
 	final static double CLIMBER_POWER = -1.0; // -1.0 to 1.0
 
-	static boolean initializeLimitSwitchDelay = true;
+	boolean initializeLimitSwitchDelay = true;
 	Toggler climberToggler;
 	SoftwareTimer limitSwitchDelayTimer;
 

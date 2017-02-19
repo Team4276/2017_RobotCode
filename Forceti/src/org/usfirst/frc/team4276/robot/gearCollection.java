@@ -67,7 +67,7 @@ public class gearCollection {
 
 	static void setArmPosition(double desiredAngle)
 	{
-		ArmPID.setpoint = desiredAngle;
+		ArmPID.commandedArmAngle = desiredAngle;
 	}
 	
 	static void autoGearDeposit(double timeToRun)

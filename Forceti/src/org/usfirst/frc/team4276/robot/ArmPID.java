@@ -5,18 +5,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ArmPID extends Thread implements Runnable {
 
-	static double angle;
+	static double estimatedArmAngle;
 	static double ang;
 	static final double CHAIN_SLACK_ANGLE = 8.0; // degrees
-	static double startang = 0;// + CHAIN_SLACK_ANGLE; // degrees
-	static double setpoint = startang;
+	static double initialArmAngle = 0;// + CHAIN_SLACK_ANGLE; // degrees
+	static double commandedArmAngle = initialArmAngle;
 	static final double TARGETING_ERROR = 0.0; // degrees
 
 	public void run() {
-		double offset;
+		double errorProportional;
 
-		double kUp = .025;
-		double kDown = .04;
+		final double kUp = .025;
+		final double kDown = .04;
 		double deadband = 1;
 		double power;
 
@@ -25,27 +25,28 @@ public class ArmPID extends Thread implements Runnable {
 				if (Robot.XBoxController.getRawButton(XBox.Start)) {
 					gearCollection.armMotor.set(Robot.XBoxController.getRawAxis(XBox.LStickY));
 				} else {
-					angle = startang - (gearCollection.armAngle.getDistance());
+					double encoderAngle = gearCollection.armAngle.getDistance();
+					estimatedArmAngle = initialArmAngle - encoderAngle;
 
-					offset = setpoint - angle;
+					errorProportional = commandedArmAngle - estimatedArmAngle;
 
-					if (offset < -deadband) {
-						power = kDown * offset;
-					} else if (offset > deadband) {
-						power = kUp * offset;
+					if (errorProportional < -deadband) {
+						power = kDown * errorProportional;
+					} else if (errorProportional > deadband) {
+						power = kUp * errorProportional;
 					} else {
 						power = 0;
 					}
 					gearCollection.armMotor.set(-power);
 					if (Robot.XBoxController.getRawAxis(XBox.LStickY) > 0.5)
-						setpoint -= 5;
+						commandedArmAngle -= 5;
 					else if (Robot.XBoxController.getRawAxis(XBox.LStickY) < -0.5)
-						setpoint += 5;
+						commandedArmAngle += 5;
 
 					if (Robot.XBoxController.getRawButton(XBox.Back) && Robot.XBoxController.getRawButton(XBox.Start)) {
-						startang++;
+						initialArmAngle++;
 					} else if (Robot.XBoxController.getRawButton(XBox.Back)) {
-						startang--;
+						initialArmAngle--;
 					}
 
 					/*
@@ -59,21 +60,21 @@ public class ArmPID extends Thread implements Runnable {
 					 * -90 - TARGETING_ERROR;
 					 */
 
-					if (setpoint >= 0)
-						setpoint = 0;
-					if (setpoint <= -95)
-						setpoint = -95;
+					if (commandedArmAngle >= 0)
+						commandedArmAngle = 0;
+					if (commandedArmAngle <= -90)
+						commandedArmAngle = -05;
 					if (Robot.XBoxController.getRawButton(XBox.Y))
-						setpoint = 0;
+						commandedArmAngle = 0;
 					if (Robot.XBoxController.getRawButton(XBox.X))
-						setpoint = -95;
+						commandedArmAngle = -90;
 
-					SmartDashboard.putNumber("Arm Offset: ", offset);
-					SmartDashboard.putNumber("Setpoint: ", setpoint);
+					SmartDashboard.putNumber("Arm Offset: ", errorProportional);
+					SmartDashboard.putNumber("Setpoint: ", commandedArmAngle);
 					SmartDashboard.putNumber("Power: ", power);
-					SmartDashboard.putNumber("Arm Angle: ", angle);
+					SmartDashboard.putNumber("Arm Angle: ", estimatedArmAngle);
 					SmartDashboard.putNumber("Encoder Value: ", gearCollection.armAngle.getDistance());
-					SmartDashboard.putNumber("Arm Start Angle", startang);
+					SmartDashboard.putNumber("Arm Start Angle", initialArmAngle);
 
 				}
 				Timer.delay(0.05);

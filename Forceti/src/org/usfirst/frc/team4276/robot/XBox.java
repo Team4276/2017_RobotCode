@@ -2,7 +2,7 @@ package org.usfirst.frc.team4276.robot;
 
 public class XBox {
 	
-	static int X=3,Y=4,A=1,B=2;
+	static int A=1,B=2,X=3,Y=4;
     static int LB=5,RB=6;
     static int Back=7,Start=8;
     static int LStick=9,RStick=10;

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class SoftwareTimer {
 
-	static double expirationTime;
+	double expirationTime;
 
 	static double robotTime;
 

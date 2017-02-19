@@ -19,12 +19,10 @@ public class mecanumDrive {
 	boolean Ytest;
 	boolean Twisttest;
 	static String driveStatus = "initiation";
-	
-	Robot r;
 
 	int mode = 0;
 
-	public mecanumDrive(int pwm0, int pwm1, int pwm2, int pwm3,Robot r) {
+	public mecanumDrive(int pwm0, int pwm1, int pwm2, int pwm3) {
 
 		mecanumJoystick = new Joystick(0);
 		forwardRightMotor = new VictorSP(pwm0);
@@ -33,8 +31,7 @@ public class mecanumDrive {
 		backLeftMotor = new VictorSP(pwm3);
 
 		mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
-		
-		this.r=r;
+
 	}
 
 	void robotFrameDrive() {
@@ -224,7 +221,7 @@ public class mecanumDrive {
 
 		mecanumControl.mecanumDrive_Cartesian(rotationPower, Ypower, rotationPower, yaw);
 
-		if ((Xacheived == true && Yacheived == true && rotationAcheived == true) || r.isOperatorControl()) {
+		if ((Xacheived == true && Yacheived == true && rotationAcheived == true)) {
 			return true;
 
 		} else {
@@ -251,13 +248,9 @@ public class mecanumDrive {
 		 * This if statement prevent the rotational power from being too high So
 		 * that the robot won't rotate too fast
 		 */
-<<<<<<< HEAD
 
-		if (Math.abs(RotationDiff) < rotationDeadband) {
-=======
-		
-		if (Math.abs(RotationDiff) < rotationDeadband || r.isOperatorControl()) {
->>>>>>> 4a59ea5a491b94751ae1e443cb1836bb5596dd28
+		if (Math.abs(RotationDiff) < rotationDeadband ) {
+
 			rotationPower = 0;
 			value = true;
 		} else {
@@ -288,7 +281,7 @@ public class mecanumDrive {
 		double rotationConstant = 0.2; // place holder
 		double rotationPower = 0; // default
 		double rotationDeadband = 10; // pixels
-		if (Math.abs(boilerAngleOffset) > rotationDeadband && !r.isOperatorControl()) {
+		if (Math.abs(boilerAngleOffset) > rotationDeadband ) {
 			rotationPower = boilerAngleOffset * rotationConstant;
 			value = false;
 		} else {
@@ -308,7 +301,7 @@ public class mecanumDrive {
 		double k = .02;// power applied for every pixel off from center
 		double power = k * targetXOffset;
 
-		if (Math.abs(targetXOffset) > deadband && !r.isOperatorControl()) {
+		if (Math.abs(targetXOffset) > deadband ) {
 			mecanumControl.mecanumDrive_Cartesian(power, 0, 0, 0);
 			return false;
 		} else {

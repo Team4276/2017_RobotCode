@@ -7,11 +7,15 @@ import edu.wpi.first.wpilibj.Joystick;
 
 public class BallShooter {
 
-	final double FEEDER_DELAY_TIME = 5.0; // seconds
-	final double FEEDER_POWER = 0.5; // -1 to 1
-	double FLYWHEEL_SPEED = 3000; // rpm
-	double GAIN_PROPORTIONAL = 0.0;
-	double GAIN_INTEGRAL = 0.0;
+	private int count = 0;
+	private double filteredRate;
+	private double[] rateSamples = new double[5];
+
+	final double FEEDER_DELAY_TIME = 1.0; // seconds
+	final double FEEDER_POWER = 0.45; // -1 to 1
+	double FLYWHEEL_SPEED = 3100; // rpm
+	double GAIN_PROPORTIONAL = 0.9e-3;
+	double GAIN_INTEGRAL = 10.0e-3;
 	double GAIN_DERIVATIVE = 0.0;
 
 	Joystick testJoy;
@@ -43,29 +47,34 @@ public class BallShooter {
 		shooterEncoder.setDistancePerPulse(60.0/1024.0); // encoder RPM
 		//shooterToggler = new Toggler(XBox.RTrigger);
 		feederStartDelayTimer = new SoftwareTimer();
+		rateSamples[0] = 0;
+		rateSamples[1] = 0;
+		rateSamples[2] = 0;
+		rateSamples[3] = 0;
+		rateSamples[4] = 0;
 	}
 
 	void updateGainsFromDriverInput() {
 		if (testJoy.getRawButton(7))
-			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL - .001;
+			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL - .00001;
 		else if (testJoy.getRawButton(8))
-			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL + .001;
+			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL + .00001;
 		if (testJoy.getRawButton(9))
-			GAIN_INTEGRAL = GAIN_INTEGRAL - .001;
+			GAIN_INTEGRAL = GAIN_INTEGRAL - .00001;
 		else if (testJoy.getRawButton(10))
-			GAIN_INTEGRAL = GAIN_INTEGRAL + .001;
+			GAIN_INTEGRAL = GAIN_INTEGRAL + .00001;
 		if (testJoy.getRawButton(11))
-			GAIN_DERIVATIVE = GAIN_DERIVATIVE - .001;
+			GAIN_DERIVATIVE = GAIN_DERIVATIVE - .00001;
 		else if (testJoy.getRawButton(12))
-			GAIN_DERIVATIVE = GAIN_DERIVATIVE + .001;
+			GAIN_DERIVATIVE = GAIN_DERIVATIVE + .00001;
 		if (testJoy.getRawButton(6))
-			FLYWHEEL_SPEED = FLYWHEEL_SPEED++;
+			FLYWHEEL_SPEED = FLYWHEEL_SPEED+1;
 		else if (testJoy.getRawButton(5))
-			FLYWHEEL_SPEED = FLYWHEEL_SPEED--;
+			FLYWHEEL_SPEED = FLYWHEEL_SPEED-1;
 
-		SmartDashboard.putNumber("Kp", GAIN_PROPORTIONAL);
-		SmartDashboard.putNumber("Kd", GAIN_DERIVATIVE);
-		SmartDashboard.putNumber("Ki", GAIN_INTEGRAL);
+		SmartDashboard.putNumber("Kp*1000", GAIN_PROPORTIONAL*1000);
+		SmartDashboard.putNumber("Kd*1000", GAIN_DERIVATIVE*1000);
+		SmartDashboard.putNumber("Ki*1000", GAIN_INTEGRAL*1000);
 		SmartDashboard.putNumber("CommandedSpeed", FLYWHEEL_SPEED);
 	}
 
@@ -113,11 +122,28 @@ public class BallShooter {
 	}
 
 	void performMainProcessing() {
+		
+		SmartDashboard.putNumber("POV value", Robot.XBoxController.getPOV(0));
+		
+			
 		feederTest();
 		updateGainsFromDriverInput();
 		//shooterToggler.updateMechanismState();
 		currentRate = shooterEncoder.getRate();
-		SmartDashboard.putNumber("Shooter Speed", currentRate);
+		
+		rateSamples[4] = rateSamples[3];
+		rateSamples[3] = rateSamples[2];
+		rateSamples[2] = rateSamples[1];
+		rateSamples[1] = rateSamples[0];
+		rateSamples[0] = currentRate;
+		
+		filteredRate = (rateSamples[0] + rateSamples[1] + rateSamples[2] + rateSamples[3] + rateSamples[4])/5;
+		
+		if(count%3 == 0)
+		{
+		SmartDashboard.putNumber("Shooter Speed", filteredRate);
+		}
+		count++;
 		
 		//if (shooterToggler.getMechanismState()) {
 		if (Robot.XBoxController.getRawAxis(XBox.RTrigger)>0.5) {

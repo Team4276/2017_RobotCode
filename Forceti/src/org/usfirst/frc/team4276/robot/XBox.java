@@ -2,6 +2,12 @@ package org.usfirst.frc.team4276.robot;
 
 public class XBox {
 	
+	static int DPad = 0;
+	
+	static int POVup = 0;
+	static int POVright = 90;
+	static int POVdown = 180;
+	static int POVleft = 270;
 	static int A=1,B=2,X=3,Y=4;
     static int LB=5,RB=6;
     static int Back=7,Start=8;

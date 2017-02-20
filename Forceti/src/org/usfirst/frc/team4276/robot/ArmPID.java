@@ -63,7 +63,7 @@ public class ArmPID extends Thread implements Runnable {
 					if (commandedArmAngle >= 0)
 						commandedArmAngle = 0;
 					if (commandedArmAngle <= -90)
-						commandedArmAngle = -05;
+						commandedArmAngle = -90;
 					if (Robot.XBoxController.getRawButton(XBox.Y))
 						commandedArmAngle = 0;
 					if (Robot.XBoxController.getRawButton(XBox.X))

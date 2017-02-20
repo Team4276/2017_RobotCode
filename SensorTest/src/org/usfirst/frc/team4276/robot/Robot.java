@@ -103,10 +103,10 @@ public class Robot extends SampleRobot {
 			boilerLidar = new LIDAR("boiler", Port.kMXP, 0x62);
 			SmartDashboard.putString("debug", "robot constructor 2");
 
-			int relay3 = 3;
+			int pwm19 = 19; // 10 + PWM9 on the more board, (excludes use of DIO13)
 			int dio21 = 21; // 10 + DIO11 on the more board
 			int dio22 = 22;
-			turntable1 = new LidarSpin(relay3, dio21, dio22);
+			turntable1 = new LidarSpin(pwm19, dio21, dio22);
 			// Scan limits -140 to +230 for competition
 			// 0.0 is straight ahead robot frame. Want to avoid extended
 			// operation

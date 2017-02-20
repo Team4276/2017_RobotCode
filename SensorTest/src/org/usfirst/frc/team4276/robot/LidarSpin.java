@@ -1,9 +1,16 @@
 package org.usfirst.frc.team4276.robot;
 
-import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class LidarSpin {
+
+	public enum SpinMode {
+		IDLE, SCAN, FIXED_OFFSET_FROM_YAW
+	}
+	public enum SpinSpeed {
+		STOP, SLOW, MEDIUM, MAX
+	}
 
 	// We may want to navigate radially away from the boiler and if we drive
 	// directly away robot frame 180.0 will be right at the boiler so a small
@@ -14,7 +21,14 @@ public class LidarSpin {
 	private static final double LIDAR_SCAN_MIN_DEGREES = -134.9;
 	private static final double LIDAR_SCAN_MAX_DEGREES = 224.9;
 
-	private static final double LIDAR_FIXED_DEADZONE_DEGREES = 5.0;
+	private static final double SPIN_SPEED_STOP = 0.0;
+	private static final double SPIN_SPEED_SLOW = 0.1;
+	private static final double SPIN_SPEED_MEDIUM = 0.3;
+	private static final double SPIN_SPEED_MAX = 1.0;
+
+	private static final double LIDAR_FIXED_DEADZONE_DEGREES = 1.0;
+	private static final double LIDAR_FIXED_SLOWZONE_DEGREES = 3.0;
+	private static final double LIDAR_FIXED_MEDIUMZONE_DEGREES = 6.0;
 
 	private double _minScanDegrees = LIDAR_SCAN_MIN_DEGREES;
 	private double _maxScanDegrees = LIDAR_SCAN_MAX_DEGREES;
@@ -22,12 +36,10 @@ public class LidarSpin {
 	// Destination angle for interrupt processing
 	private double _desiredEncoderYaw = 0.0;
 
-	private EncoderWithNotify _enc1;
-	private Relay _spinner;
+	private SpinMode _spinMode = SpinMode.IDLE;
 
-	public enum SpinMode {
-		IDLE, SCAN, FIXED_OFFSET_FROM_YAW
-	}
+	private EncoderWithNotify _enc1;
+	private Talon _spinner;
 
 	public String spinModeToText(LidarSpin.SpinMode val) {
 		switch (val) {
@@ -45,9 +57,7 @@ public class LidarSpin {
 		}
 		return "???";
 	}
-
-	private SpinMode _spinMode = SpinMode.IDLE;
-
+	
 	public synchronized SpinMode spinMode() {
 		return _spinMode;
 	}
@@ -126,10 +136,9 @@ public class LidarSpin {
 		return _desiredEncoderYaw;
 	}
 
-	public LidarSpin(int rlay, int enc_A, int enc_B) {
+	public LidarSpin(int pwm, int enc_A, int enc_B) {
 		try {
-			_spinner = new Relay(rlay);
-			_spinner.setDirection(Relay.Direction.kBoth);
+			_spinner = new Talon(pwm);
 			_spinner.setSafetyEnabled(false);
 
 			_spinMode = SpinMode.IDLE;
@@ -188,7 +197,7 @@ public class LidarSpin {
 			_direction = false;
 		}
 		if (_direction != prevDirection) {
-			_spinner.set(Relay.Value.kOff);
+			_spinner.set(SPIN_SPEED_STOP);
 			SmartDashboard.putString("spinner", "Interrupt Off");
 		}
 		SmartDashboard.putString("debug", "enc interrupt, new yaw = " + encoderYawDegrees());
@@ -203,7 +212,7 @@ public class LidarSpin {
 			SmartDashboard.putString("encoderYawDegrees", "yaw: " + myEncoderYaw + "   desYaw: " + _desiredEncoderYaw);
 
 			if (_spinMode == SpinMode.IDLE) {
-				_spinner.set(Relay.Value.kOff);
+				_spinner.set(SPIN_SPEED_STOP);
 				SmartDashboard.putString("spinner", "IDLE Off");
 
 			} else if (_spinMode == SpinMode.SCAN) {
@@ -215,32 +224,31 @@ public class LidarSpin {
 					_desiredEncoderYaw = _minScanDegrees;
 				}
 				if (_direction) {
-					_spinner.set(Relay.Value.kForward);
+					_spinner.set(SPIN_SPEED_MAX);
 					SmartDashboard.putString("spinner", "SCAN FWD");
 				} else {
-					_spinner.set(Relay.Value.kReverse);
+					_spinner.set(-1.0 * SPIN_SPEED_MAX);
 					SmartDashboard.putString("spinner", "SCAN REV");
 				}
 			} else if (_spinMode == SpinMode.FIXED_OFFSET_FROM_YAW) {
-				if (Math.abs(myEncoderYaw - _desiredEncoderYaw) < LIDAR_FIXED_DEADZONE_DEGREES) {
-					_spinner.set(Relay.Value.kOff);
-					SmartDashboard.putString("spinner", "FIX Off");
+				double diff = Math.abs(myEncoderYaw - _desiredEncoderYaw);
+				double newSpeed = SPIN_SPEED_MAX;
+				if (diff < LIDAR_FIXED_DEADZONE_DEGREES) {
+					newSpeed = SPIN_SPEED_STOP;
+					SmartDashboard.putString("spinner", "FIX Off  diff = " + diff);
+				} else if (diff < LIDAR_FIXED_SLOWZONE_DEGREES) {
+					newSpeed = SPIN_SPEED_STOP;
+					SmartDashboard.putString("spinner", "FIX SLOW  diff = " + diff);
+				} else if (diff < LIDAR_FIXED_MEDIUMZONE_DEGREES) {
+					newSpeed = SPIN_SPEED_STOP;
+					SmartDashboard.putString("spinner", "FIX MEDIUM  diff = " + diff);
 				} else {
-					if (myEncoderYaw < _desiredEncoderYaw) {
-						_direction = true;
-					} else {
-						_direction = false;
-					}
-					if (_direction) {
-						_spinner.set(Relay.Value.kForward);
-						SmartDashboard.putString("spinner",
-								"FIX FWD  yaw: " + myEncoderYaw + "   desYaw: " + _desiredEncoderYaw);
-					} else {
-						_spinner.set(Relay.Value.kReverse);
-						SmartDashboard.putString("spinner",
-								"FIX REV  yaw: " + myEncoderYaw + "   desYaw: " + _desiredEncoderYaw);
-					}
+					SmartDashboard.putString("spinner", "FIX MA  diff = " + diff);
 				}
+				if (myEncoderYaw >= _desiredEncoderYaw) {
+					newSpeed *= -1.0;
+				}
+				_spinner.set(newSpeed);
 			}
 		} catch (Exception e) {
 			SmartDashboard.putString("debug", "spinnerex failed");

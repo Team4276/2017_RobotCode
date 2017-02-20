@@ -19,7 +19,7 @@ public class Climber {
 		limitSwitchDelayTimer = new SoftwareTimer();
 		climber = new VictorSP(pwm5);
 		climberLimitSwitch = new DigitalInput(dio13);
-		climberToggler = new Toggler(XBox.A);
+		climberToggler = new Toggler(JoystickMappings.climberControl, XBox.POV, JoystickMappings.climberControlValue);
 	}
 
 	void performMainProcessing() {

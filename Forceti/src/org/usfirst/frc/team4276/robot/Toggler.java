@@ -2,26 +2,47 @@ package org.usfirst.frc.team4276.robot;
 
 public class Toggler {
 
-	private int button;
+	private int controlPoint;
+	private String controlType;
+	private int controlPointTarget;
 	private boolean state = false;
 
-	private boolean currentButtonStatus = false;
-	private boolean previousButtonStatus;
+	private boolean currentControlPointStatus = false;
+	private boolean previousControlPointStatus;
 
-	public Toggler(int joystickButton) {
-		button = joystickButton;
+	public Toggler(int controlInputName, String inputType, int desiredValue) {
+		controlPoint = controlInputName;
+		controlType = inputType;
+		controlPointTarget = desiredValue;
 	}
 
 	void updateMechanismState() {
-		previousButtonStatus = currentButtonStatus;
-		currentButtonStatus = Robot.XBoxController.getRawButton(button);
 
-		if (currentButtonStatus == true) {
-			if (previousButtonStatus == false) {
-				if (state == true) {
-					state = false;
-				} else {
-					state = true;
+		if (controlType == XBox.BUTTON) {
+			previousControlPointStatus = currentControlPointStatus;
+			currentControlPointStatus = Robot.XBoxController.getRawButton(controlPoint);
+
+			if (currentControlPointStatus == true) {
+				if (previousControlPointStatus == false) {
+					if (state == true) {
+						state = false;
+					} else {
+						state = true;
+					}
+				}
+			}
+		}
+		else if (controlType == XBox.POV) {
+			previousControlPointStatus = currentControlPointStatus;
+			currentControlPointStatus = (controlPointTarget == Robot.XBoxController.getPOV(controlPoint));
+
+			if (currentControlPointStatus == true) {
+				if (previousControlPointStatus == false) {
+					if (state == true) {
+						state = false;
+					} else {
+						state = true;
+					}
 				}
 			}
 		}

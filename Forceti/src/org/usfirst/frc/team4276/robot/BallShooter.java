@@ -78,10 +78,14 @@ public class BallShooter {
 		SmartDashboard.putNumber("CommandedSpeed", FLYWHEEL_SPEED);
 	}
 
-	void feederTest(){
+	void feederManualControl(){
 		if(Robot.XBoxController.getRawAxis(XBox.RStickY)<-.5)
 		{
 			feedingWheel.set(FEEDER_POWER);
+		}
+		else if (Robot.XBoxController.getRawAxis(XBox.RStickY)>.5)
+		{
+			feedingWheel.set(-FEEDER_POWER);
 		}
 		else
 		{
@@ -126,7 +130,7 @@ public class BallShooter {
 		SmartDashboard.putNumber("POV value", Robot.XBoxController.getPOV(0));
 		
 			
-		feederTest();
+		feederManualControl();
 		updateGainsFromDriverInput();
 		//shooterToggler.updateMechanismState();
 		currentRate = shooterEncoder.getRate();

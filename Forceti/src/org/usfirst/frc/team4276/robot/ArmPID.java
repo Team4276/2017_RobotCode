@@ -5,12 +5,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ArmPID extends Thread implements Runnable {
 
-	static double estimatedArmAngle;
-	static double ang;
-	static final double CHAIN_SLACK_ANGLE = 8.0; // degrees
+	
+	final double raisedSetPoint = 0.0;
+	final double middleSetPoint = -45.0;
+	final double collectingSetPoint = -90.0;
+	double estimatedArmAngle;
+	double ang;
+	final double CHAIN_SLACK_ANGLE = 8.0; // degrees
 	static double initialArmAngle = 0;// + CHAIN_SLACK_ANGLE; // degrees
 	static double commandedArmAngle = initialArmAngle;
-	static final double TARGETING_ERROR = 0.0; // degrees
+	final double TARGETING_ERROR = 0.0; // degrees
+	
+	final double upperLimit = 0.0;
+	final double lowerLimit = -90.0;
 
 	public void run() {
 		double errorProportional;
@@ -60,14 +67,16 @@ public class ArmPID extends Thread implements Runnable {
 					 * -90 - TARGETING_ERROR;
 					 */
 
-					if (commandedArmAngle >= 0)
-						commandedArmAngle = 0;
-					if (commandedArmAngle <= -90)
-						commandedArmAngle = -90;
-					if (Robot.XBoxController.getRawButton(XBox.Y))
-						commandedArmAngle = 0;
-					if (Robot.XBoxController.getRawButton(XBox.X))
-						commandedArmAngle = -90;
+					if (commandedArmAngle >= upperLimit)
+						commandedArmAngle = upperLimit;
+					if (commandedArmAngle <= -lowerLimit)
+						commandedArmAngle = -lowerLimit;
+					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmUp))
+						commandedArmAngle = raisedSetPoint;
+					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmMiddle))
+						commandedArmAngle = middleSetPoint;
+					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown))
+						commandedArmAngle = collectingSetPoint;
 
 					SmartDashboard.putNumber("Arm Offset: ", errorProportional);
 					SmartDashboard.putNumber("Setpoint: ", commandedArmAngle);

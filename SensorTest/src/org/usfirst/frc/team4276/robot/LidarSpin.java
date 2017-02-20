@@ -26,7 +26,9 @@ public class LidarSpin {
 	private static final double SPIN_SPEED_MEDIUM = 0.3;
 	private static final double SPIN_SPEED_MAX = 1.0;
 
-	private static final double LIDAR_FIXED_DEADZONE_DEGREES = 5.0;
+	private static final double LIDAR_FIXED_DEADZONE_DEGREES = 1.0;
+	private static final double LIDAR_FIXED_SLOWZONE_DEGREES = 3.0;
+	private static final double LIDAR_FIXED_MEDIUMZONE_DEGREES = 6.0;
 
 	private double _minScanDegrees = LIDAR_SCAN_MIN_DEGREES;
 	private double _maxScanDegrees = LIDAR_SCAN_MAX_DEGREES;
@@ -229,25 +231,24 @@ public class LidarSpin {
 					SmartDashboard.putString("spinner", "SCAN REV");
 				}
 			} else if (_spinMode == SpinMode.FIXED_OFFSET_FROM_YAW) {
-				if (Math.abs(myEncoderYaw - _desiredEncoderYaw) < LIDAR_FIXED_DEADZONE_DEGREES) {
-					_spinner.set(SPIN_SPEED_STOP);
-					SmartDashboard.putString("spinner", "FIX Off");
+				double diff = Math.abs(myEncoderYaw - _desiredEncoderYaw);
+				double newSpeed = SPIN_SPEED_MAX;
+				if (diff < LIDAR_FIXED_DEADZONE_DEGREES) {
+					newSpeed = SPIN_SPEED_STOP;
+					SmartDashboard.putString("spinner", "FIX Off  diff = " + diff);
+				} else if (diff < LIDAR_FIXED_SLOWZONE_DEGREES) {
+					newSpeed = SPIN_SPEED_STOP;
+					SmartDashboard.putString("spinner", "FIX SLOW  diff = " + diff);
+				} else if (diff < LIDAR_FIXED_MEDIUMZONE_DEGREES) {
+					newSpeed = SPIN_SPEED_STOP;
+					SmartDashboard.putString("spinner", "FIX MEDIUM  diff = " + diff);
 				} else {
-					if (myEncoderYaw < _desiredEncoderYaw) {
-						_direction = true;
-					} else {
-						_direction = false;
-					}
-					if (_direction) {
-						_spinner.set(SPIN_SPEED_MAX);
-						SmartDashboard.putString("spinner",
-								"FIX FWD  yaw: " + myEncoderYaw + "   desYaw: " + _desiredEncoderYaw);
-					} else {
-						_spinner.set(-1.0 * SPIN_SPEED_MAX);
-						SmartDashboard.putString("spinner",
-								"FIX REV  yaw: " + myEncoderYaw + "   desYaw: " + _desiredEncoderYaw);
-					}
+					SmartDashboard.putString("spinner", "FIX MA  diff = " + diff);
 				}
+				if (myEncoderYaw >= _desiredEncoderYaw) {
+					newSpeed *= -1.0;
+				}
+				_spinner.set(newSpeed);
 			}
 		} catch (Exception e) {
 			SmartDashboard.putString("debug", "spinnerex failed");

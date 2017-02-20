@@ -2,11 +2,11 @@ package org.usfirst.frc.team4276.robot;
 
 public class Toggler {
 
-	static int button;
-	static boolean state = false;
+	private int button;
+	private boolean state = false;
 
-	static boolean currentButtonStatus = false;
-	static boolean previousButtonStatus;
+	private boolean currentButtonStatus = false;
+	private boolean previousButtonStatus;
 
 	public Toggler(int joystickButton) {
 		button = joystickButton;

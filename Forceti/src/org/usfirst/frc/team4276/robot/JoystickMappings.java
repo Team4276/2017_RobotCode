@@ -6,7 +6,7 @@ package org.usfirst.frc.team4276.robot;
 
 public class JoystickMappings {
 	
-	static int gearArmJoggerler = XBox.LStickY;
+	static int gearArmJogger = XBox.LStickY;
 	static int gearArmCollect = XBox.LB;
 	static int gearArmDeposit = XBox.RB;
 	

@@ -69,8 +69,8 @@ public class ArmPID extends Thread implements Runnable {
 
 					if (commandedArmAngle >= upperLimit)
 						commandedArmAngle = upperLimit;
-					if (commandedArmAngle <= -lowerLimit)
-						commandedArmAngle = -lowerLimit;
+					if (commandedArmAngle <= lowerLimit)
+						commandedArmAngle = lowerLimit;
 					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmUp))
 						commandedArmAngle = raisedSetPoint;
 					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmMiddle))

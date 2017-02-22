@@ -19,11 +19,11 @@ public class Climber {
 		limitSwitchDelayTimer = new SoftwareTimer();
 		climber = new VictorSP(pwm5);
 		climberLimitSwitch = new DigitalInput(dio13);
-		climberToggler = new Toggler(JoystickMappings.climberControl, XBox.POV, JoystickMappings.climberControlValue);
+		climberToggler = new Toggler(XBox.DPad);
 	}
 
 	void performMainProcessing() {
-		climberToggler.updateMechanismState();
+		climberToggler.updateMechanismState(XBox.POVup);
 		if (climberToggler.getMechanismState()) {
 			//if (climberLimitSwitch.get() == false) {
 			if (false){
@@ -42,6 +42,6 @@ public class Climber {
 			climber.set(0.0);
 		}
 
-		//SmartDashboard.putBoolean("Climber", climbing);
+		SmartDashboard.putBoolean("Climber Status:", climberToggler.getMechanismState());
 	}
 }

@@ -1,8 +1,8 @@
 package org.usfirst.frc.team4276.robot;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
-
 import edu.wpi.cscore.CvSource;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Timer;
@@ -44,6 +44,27 @@ public class DriverCameraThread extends Thread implements Runnable {
 		setDaemon(true);
 	}
 
+	void matRotate(Mat matImage, int rotflag) {
+		// 1=CW, 2=CCW, 3=180
+		switch (rotflag) {
+		case 1:
+			Core.transpose(matImage, matImage);
+			Core.flip(matImage, matImage, 1); // transpose+flip(1)=CW
+			break;
+
+		case 2:
+			Core.transpose(matImage, matImage);
+			Core.flip(matImage, matImage, 0); // transpose+flip(0)=CCW
+			break;
+
+		case 3:
+			Core.flip(matImage, matImage, -1); // flip(-1)=180
+			break;
+
+		default:
+		}
+	}
+
 	@Override
 	public void run() {
 
@@ -61,7 +82,10 @@ public class DriverCameraThread extends Thread implements Runnable {
 		while (true) {
 			if (camDRIVER.read(frame)) {
 				incr_driverCameraFrameSequence();
+				
+				matRotate(frame, 1);
 				outputStreamStd.putFrame(frame);
+
 				SmartDashboard.putNumber("camDRIVER frame#", driverCameraFrameSequence());
 			} else {
 				SmartDashboard.putString("camDRIVER frame#", "*** Not Connected ***");

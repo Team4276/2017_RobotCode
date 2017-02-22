@@ -19,19 +19,19 @@
       <grip:Input step="1" socket="0"/>
       <grip:Input step="1" socket="1">
         <value>
-          <double>30.755395683453237</double>
-          <double>55.59726962457338</double>
+          <double>40.46762589928058</double>
+          <double>90.92150170648463</double>
         </value>
       </grip:Input>
       <grip:Input step="1" socket="2">
         <value>
-          <double>50.44964028776978</double>
+          <double>6.879496402877698</double>
           <double>255.0</double>
         </value>
       </grip:Input>
       <grip:Input step="1" socket="3">
         <value>
-          <double>142.17625899280574</double>
+          <double>66.50179856115108</double>
           <double>255.0</double>
         </value>
       </grip:Input>
@@ -71,6 +71,10 @@
   </steps>
   <connections>
     <grip:Connection>
+      <grip:Output step="2" socket="0" previewed="true"/>
+      <grip:Input step="3" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
       <grip:Output step="1" socket="0" previewed="true"/>
       <grip:Input step="2" socket="0"/>
     </grip:Connection>
@@ -81,10 +85,6 @@
     <grip:Connection>
       <grip:Output step="0" socket="0" previewed="true"/>
       <grip:Input step="1" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output step="2" socket="0" previewed="true"/>
-      <grip:Input step="3" socket="0"/>
     </grip:Connection>
   </connections>
   <settings>
@@ -100,7 +100,7 @@
     <language>Java</language>
     <className>GripPipeline</className>
     <implementWpilibPipeline>false</implementWpilibPipeline>
-    <saveDir>C:\Users\acappon\Documents\2017_RobotCode\MecanumTest\src\org\usfirst\frc\team4276\robot</saveDir>
+    <saveDir>C:\Users\acappon\GRIP</saveDir>
     <packageName>org.usfirst.frc.team4276.robot</packageName>
     <moduleName>grip</moduleName>
   </codeGenerationSettings>

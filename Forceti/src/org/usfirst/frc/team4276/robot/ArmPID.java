@@ -75,14 +75,14 @@ public class ArmPID extends Thread implements Runnable {
 						commandedArmAngle = raisedSetPoint;
 					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmMiddle))
 						commandedArmAngle = middleSetPoint;
-					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown))
-						commandedArmAngle = collectingSetPoint;
+				//	if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown))
+					//	commandedArmAngle = collectingSetPoint;
 
 					SmartDashboard.putNumber("Arm Offset: ", errorProportional);
 					SmartDashboard.putNumber("Setpoint: ", commandedArmAngle);
 					SmartDashboard.putNumber("Power: ", power);
 					SmartDashboard.putNumber("Arm Angle: ", estimatedArmAngle);
-					SmartDashboard.putNumber("Encoder Value: ", gearCollection.armAngle.getDistance());
+					SmartDashboard.putNumber("Encoder Value: ", encoderAngle);
 					SmartDashboard.putNumber("Arm Start Angle", initialArmAngle);
 
 				}

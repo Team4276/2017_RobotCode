@@ -10,7 +10,9 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
+import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -34,7 +36,6 @@ public class GripVisionThread extends Thread implements Runnable {
 	public static final int CAP_PROP_HUE = 13;
 	public static final int CAP_PROP_EXPOSURE = 15;
 	public static final int CAP_PROP_AUTO_EXPOSURE = 21;
-
 
 	private GripPipeline myGripPipeline;
 	private static boolean _isValidGripCameraCenterX = false;
@@ -84,49 +85,41 @@ public class GripVisionThread extends Thread implements Runnable {
 	@Override
 	public void run() {
 
-		CvSource outputStreamStd = CameraServer.getInstance().putVideo("GRIP Camera", CAM_IMG_WIDTH, CAM_IMG_HEIGHT);
-		VideoCapture camGRIP = new VideoCapture(camNumber);
+		UsbCamera camGRIP = CameraServer.getInstance().startAutomaticCapture(camNumber);
 
-		camGRIP.set(CAP_PROP_FPS, GRIPCAM_FRAMES_PER_SECOND);
-		camGRIP.set(CAP_PROP_EXPOSURE, gripCameraExposure());
-		camGRIP.set(CAP_PROP_FRAME_WIDTH, CAM_IMG_WIDTH);
-		camGRIP.set(CAP_PROP_FRAME_HEIGHT, CAM_IMG_HEIGHT);
+		camGRIP.setResolution(CAM_IMG_WIDTH, CAM_IMG_HEIGHT);
+		camGRIP.setExposureManual(gripCameraExposure());
+		camGRIP.setFPS(GRIPCAM_FRAMES_PER_SECOND);
 
+		CvSink cvSink = CameraServer.getInstance().getVideo();
+		CvSource outputStream = CameraServer.getInstance().putVideo("cam GRIP", CAM_IMG_WIDTH, CAM_IMG_HEIGHT);
 		Scalar colorGreen = new Scalar(0, 255, 0);
 		Mat frame = new Mat();
-		camGRIP.read(frame);
-		if (!camGRIP.isOpened()) {
-			System.out.println("Error");
-		} else {
-			while (true) {
-				if (camGRIP.read(frame)) {
-					incr_gripCameraFrameSequence();
-					myGripPipeline.process(frame);
-					if (myGripPipeline.findContoursOutput().isEmpty()) {
-						set_isValidGripCameraCenterX(false);
-					} else {
-						Rect emptyRect = new Rect();
-						Rect rLargest = findLargestContour(myGripPipeline.findContoursOutput());
-						if (rLargest != emptyRect) {
-							set_gripCameraCenterX(rLargest.x + (rLargest.width / 2));
-							set_isValidGripCameraCenterX(true);
+		while (true) {
+			cvSink.grabFrame(frame);
+			incr_gripCameraFrameSequence();
+			myGripPipeline.process(frame);
+			if (myGripPipeline.findContoursOutput().isEmpty()) {
+				set_isValidGripCameraCenterX(false);
+			} else {
+				Rect emptyRect = new Rect();
+				Rect rLargest = findLargestContour(myGripPipeline.findContoursOutput());
+				if (rLargest != emptyRect) {
+					set_gripCameraCenterX(rLargest.x + (rLargest.width / 2));
+					set_isValidGripCameraCenterX(true);
 
-							// Find midpoints of the 4 sides of the rectangle,
-							// and draw from those points to the center
-							Point pt0 = new Point(rLargest.x, rLargest.y);
-							Point pt1 = new Point(rLargest.x + rLargest.width, rLargest.y);
-							Point pt2 = new Point(rLargest.x, rLargest.y + rLargest.height);
-							Point pt3 = new Point(rLargest.x + rLargest.width, rLargest.y + rLargest.height);
+					// Find midpoints of the 4 sides of the rectangle,
+					// and draw from those points to the center
+					Point pt0 = new Point(rLargest.x, rLargest.y);
+					Point pt1 = new Point(rLargest.x + rLargest.width, rLargest.y);
+					Point pt2 = new Point(rLargest.x, rLargest.y + rLargest.height);
+					Point pt3 = new Point(rLargest.x + rLargest.width, rLargest.y + rLargest.height);
 
-							Imgproc.line(frame, pt0, pt3, colorGreen, 2);
-							Imgproc.line(frame, pt1, pt2, colorGreen, 2);
-						}
-					}
-
-					outputStreamStd.putFrame(frame);
-					SmartDashboard.putNumber("camGRIP frame#", gripCameraFrameSequence());
+					Imgproc.line(frame, pt0, pt3, colorGreen, 2);
+					Imgproc.line(frame, pt1, pt2, colorGreen, 2);
 				}
 			}
+			outputStream.putFrame(frame);
 		}
 	}
 
@@ -149,5 +142,4 @@ public class GripVisionThread extends Thread implements Runnable {
 		}
 		return rRet;
 	}
-
 }

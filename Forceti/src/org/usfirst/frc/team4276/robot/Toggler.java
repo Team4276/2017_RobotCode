@@ -2,47 +2,55 @@ package org.usfirst.frc.team4276.robot;
 
 public class Toggler {
 
-	private int controlPoint;
-	private String controlType;
-	private int controlPointTarget;
+	private int button;
 	private boolean state = false;
 
-	private boolean currentControlPointStatus = false;
-	private boolean previousControlPointStatus;
+	private boolean currentButtonStatus = false;
+	private boolean previousButtonStatus;
 
-	public Toggler(int controlInputName, String inputType, int desiredValue) {
-		controlPoint = controlInputName;
-		controlType = inputType;
-		controlPointTarget = desiredValue;
+	public Toggler(int joystickButton) {
+		button = joystickButton;
 	}
 
-	void updateMechanismState() {
-
-		if (controlType == XBox.BUTTON) {
-			previousControlPointStatus = currentControlPointStatus;
-			currentControlPointStatus = Robot.XBoxController.getRawButton(controlPoint);
-
-			if (currentControlPointStatus == true) {
-				if (previousControlPointStatus == false) {
-					if (state == true) {
-						state = false;
-					} else {
-						state = true;
-					}
+	void updateMechanismState(double triggerValue) {
+		previousButtonStatus = currentButtonStatus;
+		currentButtonStatus = (Robot.XBoxController.getRawAxis(button) >= triggerValue);
+		if (currentButtonStatus == true) {
+			if (previousButtonStatus == false) {
+				if (state == true) {
+					state = false;
+				} else {
+					state = true;
 				}
 			}
 		}
-		else if (controlType == XBox.POV) {
-			previousControlPointStatus = currentControlPointStatus;
-			currentControlPointStatus = (controlPointTarget == Robot.XBoxController.getPOV(controlPoint));
 
-			if (currentControlPointStatus == true) {
-				if (previousControlPointStatus == false) {
-					if (state == true) {
-						state = false;
-					} else {
-						state = true;
-					}
+	}
+
+	void updateMechanismState(int DpadState) {
+		previousButtonStatus = currentButtonStatus;
+		currentButtonStatus = (DpadState == Robot.XBoxController.getPOV(button));
+		if (currentButtonStatus == true) {
+			if (previousButtonStatus == false) {
+				if (state == true) {
+					state = false;
+				} else {
+					state = true;
+				}
+			}
+		}
+	}
+
+	void updateMechanismState() {
+		previousButtonStatus = currentButtonStatus;
+		currentButtonStatus = Robot.XBoxController.getRawButton(button);
+
+		if (currentButtonStatus == true) {
+			if (previousButtonStatus == false) {
+				if (state == true) {
+					state = false;
+				} else {
+					state = true;
 				}
 			}
 		}

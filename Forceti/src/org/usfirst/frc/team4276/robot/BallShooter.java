@@ -55,7 +55,7 @@ public class BallShooter {
 	}
 
 	void updateGainsFromDriverInput() {
-		if (testJoy.getRawButton(7))
+		/*if (testJoy.getRawButton(7))
 			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL - .00001;
 		else if (testJoy.getRawButton(8))
 			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL + .00001;
@@ -67,6 +67,7 @@ public class BallShooter {
 			GAIN_DERIVATIVE = GAIN_DERIVATIVE - .00001;
 		else if (testJoy.getRawButton(12))
 			GAIN_DERIVATIVE = GAIN_DERIVATIVE + .00001;
+		*/	
 		if (testJoy.getRawButton(6))
 			FLYWHEEL_SPEED = FLYWHEEL_SPEED+1;
 		else if (testJoy.getRawButton(5))

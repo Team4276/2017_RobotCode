@@ -19,6 +19,25 @@ public class mecanumDrive {
 	boolean Ytest;
 	boolean Twisttest;
 	static String driveStatus = "initiation";
+	
+	double X = 0;
+	double Y = 0;
+	double Rotate = 0;
+	double Xnet = 0;
+	double Ynet = 0;
+	double RotateNet = 0;
+	double K_X_INDUCED_BY_Y = 0;//place holder
+	double K_X_INDUCED_BY_Rotate = 0;//place holder
+	double K_Y_INDUCED_BY_X = .025;//apply bias in Y-direction moved when 
+	double K_Y_INDUCED_BY_Rotate = 0;//place holder
+	double K_ROTATE_INDUCED_BY_X = 0.024;//place holder
+	double K_ROTATE_INDUCED_BY_Y = 0.01;//place holder
+	double BIAS_X_INDUCED_BY_Y = 0;
+	double BIAS_X_INDUCED_BY_Rotate = 0;
+	double BIAS_Y_INDUCED_BY_X = 0;
+	double BIAS_Y_INDUCED_BY_Rotate = 0;
+	double BIAS_ROTATE_INDUCED_BY_X = 0;
+	double BIAS_ROTATE_INDUCED_BY_Y = 0;
 
 	int mode = 0;
 
@@ -67,62 +86,185 @@ public class mecanumDrive {
 		driveStatus = "Driving In Robot Frame";
 
 		double yaw = 0.0;
-		double X = 0.0;
-		double Y = 0.0;
-		double Twist = 0.0;
 
-		yaw = 0;
+		if (mecanumJoystick.getRawButton(1)) {
+			if (Math.abs(mecanumJoystick.getX()) > .1)
+				X = mecanumJoystick.getX() / 4;
+			else
+				X = 0;
+
+			if (Math.abs(mecanumJoystick.getY()) > .1)
+				Y = mecanumJoystick.getY() / 4;
+			else
+				Y = 0;
+			if ((mecanumJoystick.getTwist()) > .1)
+				Rotate = 0;
+		} else {
+			if (Math.abs(mecanumJoystick.getX()) > .1)
+				X = mecanumJoystick.getX();
+			else
+				X = 0;
+
+			if (Math.abs(mecanumJoystick.getY()) > .1)
+				Y = mecanumJoystick.getY();
+			else
+				Y = 0;
+			if ((mecanumJoystick.getTwist()) > .1)
+				Rotate = mecanumJoystick.getTwist() * mecanumJoystick.getTwist();
+			else if ((mecanumJoystick.getTwist()) < -.1)
+				Rotate = -1 * mecanumJoystick.getTwist() * mecanumJoystick.getTwist();
+			else
+				Rotate = 0;
+			
+
+		}
+		
+		BIAS_X_INDUCED_BY_Y = K_X_INDUCED_BY_Y*Y;
+		BIAS_X_INDUCED_BY_Rotate = K_X_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_Y_INDUCED_BY_X = K_Y_INDUCED_BY_X*X;
+		BIAS_Y_INDUCED_BY_Rotate = K_Y_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_ROTATE_INDUCED_BY_X = K_ROTATE_INDUCED_BY_X*X;
+		BIAS_ROTATE_INDUCED_BY_Y = K_ROTATE_INDUCED_BY_Y*Y;
+		
+		Xnet = X + BIAS_X_INDUCED_BY_Y + BIAS_X_INDUCED_BY_Rotate ;
+		Ynet = Y + BIAS_Y_INDUCED_BY_X + BIAS_Y_INDUCED_BY_Rotate ;
+		RotateNet = Rotate + BIAS_ROTATE_INDUCED_BY_Y + BIAS_ROTATE_INDUCED_BY_X ;
+		
+		
+		SmartDashboard.putNumber("X BIAS Y", K_X_INDUCED_BY_Y);
+		SmartDashboard.putNumber("X BIAS Rotate", K_X_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Y BIAS X", K_Y_INDUCED_BY_X);
+		SmartDashboard.putNumber("Y BIAS Rotate", K_Y_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Rotate BIAS X", K_ROTATE_INDUCED_BY_X);
+		SmartDashboard.putNumber("Rotate BIAS Y", K_ROTATE_INDUCED_BY_Y);
+		
+		mecanumControl.mecanumDrive_Cartesian(Xnet, Ynet, RotateNet, yaw);
+	}
+
+	void XTest() {
+		fieldFrame = false;
+		robotFrame = false;
+		Xtest = true;
+		Ytest = false;
+		Twisttest = false;
+
+		
 
 		if (Math.abs(mecanumJoystick.getX()) > .1)
-			X = mecanumJoystick.getX();
+			X = mecanumJoystick.getX()/2;
 		else
 			X = 0;
 
-		if (Math.abs(mecanumJoystick.getY()) > .1)
+		BIAS_X_INDUCED_BY_Y = K_X_INDUCED_BY_Y*Y;
+		BIAS_X_INDUCED_BY_Rotate = K_X_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_Y_INDUCED_BY_X = K_Y_INDUCED_BY_X*X;
+		BIAS_Y_INDUCED_BY_Rotate = K_Y_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_ROTATE_INDUCED_BY_X = K_ROTATE_INDUCED_BY_X*X;
+		BIAS_ROTATE_INDUCED_BY_Y = K_ROTATE_INDUCED_BY_Y*Y;
+		
+		Xnet = X + BIAS_X_INDUCED_BY_Y + BIAS_X_INDUCED_BY_Rotate ;
+		Ynet = Y + BIAS_Y_INDUCED_BY_X + BIAS_Y_INDUCED_BY_Rotate ;
+		RotateNet = Rotate + BIAS_ROTATE_INDUCED_BY_Y + BIAS_ROTATE_INDUCED_BY_X ;
+		
+		
+		SmartDashboard.putNumber("X BIAS Y", K_X_INDUCED_BY_Y);
+		SmartDashboard.putNumber("X BIAS Rotate", K_X_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Y BIAS X", K_Y_INDUCED_BY_X);
+		SmartDashboard.putNumber("Y BIAS Rotate", K_Y_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Rotate BIAS X", K_ROTATE_INDUCED_BY_X);
+		SmartDashboard.putNumber("Rotate BIAS Y", K_ROTATE_INDUCED_BY_Y);
+		
+		mecanumControl.mecanumDrive_Cartesian(Xnet, Ynet, RotateNet, 0);
+	}
+
+	void YTest() {
+		fieldFrame = false;
+		robotFrame = false;
+		Xtest = false;
+		Ytest = true;
+		Twisttest = false;
+
+	
+
+		if (Math.abs(mecanumJoystick.getY()) > .02)
 			Y = mecanumJoystick.getY();
 		else
 			Y = 0;
-		if (Math.abs(mecanumJoystick.getTwist()) > .1)
-			Twist = mecanumJoystick.getTwist();
-		else
-			Twist = 0;
 
-		mecanumControl.mecanumDrive_Cartesian(X, Y, Twist, yaw);
+		BIAS_X_INDUCED_BY_Y = K_X_INDUCED_BY_Y*Y;
+		BIAS_X_INDUCED_BY_Rotate = K_X_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_Y_INDUCED_BY_X = K_Y_INDUCED_BY_X*X;
+		BIAS_Y_INDUCED_BY_Rotate = K_Y_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_ROTATE_INDUCED_BY_X = K_ROTATE_INDUCED_BY_X*X;
+		BIAS_ROTATE_INDUCED_BY_Y = K_ROTATE_INDUCED_BY_Y*Y;
+		
+		Xnet = X + BIAS_X_INDUCED_BY_Y + BIAS_X_INDUCED_BY_Rotate ;
+		Ynet = Y + BIAS_Y_INDUCED_BY_X + BIAS_Y_INDUCED_BY_Rotate ;
+		RotateNet = Rotate + BIAS_ROTATE_INDUCED_BY_Y + BIAS_ROTATE_INDUCED_BY_X ;
+		
+		
+		SmartDashboard.putNumber("X BIAS Y", K_X_INDUCED_BY_Y);
+		SmartDashboard.putNumber("X BIAS Rotate", K_X_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Y BIAS X", K_Y_INDUCED_BY_X);
+		SmartDashboard.putNumber("Y BIAS Rotate", K_Y_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Rotate BIAS X", K_ROTATE_INDUCED_BY_X);
+		SmartDashboard.putNumber("Rotate BIAS Y", K_ROTATE_INDUCED_BY_Y);
+		
+		mecanumControl.mecanumDrive_Cartesian(Xnet, Ynet, RotateNet, 0);
 	}
 
-	/*
-	 * void XTest() { fieldFrame = false; robotFrame = false; Xtest = true;
-	 * Ytest = false; Twisttest = false;
-	 * 
-	 * double X;
-	 * 
-	 * if(Math.abs(mecanumJoystick.getX())>.02) X = mecanumJoystick.getX(); else
-	 * X= 0;
-	 * 
-	 * mecanumControl.mecanumDrive_Cartesian(X, 0, 0, 0); }
-	 * 
-	 * void YTest() { fieldFrame = false; robotFrame = false; Xtest = false;
-	 * Ytest = true; Twisttest = false;
-	 * 
-	 * 
-	 * double Y;
-	 * 
-	 * if(Math.abs(mecanumJoystick.getY())>.02) Y = mecanumJoystick.getY(); else
-	 * Y= 0;
-	 * 
-	 * mecanumControl.mecanumDrive_Cartesian(0, Y, 0, 0); }
-	 * 
-	 * void TwistTest() { fieldFrame = false; robotFrame = false; Xtest = false;
-	 * Ytest = false; Twisttest = true;
-	 * 
-	 * 
-	 * double Twist;
-	 * 
-	 * if(Math.abs(mecanumJoystick.getX())>.02) Twist = mecanumJoystick.getX();
-	 * else Twist= 0;
-	 * 
-	 * mecanumControl.mecanumDrive_Cartesian(0, 0, Twist, 0); }
-	 */
+	void TwistTest() {
+		fieldFrame = false;
+		robotFrame = false;
+		Xtest = false;
+		Ytest = false;
+		Twisttest = true;
+
+		
+
+		if (Math.abs(mecanumJoystick.getX()) > .02)
+			Rotate = mecanumJoystick.getX();
+		else
+			Rotate = 0;
+
+		BIAS_X_INDUCED_BY_Y = K_X_INDUCED_BY_Y*Y;
+		BIAS_X_INDUCED_BY_Rotate = K_X_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_Y_INDUCED_BY_X = K_Y_INDUCED_BY_X*X;
+		BIAS_Y_INDUCED_BY_Rotate = K_Y_INDUCED_BY_Rotate*Rotate;
+		
+		BIAS_ROTATE_INDUCED_BY_X = K_ROTATE_INDUCED_BY_X*X;
+		BIAS_ROTATE_INDUCED_BY_Y = K_ROTATE_INDUCED_BY_Y*Y;
+		
+		Xnet = X + BIAS_X_INDUCED_BY_Y + BIAS_X_INDUCED_BY_Rotate ;
+		Ynet = Y + BIAS_Y_INDUCED_BY_X + BIAS_Y_INDUCED_BY_Rotate ;
+		RotateNet = Rotate + BIAS_ROTATE_INDUCED_BY_Y + BIAS_ROTATE_INDUCED_BY_X ;
+		
+		
+		SmartDashboard.putNumber("X BIAS Y", K_X_INDUCED_BY_Y);
+		SmartDashboard.putNumber("X BIAS Rotate", K_X_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Y BIAS X", K_Y_INDUCED_BY_X);
+		SmartDashboard.putNumber("Y BIAS Rotate", K_Y_INDUCED_BY_Rotate);
+		
+		SmartDashboard.putNumber("Rotate BIAS X", K_ROTATE_INDUCED_BY_X);
+		SmartDashboard.putNumber("Rotate BIAS Y", K_ROTATE_INDUCED_BY_Y);
+		
+		mecanumControl.mecanumDrive_Cartesian(Xnet, Ynet, RotateNet, 0);
+	}
+
 	void Operatordrive() {
 		fieldFrameDrive();
 	}
@@ -249,7 +391,7 @@ public class mecanumDrive {
 		 * that the robot won't rotate too fast
 		 */
 
-		if (Math.abs(RotationDiff) < rotationDeadband ) {
+		if (Math.abs(RotationDiff) < rotationDeadband) {
 
 			rotationPower = 0;
 			value = true;
@@ -281,7 +423,7 @@ public class mecanumDrive {
 		double rotationConstant = 0.2; // place holder
 		double rotationPower = 0; // default
 		double rotationDeadband = 10; // pixels
-		if (Math.abs(boilerAngleOffset) > rotationDeadband ) {
+		if (Math.abs(boilerAngleOffset) > rotationDeadband) {
 			rotationPower = boilerAngleOffset * rotationConstant;
 			value = false;
 		} else {
@@ -301,7 +443,7 @@ public class mecanumDrive {
 		double k = .02;// power applied for every pixel off from center
 		double power = k * targetXOffset;
 
-		if (Math.abs(targetXOffset) > deadband ) {
+		if (Math.abs(targetXOffset) > deadband) {
 			mecanumControl.mecanumDrive_Cartesian(power, 0, 0, 0);
 			return false;
 		} else {

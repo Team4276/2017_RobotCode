@@ -133,9 +133,9 @@ public class BallShooter {
 			timeNow = Robot.systemTimer.get();
 			
 			if (!feedforward.get())
-				ffpower = FEED_FORWARD_K;
+				ff_power = FEED_FORWARD_K;
 			else
-				ffpower=0;
+				ff_power=0;
 				
 			
 			timeStep = timeNow - timePrevious;
@@ -143,7 +143,7 @@ public class BallShooter {
 			errorIntegral = errorIntegral + errorProportional * timeStep;
 			errorDerivative = (errorProportional - errorProportionalPrevious) / timeStep;
 			assignedPower = GAIN_PROPORTIONAL * errorProportional + GAIN_INTEGRAL * errorIntegral
-					+ GAIN_DERIVATIVE * errorDerivative + ffpower;
+					+ GAIN_DERIVATIVE * errorDerivative + ff_power;
 
 			if (assignedPower > 1)
 				assignedPower = 1;

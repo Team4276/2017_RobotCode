@@ -407,14 +407,7 @@ public class mecanumDrive {
 		return value;
 	}
 
-	static boolean visionBoilerAlignment(double boilerAngleOffset) // boiler to
-																	// the right
-																	// of center
-																	// = +
-																	// boiler to
-																	// the left
-																	// of center
-																	// = -
+	static boolean visionBoilerAlignment(double boilerAngleOffset) // boiler to the right of center = + boiler to the left of center = -
 	{
 
 		driveStatus = "Rotating to align with Boiler";

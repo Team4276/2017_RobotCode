@@ -110,9 +110,9 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 void findDeltaMovement_RobotFrame()
 {
 	
-	//theta = Math.toRadians(-Robot.imu.getYaw() + thetaStartingOffset);
+	//theta = Math.toRadians(90 -Robot.imu.getYaw() + thetaStartingOffset);
 	
-	theta = 0;
+	theta = 1/2*Math.PI+0;
 	
 	frontLeftWheelDelta = frontLeftWheel.getDistance() - totalFLWheelDistance; // finds delta distance of FrontLeft Wheel
 	backLeftWheelDelta = backLeftWheel.getDistance() - totalBLWheelDistance; // finds delta distance of BackLeft Wheel
@@ -138,7 +138,7 @@ void findDeltaMovement_RobotFrame()
 	SmartDashboard.putNumber("BR", totalBRWheelDistance);
 }
 
-static void setStartingPosition(double X, double Y)
+static void setStartingPosition(double X, double Y, double rotation)
 {
 	/*
 	 * Records the starting position and
@@ -151,14 +151,10 @@ static void setStartingPosition(double X, double Y)
 	oldX_FieldFrame = X;
 	oldY_FieldFrame = Y;
 	
-	if(X > 0) //blue alliance
-	{
-		thetaStartingOffset = 180; //sets offset of the robot from field coordinate system
-	}
-	else if(X < 0) //red alliance
-	{
-		thetaStartingOffset = 0; //sets offset of the robot from field coordinate system
-	}
+
+		thetaStartingOffset = rotation; //sets offset of the robot from field coordinate system
+
+
 }
 
 static void resetDriveEncoders()
@@ -215,7 +211,7 @@ public void run()
 	try
 	{
 		resetDriveEncoders();
-		Robot.imu.calibrate();
+		Robot.imu.reset();
 		while(true)
 		{
 		ERROR = false;

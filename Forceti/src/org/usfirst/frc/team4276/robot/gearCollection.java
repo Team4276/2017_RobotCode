@@ -26,7 +26,7 @@ public class gearCollection {
 		gearIntake = new VictorSP(pwm7);
 		gearLimitSwitch = new DigitalInput(dio18);
 		armAngle = new Encoder(dio19,dio20);
-		armAngle.setDistancePerPulse(90.0/142.5); //testing needed
+		armAngle.setDistancePerPulse(90.0/142.5); 
 	}
 	
 

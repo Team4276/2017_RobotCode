@@ -5,30 +5,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ArmPID extends Thread implements Runnable {
 
-	
+	boolean armError;
+
 	final double raisedSetPoint = 0.0;
 	final double middleSetPoint = -45.0;
 	final double collectingSetPoint = -90.0;
 	double estimatedArmAngle;
 	double ang;
-	final double CHAIN_SLACK_ANGLE = 8.0; // degrees
-	static double initialArmAngle = 0;// + CHAIN_SLACK_ANGLE; // degrees
-	static double commandedArmAngle = initialArmAngle;
-	final double TARGETING_ERROR = 0.0; // degrees
 	
+
+	final double kUp = .025;
+	final double kDown = .04;
+	double deadband = 1;
+	// final double CHAIN_SLACK_ANGLE = 8.0; // degrees
+	static double initialArmAngle = 0; // degrees
+	static double commandedArmAngle = initialArmAngle;
+	// final double TARGETING_ERROR = 0.0; // degrees
+
 	final double upperLimit = 0.0;
 	final double lowerLimit = -90.0;
 
 	public void run() {
-		double errorProportional;
+		double errorProportional = 0;
 
-		final double kUp = .025;
-		final double kDown = .04;
-		double deadband = 1;
 		double power;
 
 		try {
+			armError = false;
+
 			while (true) {
+
 				if (Robot.XBoxController.getRawButton(XBox.Start)) {
 					gearCollection.armMotor.set(Robot.XBoxController.getRawAxis(XBox.LStickY));
 				} else {
@@ -44,11 +50,14 @@ public class ArmPID extends Thread implements Runnable {
 					} else {
 						power = 0;
 					}
+
 					gearCollection.armMotor.set(-power);
-					if (Robot.XBoxController.getRawAxis(XBox.LStickY) > 0.5)
+
+					if (Robot.XBoxController.getRawAxis(XBox.LStickY) > 0.5) {
 						commandedArmAngle -= 5;
-					else if (Robot.XBoxController.getRawAxis(XBox.LStickY) < -0.5)
+					} else if (Robot.XBoxController.getRawAxis(XBox.LStickY) < -0.5) {
 						commandedArmAngle += 5;
+					}
 
 					if (Robot.XBoxController.getRawButton(XBox.Back) && Robot.XBoxController.getRawButton(XBox.Start)) {
 						initialArmAngle++;
@@ -67,16 +76,20 @@ public class ArmPID extends Thread implements Runnable {
 					 * -90 - TARGETING_ERROR;
 					 */
 
-					if (commandedArmAngle >= upperLimit)
-						commandedArmAngle = upperLimit;
-					if (commandedArmAngle <= lowerLimit)
-						commandedArmAngle = lowerLimit;
-					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmUp))
+					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmUp)) {
 						commandedArmAngle = raisedSetPoint;
-					if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmMiddle))
-						commandedArmAngle = middleSetPoint;
-				//	if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown))
-					//	commandedArmAngle = collectingSetPoint;
+					} else if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown)) {
+						commandedArmAngle = collectingSetPoint;
+					}
+					// if
+					// (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown))
+					// commandedArmAngle = collectingSetPoint;
+
+					if (commandedArmAngle >= upperLimit) {
+						commandedArmAngle = upperLimit;
+					} else if (commandedArmAngle <= lowerLimit) {
+						commandedArmAngle = lowerLimit;
+					}
 
 					SmartDashboard.putNumber("Arm Offset: ", errorProportional);
 					SmartDashboard.putNumber("Setpoint: ", commandedArmAngle);
@@ -85,13 +98,20 @@ public class ArmPID extends Thread implements Runnable {
 					SmartDashboard.putNumber("Encoder Value: ", encoderAngle);
 					SmartDashboard.putNumber("Arm Start Angle", initialArmAngle);
 
+					
 				}
+				
+				SmartDashboard.putBoolean("Arm Error", armError);
+				
 				Timer.delay(0.05);
 			}
 
 		}
 
 		catch (Exception e) {
+
+			armError = true;
+			SmartDashboard.putBoolean("Arm Error", armError);
 
 		}
 	}

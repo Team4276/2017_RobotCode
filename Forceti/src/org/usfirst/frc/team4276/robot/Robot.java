@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.SampleRobot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This is a demo program showing the use of the RobotDrive class. The
@@ -95,7 +94,6 @@ public class Robot extends SampleRobot {
 
 		while (isOperatorControl() && isEnabled()) {
 			driveSystem.Operatordrive();
-			driveSystem.modeReadout();
 			climbingSystem.performMainProcessing();
 			gearMechanism.performMainProcessing();
 			Shooter.performMainProcessing();

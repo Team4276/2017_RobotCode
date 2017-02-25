@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class BallShooter {
 
@@ -17,6 +18,7 @@ public class BallShooter {
 	double GAIN_PROPORTIONAL = 0.9e-3;
 	double GAIN_INTEGRAL = 10.0e-3;
 	double GAIN_DERIVATIVE = 0.0;
+	double FEED_FORWARD_K = 0.0;
 
 	Joystick testJoy;
 	VictorSP shooterWheel;
@@ -34,6 +36,9 @@ public class BallShooter {
 	static double timeStep;
 	static boolean initializePID = true;
 	static boolean initializeShooter = true;
+	
+	double ff_power;
+	DigitalInput feedforward;
 	//Toggler shooterToggler;
 	SoftwareTimer feederStartDelayTimer;
 
@@ -44,6 +49,23 @@ public class BallShooter {
 		shooterWheel = new VictorSP(pwm9);
 		feedingWheel = new VictorSP(pwm4);
 		shooterEncoder = new Encoder(dio19,dio20); 		// encoder
+		shooterEncoder.setDistancePerPulse(60.0/1024.0); // encoder RPM
+		//shooterToggler = new Toggler(XBox.RTrigger);
+		feederStartDelayTimer = new SoftwareTimer();
+		rateSamples[0] = 0;
+		rateSamples[1] = 0;
+		rateSamples[2] = 0;
+		rateSamples[3] = 0;
+		rateSamples[4] = 0;
+	}
+	
+	public BallShooter(int pwm9, int pwm4, int dio19, int dio20,int dioFF) {
+		testJoy = new Joystick(1);
+		shooterWheel = new VictorSP(pwm9);
+		feedingWheel = new VictorSP(pwm4);
+		shooterEncoder = new Encoder(dio19,dio20); 		// encoder
+		feedforward = new DigitalInput(dioFF);
+		
 		shooterEncoder.setDistancePerPulse(60.0/1024.0); // encoder RPM
 		//shooterToggler = new Toggler(XBox.RTrigger);
 		feederStartDelayTimer = new SoftwareTimer();
@@ -110,13 +132,18 @@ public class BallShooter {
 
 			timeNow = Robot.systemTimer.get();
 			
+			if (!feedforward.get())
+				ff_power = FEED_FORWARD_K;
+			else
+				ff_power=0;
+				
 			
 			timeStep = timeNow - timePrevious;
 			errorProportional = FLYWHEEL_SPEED - currentRate;
 			errorIntegral = errorIntegral + errorProportional * timeStep;
 			errorDerivative = (errorProportional - errorProportionalPrevious) / timeStep;
 			assignedPower = GAIN_PROPORTIONAL * errorProportional + GAIN_INTEGRAL * errorIntegral
-					+ GAIN_DERIVATIVE * errorDerivative;
+					+ GAIN_DERIVATIVE * errorDerivative + ff_power;
 
 			if (assignedPower > 1)
 				assignedPower = 1;

@@ -2,7 +2,7 @@
 package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
-
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -46,11 +46,15 @@ public class Robot extends SampleRobot {
 	static Joystick autoSelector;
 
 	static DriverCameraThread driverCameraThread;
-	static GripVisionThread gripVisionThread;
+	static LIDAR lidar;
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
-		//autonomous = new AutoCases();
+    	
+		//lidar = new LIDAR("fwdLIDAR", Port.kMXP, 0x62);
+    	//lidar.start(20);
+
+    	//autonomous = new AutoCases();
 		
 		driverCameraThread = new DriverCameraThread(0);
 		driverCameraThread.start();
@@ -78,9 +82,7 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
-		//gripVisionThread = new GripVisionThread(0);
-		//gripVisionThread.start();
-
+		
 	}
 	
 	public void autonomous() {

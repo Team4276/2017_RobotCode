@@ -110,7 +110,7 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 void findDeltaMovement_RobotFrame()
 {
 	
-	//theta = Math.toRadians(90 -Robot.imu.getYaw() + thetaStartingOffset);
+	//theta = Math.toRadians(Robot.imu.getYaw() + thetaStartingOffset);
 	
 	theta = 1/2*Math.PI+0;
 	
@@ -191,9 +191,16 @@ void findAbsoluteLocation_FieldFrame()
 	double sine_x_RobotFrame = -1*Math.sin(theta); //y solved from X
 	double cosine_y_RobotFrame = Math.cos(theta); //y solved from Y
 	
+	if(mecanumDrive.rotating == false)
+	{
 	deltaX_FieldFrame = cosine_x_RobotFrame*robotDeltaX+sine_y_RobotFrame*robotDeltaY;
 	deltaY_FieldFrame = sine_x_RobotFrame*robotDeltaX+cosine_y_RobotFrame*robotDeltaY;
-	
+	}
+	else
+	{
+		deltaX_FieldFrame = 0;
+		deltaY_FieldFrame = 0;	
+	}
 	currentFieldX = deltaX_FieldFrame + oldX_FieldFrame;
 	currentFieldY = deltaY_FieldFrame + oldY_FieldFrame;
 	
@@ -211,6 +218,7 @@ public void run()
 	try
 	{
 		resetDriveEncoders();
+		Robot.imu.calibrate();
 		Robot.imu.reset();
 		while(true)
 		{

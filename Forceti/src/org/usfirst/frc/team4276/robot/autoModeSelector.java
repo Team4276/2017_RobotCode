@@ -1,6 +1,7 @@
 package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class autoModeSelector extends Thread implements Runnable{
 
@@ -38,8 +39,9 @@ public class autoModeSelector extends Thread implements Runnable{
  	{
  		while(true)
  		{
- 			Timer.delay(1);
+ 			Timer.delay(1.0);
  			autonomousModeNumber = AutonomousMode();
+ 			SmartDashboard.putNumber("Auto Mode", autonomousModeNumber);
  		}
  	}
  

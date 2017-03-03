@@ -13,7 +13,8 @@ public class BallShooter {
 	private double[] rateSamples = new double[5];
 
 	final double FEEDER_DELAY_TIME = 1.0; // seconds
-	final double FEEDER_POWER = 0.45; // -1 to 1
+	final double FEEDER_POWER = 0.75; // -1 to 1
+	final double AGITATOR_SPEED = 1;
 	double FLYWHEEL_SPEED = 3100; // rpm
 	double GAIN_PROPORTIONAL = 0.9e-3;
 	double GAIN_INTEGRAL = 10.0e-3;
@@ -23,6 +24,7 @@ public class BallShooter {
 	Joystick testJoy;
 	VictorSP shooterWheel;
 	VictorSP feedingWheel;
+	VictorSP agitator;
 	Encoder shooterEncoder;
 	double assignedPower = 0;
 	double currentRate = 0;
@@ -37,18 +39,19 @@ public class BallShooter {
 	static boolean initializePID = true;
 	static boolean initializeShooter = true;
 	
-	double ff_power;
+	double ff_power = 0;
 	DigitalInput feedforward;
 	//Toggler shooterToggler;
 	SoftwareTimer feederStartDelayTimer;
 
 
 
-	public BallShooter(int pwm9, int pwm4, int dio19, int dio20) {
+	public BallShooter(int pwm9, int pwm4, int dio8, int dio9) {
 		testJoy = new Joystick(1);
 		shooterWheel = new VictorSP(pwm9);
 		feedingWheel = new VictorSP(pwm4);
-		shooterEncoder = new Encoder(dio19,dio20); 		// encoder
+		//agitator = new VictorSP(pwm10);
+		shooterEncoder = new Encoder(dio8,dio9); 		// encoder
 		shooterEncoder.setDistancePerPulse(60.0/1024.0); // encoder RPM
 		//shooterToggler = new Toggler(XBox.RTrigger);
 		feederStartDelayTimer = new SoftwareTimer();
@@ -59,10 +62,11 @@ public class BallShooter {
 		rateSamples[4] = 0;
 	}
 	
-	public BallShooter(int pwm9, int pwm4, int dio19, int dio20,int dioFF) {
+	/*public BallShooter(int pwm9, int pwm4, int dio19, int dio20, int pwm10 ,int dioFF) {
 		testJoy = new Joystick(1);
 		shooterWheel = new VictorSP(pwm9);
 		feedingWheel = new VictorSP(pwm4);
+		agitator = new VictorSP(pwm10);
 		shooterEncoder = new Encoder(dio19,dio20); 		// encoder
 		feedforward = new DigitalInput(dioFF);
 		
@@ -75,7 +79,7 @@ public class BallShooter {
 		rateSamples[3] = 0;
 		rateSamples[4] = 0;
 	}
-
+*/
 	void updateGainsFromDriverInput() {
 		/*if (testJoy.getRawButton(7))
 			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL - .00001;
@@ -90,9 +94,9 @@ public class BallShooter {
 		else if (testJoy.getRawButton(12))
 			GAIN_DERIVATIVE = GAIN_DERIVATIVE + .00001;
 		*/	
-		if (testJoy.getRawButton(6))
+		if (Robot.logitechJoystick.getRawButton(6))
 			FLYWHEEL_SPEED = FLYWHEEL_SPEED+1;
-		else if (testJoy.getRawButton(5))
+		else if (Robot.logitechJoystick.getRawButton(5))
 			FLYWHEEL_SPEED = FLYWHEEL_SPEED-1;
 
 		SmartDashboard.putNumber("Kp*1000", GAIN_PROPORTIONAL*1000);
@@ -105,14 +109,18 @@ public class BallShooter {
 		if(Robot.XBoxController.getRawAxis(XBox.RStickY)<-.5)
 		{
 			feedingWheel.set(FEEDER_POWER);
+			//agitator.set(AGITATOR_SPEED);
+			
 		}
 		else if (Robot.XBoxController.getRawAxis(XBox.RStickY)>.5)
 		{
 			feedingWheel.set(-FEEDER_POWER);
+			//agitator.set(-AGITATOR_SPEED);
 		}
 		else
 		{
 			feedingWheel.set(0);	
+			//agitator.set(0);
 		}
 	}
 	
@@ -132,11 +140,11 @@ public class BallShooter {
 
 			timeNow = Robot.systemTimer.get();
 			
-			if (!feedforward.get())
+			/*if (!feedforward.get())
 				ff_power = FEED_FORWARD_K;
 			else
 				ff_power=0;
-				
+			*/	
 			
 			timeStep = timeNow - timePrevious;
 			errorProportional = FLYWHEEL_SPEED - currentRate;
@@ -155,7 +163,6 @@ public class BallShooter {
 
 	void performMainProcessing() {
 		
-		SmartDashboard.putNumber("POV value", Robot.XBoxController.getPOV(0));
 		
 			
 		feederManualControl();
@@ -185,12 +192,14 @@ public class BallShooter {
 				initializeShooter = false;
 			} else if (feederStartDelayTimer.isExpired()) {
 				feedingWheel.set(FEEDER_POWER);
+				//agitator.set(AGITATOR_SPEED);
 			}
 			assignedPower = computeFlyWheelPower();
 			shooterWheel.set(assignedPower);
 		} else {
 			feedingWheel.set(0.0);
 			shooterWheel.set(0.0);
+			//agitator.set(0.0);
 			initializePID = true;
 			initializeShooter = true;
 		}
@@ -203,7 +212,7 @@ public class BallShooter {
 		SmartDashboard.putNumber("R Trigger", Robot.XBoxController.getRawAxis(XBox.RTrigger));
 	}
 
-	static void autoShoot() {
+	void autoShoot() {
 		// double RobotXposition = mecanumNavigation.currentFieldX;
 		// double RobotYposition = mecanumNavigation.currentFieldY;
 		double XRedBoiler = -27.17;// feet
@@ -224,14 +233,31 @@ public class BallShooter {
 		 * speed of shooter
 		 */
 
-		/*if (initializeShooter) {
-			// if initializeShooter is true, then this if statement runs
+currentRate = shooterEncoder.getRate();
+		
+		rateSamples[4] = rateSamples[3];
+		rateSamples[3] = rateSamples[2];
+		rateSamples[2] = rateSamples[1];
+		rateSamples[1] = rateSamples[0];
+		rateSamples[0] = currentRate;
+		
+		filteredRate = (rateSamples[0] + rateSamples[1] + rateSamples[2] + rateSamples[3] + rateSamples[4])/5;
+		
+		if(count%3 == 0)
+		{
+		SmartDashboard.putNumber("Shooter Speed", filteredRate);
+		}
+		count++;
+		
+		
+		if (initializeShooter) {
+			// initializes the Shooter
 			feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
 			initializeShooter = false;
 		} else if (feederStartDelayTimer.isExpired()) {
 			feedingWheel.set(FEEDER_POWER);
-		}*/
-		//assignedPower = computeFlyWheelPower();
-		//shooterWheel.set(assignedPower);
+		}
+		assignedPower = computeFlyWheelPower();
+		shooterWheel.set(assignedPower);
 	}
 }

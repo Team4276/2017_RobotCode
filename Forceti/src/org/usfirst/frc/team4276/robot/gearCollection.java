@@ -17,6 +17,7 @@ public class gearCollection {
 	static final double INTAKE_POWER = .8; //testing needed
 	static final double OUTTAKE_POWER = -.4; //testing needed
 	static final double OFF = 0;
+	double armPivotDistancePerPulse = 90.0/142.5*16.0/18.0; //16/18 WAS USED FOR PRACTICE BOT
 	
 	static double desiredArmAngle = 0;
 	
@@ -26,7 +27,7 @@ public class gearCollection {
 		gearIntake = new VictorSP(pwm7);
 		gearLimitSwitch = new DigitalInput(dio18);
 		armAngle = new Encoder(dio19,dio20);
-		armAngle.setDistancePerPulse(90.0/142.5); 
+		armAngle.setDistancePerPulse(armPivotDistancePerPulse); 
 	}
 	
 

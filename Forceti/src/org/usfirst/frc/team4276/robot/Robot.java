@@ -29,8 +29,9 @@ public class Robot extends SampleRobot {
 
 	static double gearPegOffset = 0; // PLACE HOLDER
 	static double boilerOffset = 0; // PLACE HOLDER
+	//I presume that these are obtained from the camera & Pixy? -Brian
 
-	AutoCases autonomous;
+	//AutoCases autonomous;
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
@@ -49,7 +50,7 @@ public class Robot extends SampleRobot {
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
-		autonomous = new AutoCases();
+		//autonomous = new AutoCases();
 		
 		driverCameraThread = new DriverCameraThread(0);
 		driverCameraThread.start();
@@ -77,14 +78,14 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
-		gripVisionThread = new GripVisionThread(0);
-		gripVisionThread.start();
+		//gripVisionThread = new GripVisionThread(0);
+		//gripVisionThread.start();
 
 	}
 	
 	public void autonomous() {
 
-		autonomous.autoModes();
+		//autonomous.autoModes();
 	}
 
 	/**

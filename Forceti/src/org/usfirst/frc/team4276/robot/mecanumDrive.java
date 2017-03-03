@@ -30,8 +30,8 @@ public class mecanumDrive {
 	double K_X_INDUCED_BY_Rotate = 0;//place holder
 	double K_Y_INDUCED_BY_X = .025;//apply bias in Y-direction moved when 
 	double K_Y_INDUCED_BY_Rotate = 0;//place holder
-	double K_ROTATE_INDUCED_BY_X = 0.024;//place holder
-	double K_ROTATE_INDUCED_BY_Y = 0.01;//place holder
+	double K_ROTATE_INDUCED_BY_X = .50;//real chassis = .024
+	double K_ROTATE_INDUCED_BY_Y = -0.03;//real chassis = .01
 	double BIAS_X_INDUCED_BY_Y = 0;
 	double BIAS_X_INDUCED_BY_Rotate = 0;
 	double BIAS_Y_INDUCED_BY_X = 0;
@@ -39,6 +39,8 @@ public class mecanumDrive {
 	double BIAS_ROTATE_INDUCED_BY_X = 0;
 	double BIAS_ROTATE_INDUCED_BY_Y = 0;
 
+	static boolean rotating = false;
+	
 	int mode = 0;
 
 	public mecanumDrive(int pwm0, int pwm1, int pwm2, int pwm3) {
@@ -53,36 +55,9 @@ public class mecanumDrive {
 
 	}
 
+	
+
 	void robotFrameDrive() {
-
-		driveStatus = "Driving In Robot Frame";
-
-		double X = mecanumJoystick.getX();
-		double Y = mecanumJoystick.getY();
-		double Twist = mecanumJoystick.getTwist();
-		double magnitude;
-		double direction;
-		double rotation;
-
-		if (Math.abs(X) > .02 || Math.abs(Y) > .05)
-			magnitude = Math.sqrt((X * X) + (Y * Y));
-		else
-			magnitude = 0;
-
-		if (Math.abs(X) > .02 || Math.abs(Y) > .05)
-			direction = (180 / Math.PI) * Math.atan2(Y, X);
-		else
-			direction = 0;
-
-		if (Math.abs(Twist) > .05)
-			rotation = Twist;
-		else
-			rotation = 0;
-
-		mecanumControl.mecanumDrive_Polar(magnitude, direction, rotation);
-	}
-
-	void fieldFrameDrive() {
 		driveStatus = "Driving In Robot Frame";
 
 		double yaw = 0.0;
@@ -266,7 +241,7 @@ public class mecanumDrive {
 	}
 
 	void Operatordrive() {
-		fieldFrameDrive();
+		robotFrameDrive();
 	}
 
 	/*
@@ -382,8 +357,11 @@ public class mecanumDrive {
 		double rotationConstant = 0.2;// place holder
 		double rotationPower = rotationConstant * RotationDiff;
 
-		if (Math.abs(rotationPower) > 0.75) {
+		if (rotationPower > 0.75) {
 			rotationPower = 0.75;
+		}
+		if (rotationPower < -0.75) {
+			rotationPower = -0.75;
 		}
 		// this if statement needs to be fixed later
 		/*
@@ -395,8 +373,12 @@ public class mecanumDrive {
 
 			rotationPower = 0;
 			value = true;
+			
+			rotating = false;
+			
 		} else {
 			value = false;
+			rotating = true;
 		}
 		/*
 		 * if the difference in rotation is less than the deadband, so if the

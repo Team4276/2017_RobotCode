@@ -2,7 +2,7 @@
 package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.I2C.Port;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -46,15 +46,11 @@ public class Robot extends SampleRobot {
 	static Joystick autoSelector;
 
 	static DriverCameraThread driverCameraThread;
-	static LIDAR lidar;
+	static GripVisionThread gripVisionThread;
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
-    	
-		//lidar = new LIDAR("fwdLIDAR", Port.kMXP, 0x62);
-    	//lidar.start(20);
-
-    	//autonomous = new AutoCases();
+		//autonomous = new AutoCases();
 		
 		driverCameraThread = new DriverCameraThread(0);
 		driverCameraThread.start();
@@ -63,11 +59,11 @@ public class Robot extends SampleRobot {
 		systemTimer.start();
 
 		gearArmControl = new ArmPID();
-		robotLocation = new mecanumNavigation(0, 1, 2, 3, 4, 5, 6, 7);// dio
+		robotLocation = new mecanumNavigation(0, 1, 2, 3);// dio
 																		// ports
 		driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
 		climbingSystem = new Climber(5, 13);// pwm port 5, dio port 13
-		gearMechanism = new gearCollection(6, 7, 18, 19, 20);// pwm ports 6 and 7,
+		gearMechanism = new gearCollection(6, 7, 18, 4, 5);// pwm ports 6 and 7,
 															// dio ports 18, 19, and 20
 		Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 8 & 9
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
@@ -82,7 +78,9 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
-		
+		//gripVisionThread = new GripVisionThread(0);
+		//gripVisionThread.start();
+
 	}
 	
 	public void autonomous() {

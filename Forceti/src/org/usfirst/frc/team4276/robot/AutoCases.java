@@ -159,9 +159,9 @@ public class AutoCases {
 
 			mecanumNavigation.setStartingPosition(RED_STARTING_X,MODE_1_STARTING_Y,0);
 			Robot.systemTimer.reset();
-			while(!mecanumDrive.driveToCoordinate(-16.3,-6.7,60));
+			while(!mecanumDrive.driveToCoordinate(-16.3,-6.7,0));
 			
-			//while(!mecanumDrive.rotateToHeading(60));
+			while(!mecanumDrive.rotateToHeading(60));
 			Robot.systemTimer.reset();
 			while(!mecanumDrive.gearAlign(Robot.gearPegOffset));
 			Robot.systemTimer.reset();

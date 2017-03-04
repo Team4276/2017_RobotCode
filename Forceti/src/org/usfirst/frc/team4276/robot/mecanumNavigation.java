@@ -43,10 +43,12 @@ public class mecanumNavigation extends Thread implements Runnable  {
 	double robotDeltaX;
 	double robotDeltaY;
 	
+	private double yaw = 0;
+	
 static Encoder frontLeftWheel;
 static Encoder backLeftWheel;
-static Encoder frontRightWheel;
-static Encoder backRightWheel;
+//static Encoder frontRightWheel;
+//static Encoder backRightWheel;
 
 static double Kx = 1; //place holder
 static double Ky = 10/11.2407; //place holder
@@ -74,21 +76,21 @@ static double thetaStartingOffset = 0; //default
 
 boolean ERROR;
 
-public mecanumNavigation(int dio0, int dio1, int dio2, int dio3, int dio4, int dio5, int dio6, int dio7)
+public mecanumNavigation(int dio0, int dio1, int dio2, int dio3)
 {
 	frontLeftWheel = new Encoder(dio0, dio1);
 	backLeftWheel = new Encoder(dio2, dio3);
-	frontRightWheel = new Encoder(dio4, dio5);
-	backRightWheel = new Encoder(dio6, dio7);
+	//frontRightWheel = new Encoder(dio4, dio5);
+	//backRightWheel = new Encoder(dio6, dio7);
 	frontLeftWheel.setDistancePerPulse(-1.0/360.0); //place holder
 	backLeftWheel.setDistancePerPulse(-1.0/360.0); //place holder
-	frontRightWheel.setDistancePerPulse(1.0/360.0); //place holder
-	backRightWheel.setDistancePerPulse(1.0/360.0); //place holder
+	//frontRightWheel.setDistancePerPulse(1.0/360.0); //place holder
+	//backRightWheel.setDistancePerPulse(1.0/360.0); //place holder
 	
 	frontLeftWheel.reset();
 	backLeftWheel.reset();
-	frontRightWheel.reset();
-	backRightWheel.reset();
+	//frontRightWheel.reset();
+	//backRightWheel.reset();
 }
 
 double findDeltaX_RobotFrame(double FL,double BL,double FR,double BR)
@@ -107,17 +109,32 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 	return Ynet;
 }
 
+void correctYawAngle(){
+	
+	yaw = Robot.imu.getAngleZ();
+
+	
+	while (yaw > 180)
+	{
+		yaw = yaw-360;
+	}
+	while (yaw < -180)
+	{
+		yaw = yaw+360;
+	}
+}
+
 void findDeltaMovement_RobotFrame()
 {
 	
-	//theta = Math.toRadians(Robot.imu.getYaw() + thetaStartingOffset);
+	theta = Math.toRadians(Robot.imu.getAngleZ() + thetaStartingOffset);
 	
 	theta = 1/2*Math.PI+0;
 	
 	frontLeftWheelDelta = frontLeftWheel.getDistance() - totalFLWheelDistance; // finds delta distance of FrontLeft Wheel
 	backLeftWheelDelta = backLeftWheel.getDistance() - totalBLWheelDistance; // finds delta distance of BackLeft Wheel
-	frontRightWheelDelta = frontRightWheel.getDistance() - totalFRWheelDistance; // finds delta distance of FrontRight Wheel
-	backRightWheelDelta = backRightWheel.getDistance() - totalBRWheelDistance; // finds delta distance of BackRight Wheel
+	//frontRightWheelDelta = frontRightWheel.getDistance() - totalFRWheelDistance; // finds delta distance of FrontRight Wheel
+	//backRightWheelDelta = backRightWheel.getDistance() - totalBRWheelDistance; // finds delta distance of BackRight Wheel
 	
 	robotDeltaY = findDeltaY_RobotFrame(frontLeftWheelDelta, backLeftWheelDelta, frontRightWheelDelta, backRightWheelDelta); //returns the value of the robot's Delta Y
 	robotDeltaX = findDeltaX_RobotFrame(frontLeftWheelDelta, backLeftWheelDelta, frontRightWheelDelta, backRightWheelDelta); //returns the value of the robot's Delta X
@@ -161,8 +178,8 @@ static void resetDriveEncoders()
 {
 	frontLeftWheel.reset();
 	backLeftWheel.reset();
-	frontRightWheel.reset();
-	backRightWheel.reset();
+	//frontRightWheel.reset();
+	//backRightWheel.reset();
 }
 
 void findAbsoluteLocation_FieldFrame() 
@@ -224,7 +241,9 @@ public void run()
 		{
 		ERROR = false;
 		
-		SmartDashboard.putNumber("YAW", Robot.imu.getYaw());
+		correctYawAngle();
+		
+		SmartDashboard.putNumber("YAW", Robot.imu.getAngleZ());
 		
 		
 		findDeltaMovement_RobotFrame();

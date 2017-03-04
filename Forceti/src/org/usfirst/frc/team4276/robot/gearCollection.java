@@ -21,12 +21,12 @@ public class gearCollection {
 	
 	static double desiredArmAngle = 0;
 	
-	public gearCollection(int pwm6, int pwm7, int dio18, int dio19, int dio20)
+	public gearCollection(int pwm6, int pwm7, int dio18, int dio4, int dio5)
 	{
 		armMotor = new VictorSP(pwm6);
 		gearIntake = new VictorSP(pwm7);
 		gearLimitSwitch = new DigitalInput(dio18);
-		armAngle = new Encoder(dio19,dio20);
+		armAngle = new Encoder(dio4,dio5);
 		armAngle.setDistancePerPulse(armPivotDistancePerPulse); 
 	}
 	

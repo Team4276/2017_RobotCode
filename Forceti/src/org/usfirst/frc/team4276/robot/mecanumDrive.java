@@ -266,7 +266,7 @@ public class mecanumDrive {
 		double linearDeadband = .05;// feet
 		double rotationDeadband = 5;// degrees
 
-		double yaw = Robot.imu.getYaw();
+		double yaw = Robot.imu.getAngleZ();
 		double Xdiff = Xgoal - mecanumNavigation.currentFieldX;
 		double Ydiff = Ygoal - mecanumNavigation.currentFieldY;
 		double RotationDiff = RotationGoal - yaw;
@@ -351,11 +351,12 @@ public class mecanumDrive {
 		driveStatus = "Rotating to " + RotationGoal;
 
 		boolean value = false;
-		double yaw = Robot.imu.getYaw();
+		double yaw = Robot.imu.getAngleZ();
 		double rotationDeadband = 5;// degrees, place holder
 		double RotationDiff = RotationGoal - yaw;
 		double rotationConstant = 0.2;// place holder
 		double rotationPower = rotationConstant * RotationDiff;
+		
 
 		if (rotationPower > 0.75) {
 			rotationPower = 0.75;

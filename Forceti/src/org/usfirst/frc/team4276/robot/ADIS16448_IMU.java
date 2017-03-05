@@ -557,7 +557,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
 	  SmartDashboard.putNumber("Field Frame Speed", Robot.xyFieldFrameSpeed);
 	  
 	  xyRobotFrameHeading += getYaw();
-	  xyRobotFrameHeading += Robot._yawOffsetToFieldFrame;
+	  xyRobotFrameHeading += Robot.yawOffsetToFieldFrame;
 	  xyRobotFrameHeading %= 360.0;
 	  if(xyRobotFrameHeading > 180.0) {
 		  xyRobotFrameHeading -= 180.0;	  

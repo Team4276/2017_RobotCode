@@ -46,7 +46,15 @@ public class Robot extends SampleRobot {
 	static Joystick autoSelector;
 
 	static DriverCameraThread driverCameraThread;
-	static GripVisionThread gripVisionThread;
+	
+	static double _yawOffsetToFieldFrame = 0.0;
+	static double xyFieldFrameSpeed = 0.0;
+	static double xyFieldFrameHeading = 0.0;
+
+
+	public synchronized static double yawOffsetToFieldFrame() {
+		return _yawOffsetToFieldFrame;
+	}
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
@@ -78,15 +86,19 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
-		//gripVisionThread = new GripVisionThread(0);
-		//gripVisionThread.start();
-
 	}
 	
 	public void autonomous() {
 
+		alignRobotAndField();
+		
 		//autonomous.autoModes();
 	}
+	
+	private synchronized void alignRobotAndField() {
+		_yawOffsetToFieldFrame = 0.0 - imu.getYaw();
+	}
+
 
 	/**
 	 * Runs the motors with arcade steering.

@@ -20,6 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.livewindow.LiveWindowSendable;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.tables.ITable;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
@@ -528,7 +529,41 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
           calculateComplementary(sample);
           break;
       }
+      
+      calculate_heading();
     }
+  }
+  
+  private void calculate_heading() {
+	  // For this game Z can be ignored, so the heading vector is just magnitude and yaw angle.
+	  // This function estimates X, Y, and Z velocity at current and 9 saved samples by averaging acceleration*dt over the 10 saved samples.
+	  // The current velocity estimates are then used to produce a robot-frame heading vector.
+	  
+	  double xVelocity = 0.0;
+	  double yVelocity = 0.0;
+	  for(int i=0; i<ADIS16448_IMU.kSamplesDepth; i++)
+	  {
+		  xVelocity += m_samples[i].accel_x * m_samples[i].dt;
+		  yVelocity += m_samples[i].accel_y * m_samples[i].dt;
+	  }
+	  xVelocity /= ADIS16448_IMU.kSamplesDepth;
+	  yVelocity /= ADIS16448_IMU.kSamplesDepth;
+	  
+	  double xyRobotFrameSpeed = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
+	  double xyRobotFrameHeading = Math.toDegrees(Math.atan2(yVelocity, xVelocity));
+	  
+	  // Convert heading vector to field frame and publish
+	  Robot.xyFieldFrameSpeed =  xyRobotFrameSpeed;
+	  SmartDashboard.putNumber("Field Frame Speed", Robot.xyFieldFrameSpeed);
+	  
+	  xyRobotFrameHeading += getYaw();
+	  xyRobotFrameHeading += Robot._yawOffsetToFieldFrame;
+	  xyRobotFrameHeading %= 360.0;
+	  if(xyRobotFrameHeading > 180.0) {
+		  xyRobotFrameHeading -= 180.0;	  
+	  }
+	  Robot.xyFieldFrameHeading = xyRobotFrameHeading;
+	  SmartDashboard.putNumber("Field Frame Heading", Robot.xyFieldFrameHeading);
   }
 
   private void calculateMadgwick(Sample sample, double beta) {

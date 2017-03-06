@@ -81,6 +81,7 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
+		alignRobotAndField();
 	}
 	
 	public void autonomous() {

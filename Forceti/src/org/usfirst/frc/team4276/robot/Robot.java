@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.SampleRobot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This is a demo program showing the use of the RobotDrive class. The
@@ -29,9 +30,8 @@ public class Robot extends SampleRobot {
 
 	static double gearPegOffset = 0; // PLACE HOLDER
 	static double boilerOffset = 0; // PLACE HOLDER
-	//I presume that these are obtained from the camera & Pixy? -Brian
-
-	//AutoCases autonomous;
+	
+	
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
@@ -39,22 +39,19 @@ public class Robot extends SampleRobot {
 	ArmPID gearArmControl;
 	BallShooter Shooter;
 	BallCollector ballCollectingMechanism;
-
+	AutoCases autonomous;
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
 	static Joystick autoSelector;
 
 	static DriverCameraThread driverCameraThread;
-	
-	static double yawOffsetToFieldFrame = 0.0;
-	static double xyFieldFrameSpeed = 0.0;
-	static double xyFieldFrameHeading = 0.0;
+	static GripVisionThread gripVisionThread;
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
-		//autonomous = new AutoCases();
 		
+	
 		driverCameraThread = new DriverCameraThread(0);
 		driverCameraThread.start();
 
@@ -63,14 +60,15 @@ public class Robot extends SampleRobot {
 
 		gearArmControl = new ArmPID();
 		robotLocation = new mecanumNavigation(0, 1, 2, 3);// dio
-																		// ports
+		Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 8 & 9
 		driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
 		climbingSystem = new Climber(5, 13);// pwm port 5, dio port 13
-		gearMechanism = new gearCollection(6, 7, 18, 4, 5);// pwm ports 6 and 7,
+		gearMechanism = new gearCollection(6, 7, 7, 4, 5);// pwm ports 6 and 7,
 															// dio ports 18, 19, and 20
-		Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 8 & 9
+		
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
-
+		autonomous = new AutoCases(Shooter);
+		
 		robotLocation.start();
 		gearArmControl.start();
 
@@ -81,20 +79,15 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
-		alignRobotAndField();
+		//gripVisionThread = new GripVisionThread(0);
+		//gripVisionThread.start();
+
 	}
 	
 	public void autonomous() {
-
-		alignRobotAndField();
-		
-		//autonomous.autoModes();
+		SmartDashboard.putString("auto", "yes");
+		autonomous.autoModes();
 	}
-	
-	private synchronized void alignRobotAndField() {
-		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
-	}
-
 
 	/**
 	 * Runs the motors with arcade steering.
@@ -105,7 +98,7 @@ public class Robot extends SampleRobot {
 			driveSystem.Operatordrive();
 			climbingSystem.performMainProcessing();
 			gearMechanism.performMainProcessing();
-			Shooter.performMainProcessing();
+			//Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.005);
 		}

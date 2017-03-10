@@ -8,7 +8,7 @@ public class BallCollector {
 	static final double COLLECTOR_SPEED = 1.0; // -1.0 to 1.0
 
 	VictorSP ballCollector;
-
+	boolean ballCollecting = false;
 	Toggler collectorToggler;
 
 	public BallCollector(int pwm8) {
@@ -21,11 +21,13 @@ public class BallCollector {
 
 		if (collectorToggler.getMechanismState()) {
 			ballCollector.set(COLLECTOR_SPEED);
+			ballCollecting = true;
 		} else {
 			ballCollector.set(0.0);
+			ballCollecting = false;
 		}
 
-		// SmartDashboard.putBoolean("Collector", collecting);
+		 SmartDashboard.putBoolean("Collector", ballCollecting);
 
 	}
 

@@ -12,7 +12,6 @@ public class ArmPID extends Thread implements Runnable {
 	final double collectingSetPoint = -90.0;
 	double estimatedArmAngle;
 	double ang;
-	
 
 	final double kUp = .025;
 	final double kDown = .04;
@@ -80,11 +79,11 @@ public class ArmPID extends Thread implements Runnable {
 						commandedArmAngle = raisedSetPoint;
 					} else if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown)) {
 						commandedArmAngle = collectingSetPoint;
+					} else if (Robot.XBoxController.getRawButton(JoystickMappings.gearArmMiddle)) {
+						commandedArmAngle = middleSetPoint;
 					}
-					// if
-					// (Robot.XBoxController.getRawButton(JoystickMappings.gearArmDown))
-					// commandedArmAngle = collectingSetPoint;
-
+					
+					
 					if (commandedArmAngle >= upperLimit) {
 						commandedArmAngle = upperLimit;
 					} else if (commandedArmAngle <= lowerLimit) {
@@ -97,18 +96,18 @@ public class ArmPID extends Thread implements Runnable {
 					SmartDashboard.putNumber("Arm Angle: ", estimatedArmAngle);
 					SmartDashboard.putNumber("Encoder Value: ", encoderAngle);
 					SmartDashboard.putNumber("Arm Start Angle", initialArmAngle);
+					SmartDashboard.putBoolean("WHERE'S MY DAMN GEAR?", gearCollection.gotGear);
 
-					
 				}
-				
+
 				SmartDashboard.putBoolean("Arm Error", armError);
-				
+
 				Timer.delay(0.05);
 			}
 
 		}
 
-		catch (Exception e) {
+		catch (Exception errorInArm) {
 
 			armError = true;
 			SmartDashboard.putBoolean("Arm Error", armError);

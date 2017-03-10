@@ -14,6 +14,8 @@ public class gearCollection {
 	DigitalInput gearLimitSwitch;
 	static Encoder armAngle;
 	
+	static boolean gotGear = false;
+	
 	static final double INTAKE_POWER = .8; //testing needed
 	static final double OUTTAKE_POWER = -.4; //testing needed
 	static final double OFF = 0;
@@ -21,11 +23,11 @@ public class gearCollection {
 	
 	static double desiredArmAngle = 0;
 	
-	public gearCollection(int pwm6, int pwm7, int dio18, int dio4, int dio5)
+	public gearCollection(int pwm6, int pwm7, int dio7, int dio4, int dio5)
 	{
 		armMotor = new VictorSP(pwm6);
 		gearIntake = new VictorSP(pwm7);
-		gearLimitSwitch = new DigitalInput(dio18);
+		gearLimitSwitch = new DigitalInput(dio7);
 		armAngle = new Encoder(dio4,dio5);
 		armAngle.setDistancePerPulse(armPivotDistancePerPulse); 
 	}
@@ -41,13 +43,13 @@ public class gearCollection {
 			{
 				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, .5);
 				gearIntake.set(OFF);
-
+				gotGear = true;
 			}
 			else
 			{
 				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
 				gearIntake.set(INTAKE_POWER);
-
+				gotGear = false;
 			}
 		}
 		

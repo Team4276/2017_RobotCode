@@ -20,18 +20,26 @@ public class mecanumDrive {
 	boolean Twisttest;
 	static String driveStatus = "initiation";
 	
+	double linearDeadband = .1;
+	double rotateDeadband = .2;
+	
+	static double distance = 0;
+	static boolean driveInit = true;
+	
 	double X = 0;
 	double Y = 0;
 	double Rotate = 0;
 	double Xnet = 0;
 	double Ynet = 0;
 	double RotateNet = 0;
-	double K_X_INDUCED_BY_Y = 0;//place holder
+	
+	double K_X_INDUCED_BY_Y = -.25;//place holder
 	double K_X_INDUCED_BY_Rotate = 0;//place holder
-	double K_Y_INDUCED_BY_X = .025;//apply bias in Y-direction moved when 
+	double K_Y_INDUCED_BY_X = 0.0;//real chassis = .025
 	double K_Y_INDUCED_BY_Rotate = 0;//place holder
-	double K_ROTATE_INDUCED_BY_X = .50;//real chassis = .024
-	double K_ROTATE_INDUCED_BY_Y = -0.03;//real chassis = .01
+	double K_ROTATE_INDUCED_BY_X = 0.0;//real chassis = .024
+	double K_ROTATE_INDUCED_BY_Y = 0.0;//real chassis = .01
+	/////////////////////////////////////////////////////////////////////////
 	double BIAS_X_INDUCED_BY_Y = 0;
 	double BIAS_X_INDUCED_BY_Rotate = 0;
 	double BIAS_Y_INDUCED_BY_X = 0;
@@ -209,8 +217,8 @@ public class mecanumDrive {
 
 		
 
-		if (Math.abs(mecanumJoystick.getX()) > .02)
-			Rotate = mecanumJoystick.getX();
+		if (Math.abs(mecanumJoystick.getTwist()) > .02)
+			Rotate = mecanumJoystick.getTwist();
 		else
 			Rotate = 0;
 
@@ -255,6 +263,63 @@ public class mecanumDrive {
 		SmartDashboard.putString("Drive Status:", driveStatus);
 	}
 
+	static void drive()
+	{
+		mecanumControl.mecanumDrive_Cartesian(0, -1, 0, 0);	
+	}
+	
+	static boolean driveStraight(double distanceGoal)
+	{
+		if(driveInit == true){
+			distance = 0;
+			driveInit = false;
+		}
+		driveStatus = "driving " + distanceGoal;
+
+		boolean value = false;
+		
+		distance = distance + (mecanumNavigation.robotDeltaY/48);
+		
+		double linearDeadband = .1;
+		double driveDiff = distanceGoal - distance;
+		double driveConstant = -0.14;// place holder
+		double drivePower = driveConstant * driveDiff;
+		
+		SmartDashboard.putNumber("Distance", distance);
+		SmartDashboard.putNumber("Distance Error", driveDiff);
+		SmartDashboard.putNumber("Drive Power", drivePower);
+		
+		SmartDashboard.putString("auto", "drive");
+		
+
+		if (drivePower > 0.5) {
+			drivePower = 0.5;
+		}
+		if (drivePower < -0.5) {
+			drivePower = -0.5;
+		}
+		
+		/*
+		 * This if statement prevent the rotational power from being too high So
+		 * that the robot won't rotate too fast
+		 */
+		
+		mecanumControl.mecanumDrive_Cartesian(0, drivePower, 0, 0);
+		
+		if (Math.abs(driveDiff) < linearDeadband) {
+
+			drivePower = 0;
+			value = true;
+			driveInit = true;
+			SmartDashboard.putString("auto", "finish");
+		} else {
+			value = false;
+		}
+		
+		
+		
+		return value;
+	}
 	static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal) {
 
 		driveStatus = "Driving to " + Xgoal + ", " + Ygoal + " with a desired rotation of" + RotationGoal;
@@ -346,16 +411,20 @@ public class mecanumDrive {
 		}
 	}
 
-	static boolean rotateToHeading(double RotationGoal) {
+	static boolean rotateToCoordinate(double XGoal, double YGoal) {
 
-		driveStatus = "Rotating to " + RotationGoal;
+		driveStatus = "Rotating to " + XGoal + ", " + YGoal;
 
 		boolean value = false;
-		double yaw = Robot.imu.getAngleZ();
-		double rotationDeadband = 5;// degrees, place holder
-		double RotationDiff = RotationGoal - yaw;
-		double rotationConstant = 0.2;// place holder
+		double rotation = mecanumNavigation.yaw;
+		double rotationDeadband = 2;// degrees, place holder
+		double rotationGoal = routeMapping.findHeading(XGoal, YGoal);
+		double RotationDiff = rotationGoal - rotation;
+		double rotationConstant = -0.15;// place holder
 		double rotationPower = rotationConstant * RotationDiff;
+		rotating = true;
+		
+		SmartDashboard.putString("auto", "rotate");
 		
 
 		if (rotationPower > 0.75) {
@@ -364,32 +433,84 @@ public class mecanumDrive {
 		if (rotationPower < -0.75) {
 			rotationPower = -0.75;
 		}
-		// this if statement needs to be fixed later
+		
 		/*
 		 * This if statement prevent the rotational power from being too high So
 		 * that the robot won't rotate too fast
 		 */
-
+		
+		
 		if (Math.abs(RotationDiff) < rotationDeadband) {
 
 			rotationPower = 0;
-			value = true;
-			
 			rotating = false;
+			value = true;
+
 			
 		} else {
 			value = false;
-			rotating = true;
+
 		}
+		mecanumControl.mecanumDrive_Cartesian(0, 0, rotationPower,0);
 		/*
 		 * if the difference in rotation is less than the deadband, so if the
 		 * robot has less of an angle to rotate to get to its desired angle then
 		 * the rotational power is less than 0, so that the robot stops rotating
 		 */
-		mecanumControl.mecanumDrive_Cartesian(0, 0, 0, rotationPower);
+		
 		return value;
 	}
 
+	static boolean rotateToHeading(double RotationGoal) {
+
+		driveStatus = "Rotating to " + RotationGoal;
+
+		boolean value = false;
+		double rotation = mecanumNavigation.yaw;
+		double rotationDeadband = 2;// degrees, place holder
+		double RotationDiff = RotationGoal - rotation;
+		double rotationConstant = -.008;// place holder
+		double rotationPower = rotationConstant * RotationDiff;
+		
+		rotating = true;
+		SmartDashboard.putNumber("rotating offset", RotationDiff);
+		SmartDashboard.putString("auto", "rotate");
+		
+
+		if (rotationPower > 0.5) {
+			rotationPower = 0.5;
+		}
+		if (rotationPower < -0.5) {
+			rotationPower = -0.5;
+		}
+		
+		/*
+		 * This if statement prevent the rotational power from being too high So
+		 * that the robot won't rotate too fast
+		 */
+		
+		
+		if (Math.abs(RotationDiff) < rotationDeadband) {
+
+			rotationPower = 0;
+			rotating = false;
+			value = true;
+
+			Robot.systemTimer.delay(5);
+		} else {
+			value = false;
+
+		}
+		mecanumControl.mecanumDrive_Cartesian(0, 0, rotationPower,0);
+		/*
+		 * if the difference in rotation is less than the deadband, so if the
+		 * robot has less of an angle to rotate to get to its desired angle then
+		 * the rotational power is less than 0, so that the robot stops rotating
+		 */
+		
+		return value;
+	}
+	
 	static boolean visionBoilerAlignment(double boilerAngleOffset) // boiler to the right of center = + boiler to the left of center = -
 	{
 

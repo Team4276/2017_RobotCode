@@ -40,10 +40,10 @@ public class mecanumNavigation extends Thread implements Runnable  {
 	
 	double robotX = 0;
 	double robotY = 0;
-	double robotDeltaX;
-	double robotDeltaY;
+	static double robotDeltaX;
+	static double robotDeltaY;
 	
-	private double yaw = 0;
+	static double yaw = 0;
 	
 static Encoder frontLeftWheel;
 static Encoder backLeftWheel;
@@ -51,7 +51,7 @@ static Encoder backLeftWheel;
 //static Encoder backRightWheel;
 
 static double Kx = 1; //place holder
-static double Ky = 10/11.2407; //place holder
+static double Ky = .76; //place holder
 
 static double frontLeftWheelDelta = 0;
 static double backLeftWheelDelta = 0;
@@ -72,7 +72,7 @@ static double oldX_FieldFrame;
 static double oldY_FieldFrame;
 
 static double theta;
-static double thetaStartingOffset = 0; //default
+static double yawStartingOffset = 0; //default
 
 boolean ERROR;
 
@@ -111,8 +111,9 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 
 void correctYawAngle(){
 	
-	yaw = Robot.imu.getAngleZ();
+	yaw = -1*Robot.imu.getAngleZ()/4;
 
+	yaw = yaw + yawStartingOffset;
 	
 	while (yaw > 180)
 	{
@@ -122,12 +123,14 @@ void correctYawAngle(){
 	{
 		yaw = yaw+360;
 	}
+	
+	
 }
 
 void findDeltaMovement_RobotFrame()
 {
 	
-	theta = Math.toRadians(Robot.imu.getAngleZ() + thetaStartingOffset);
+	theta = Math.toRadians(yaw + yawStartingOffset);
 	
 	theta = 1/2*Math.PI+0;
 	
@@ -169,7 +172,7 @@ static void setStartingPosition(double X, double Y, double rotation)
 	oldY_FieldFrame = Y;
 	
 
-		thetaStartingOffset = rotation; //sets offset of the robot from field coordinate system
+		yawStartingOffset = rotation; //sets offset of the robot from field coordinate system
 
 
 }
@@ -243,7 +246,7 @@ public void run()
 		
 		correctYawAngle();
 		
-		SmartDashboard.putNumber("YAW", Robot.imu.getAngleZ());
+		SmartDashboard.putNumber("YAW", yaw);
 		
 		
 		findDeltaMovement_RobotFrame();

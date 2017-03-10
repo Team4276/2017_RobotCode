@@ -20,7 +20,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.livewindow.LiveWindowSendable;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.tables.ITable;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
@@ -74,11 +73,6 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
   private double m_gyro_offset_x = 0.0;
   private double m_gyro_offset_y = 0.0;
   private double m_gyro_offset_z = 0.0;
-  
-  // accel offset
-  private double m_accel_offset_x = 0.0;
-  private double m_accel_offset_y = 0.0;
-  private double m_accel_offset_z = 0.0;
 
   // last read values (post-scaling)
   private double m_gyro_x = 0.0;
@@ -99,20 +93,10 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
   private double m_accum_gyro_y = 0.0;
   private double m_accum_gyro_z = 0.0;
 
-  // accumulated accel values (for offset calculation)
-  private double m_accum_accel_x = 0.0;
-  private double m_accum_accel_y = 0.0;
-  private double m_accum_accel_z = 0.0;
-
   // integrated gyro values
   private double m_integ_gyro_x = 0.0;
   private double m_integ_gyro_y = 0.0;
   private double m_integ_gyro_z = 0.0;
-
-  // integrated accel values
-  private double m_integ_accel_x = 0.0;
-  private double m_integ_accel_y = 0.0;
-  private double m_integ_accel_z = 0.0;
 
   // last sample time
   private double m_last_sample_time = 0.0;
@@ -136,7 +120,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
   private double m_yaw = 0.0;
   private double m_roll = 0.0;
   private double m_pitch = 0.0;
-  
+
   private AtomicBoolean m_freed = new AtomicBoolean(false);
 
   private SPI m_spi;
@@ -340,10 +324,6 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
       m_accum_gyro_x = 0.0;
       m_accum_gyro_y = 0.0;
       m_accum_gyro_z = 0.0;
-      
-      m_accum_accel_x = 0.0;
-      m_accum_accel_y = 0.0;
-      m_accum_accel_z = 0.0;
     }
 
     Timer.delay(kCalibrationSampleTime);
@@ -352,10 +332,6 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
       m_gyro_offset_x = m_accum_gyro_x / m_accum_count;
       m_gyro_offset_y = m_accum_gyro_y / m_accum_count;
       m_gyro_offset_z = m_accum_gyro_z / m_accum_count;
-     
-      m_accel_offset_x = m_accum_accel_x / m_accum_count;
-      m_accel_offset_y = m_accum_accel_y / m_accum_count;
-      m_accel_offset_z = m_accum_accel_z / m_accum_count;
     }
   }
 
@@ -391,10 +367,6 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
       m_integ_gyro_x = 0.0;
       m_integ_gyro_y = 0.0;
       m_integ_gyro_z = 0.0;
-      
-      m_integ_accel_x = 0.0;
-      m_integ_accel_y = 0.0;
-      m_integ_accel_z = 0.0;
     }
   }
 
@@ -518,14 +490,6 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
         m_integ_gyro_x += (gyro_x - m_gyro_offset_x) * dt;
         m_integ_gyro_y += (gyro_y - m_gyro_offset_y) * dt;
         m_integ_gyro_z += (gyro_z - m_gyro_offset_z) * dt;
-        
-        m_accum_accel_x += accel_x;
-        m_accum_accel_y += accel_y;
-        m_accum_accel_z += accel_z;
-
-        m_integ_accel_x += (accel_x - m_accel_offset_x) * dt;
-        m_integ_accel_y += (accel_y - m_accel_offset_y) * dt;
-        m_integ_accel_z += (accel_z - m_accel_offset_z) * dt;
       }
     }
   }
@@ -564,33 +528,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
           calculateComplementary(sample);
           break;
       }
-      
-      calculate_heading();
     }
-  }
-  
-  private void calculate_heading() {
-	  // For this game Z can be ignored, so the heading vector is just magnitude and yaw angle.
-	  // The current velocity estimates are then used to produce a robot-frame heading vector.
-	  
-	  double xVelocity = getVelocityX();
-	  double yVelocity = getVelocityY();
-	  
-	  double xyRobotFrameSpeed = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
-	  double xyRobotFrameHeading = Math.toDegrees(Math.atan2(yVelocity, xVelocity));
-	  
-	  // Convert heading vector to field frame and publish
-	  Robot.xyFieldFrameSpeed =  xyRobotFrameSpeed;
-	  SmartDashboard.putNumber("Field Frame Speed", Robot.xyFieldFrameSpeed);
-	  
-	  xyRobotFrameHeading += getYaw();
-	  xyRobotFrameHeading += Robot.yawOffsetToFieldFrame;
-	  xyRobotFrameHeading %= 360.0;
-	  if(xyRobotFrameHeading > 180.0) {
-		  xyRobotFrameHeading -= 180.0;	  
-	  }
-	  Robot.xyFieldFrameHeading = xyRobotFrameHeading;
-	  SmartDashboard.putNumber("Field Frame Heading", Robot.xyFieldFrameHeading);
   }
 
   private void calculateMadgwick(Sample sample, double beta) {
@@ -1059,7 +997,7 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
   }
 
   public synchronized double getAccelX() {
-	    return m_accel_x;
+    return m_accel_x;
   }
 
   public synchronized double getAccelY() {
@@ -1068,18 +1006,6 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
 
   public synchronized double getAccelZ() {
     return m_accel_z;
-  }
-
-  public synchronized double getVelocityX() {
-    return m_integ_accel_x;
-  }
-
-  public synchronized double getVelocityY() {
-    return m_integ_accel_y;
-  }
-
-  public synchronized double getVelocityZ() {
-    return m_integ_accel_z;
   }
 
   public synchronized double getMagX() {

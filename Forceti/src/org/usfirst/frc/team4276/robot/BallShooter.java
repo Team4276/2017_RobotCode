@@ -25,9 +25,9 @@ public class BallShooter {
 	VictorSP shooterWheel;
 	VictorSP feedingWheel;
 	VictorSP agitator;
-	Encoder shooterEncoder;
+	static Encoder shooterEncoder;
 	double assignedPower = 0;
-	double currentRate = 0;
+	static double currentRate = 0;
 
 	static double errorProportional;
 	static double errorProportionalPrevious;
@@ -38,22 +38,20 @@ public class BallShooter {
 	static double timeStep;
 	static boolean initializePID = true;
 	static boolean initializeShooter = true;
-	
+
 	double ff_power = 0;
 	DigitalInput feedforward;
-	//Toggler shooterToggler;
+	// Toggler shooterToggler;
 	SoftwareTimer feederStartDelayTimer;
-
-
 
 	public BallShooter(int pwm9, int pwm4, int dio8, int dio9) {
 		testJoy = new Joystick(1);
 		shooterWheel = new VictorSP(pwm9);
 		feedingWheel = new VictorSP(pwm4);
-		//agitator = new VictorSP(pwm10);
-		shooterEncoder = new Encoder(dio8,dio9); 		// encoder
-		shooterEncoder.setDistancePerPulse(60.0/1024.0); // encoder RPM
-		//shooterToggler = new Toggler(XBox.RTrigger);
+		// agitator = new VictorSP(pwm10);
+		shooterEncoder = new Encoder(dio8, dio9); // encoder
+		shooterEncoder.setDistancePerPulse(60.0 / 1024.0); // encoder RPM
+		// shooterToggler = new Toggler(XBox.RTrigger);
 		feederStartDelayTimer = new SoftwareTimer();
 		rateSamples[0] = 0;
 		rateSamples[1] = 0;
@@ -61,71 +59,57 @@ public class BallShooter {
 		rateSamples[3] = 0;
 		rateSamples[4] = 0;
 	}
-	
-	/*public BallShooter(int pwm9, int pwm4, int dio19, int dio20, int pwm10 ,int dioFF) {
-		testJoy = new Joystick(1);
-		shooterWheel = new VictorSP(pwm9);
-		feedingWheel = new VictorSP(pwm4);
-		agitator = new VictorSP(pwm10);
-		shooterEncoder = new Encoder(dio19,dio20); 		// encoder
-		feedforward = new DigitalInput(dioFF);
-		
-		shooterEncoder.setDistancePerPulse(60.0/1024.0); // encoder RPM
-		//shooterToggler = new Toggler(XBox.RTrigger);
-		feederStartDelayTimer = new SoftwareTimer();
-		rateSamples[0] = 0;
-		rateSamples[1] = 0;
-		rateSamples[2] = 0;
-		rateSamples[3] = 0;
-		rateSamples[4] = 0;
-	}
-*/
-	void updateGainsFromDriverInput() {
-		/*if (testJoy.getRawButton(7))
-			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL - .00001;
-		else if (testJoy.getRawButton(8))
-			GAIN_PROPORTIONAL = GAIN_PROPORTIONAL + .00001;
-		if (testJoy.getRawButton(9))
-			GAIN_INTEGRAL = GAIN_INTEGRAL - .00001;
-		else if (testJoy.getRawButton(10))
-			GAIN_INTEGRAL = GAIN_INTEGRAL + .00001;
-		if (testJoy.getRawButton(11))
-			GAIN_DERIVATIVE = GAIN_DERIVATIVE - .00001;
-		else if (testJoy.getRawButton(12))
-			GAIN_DERIVATIVE = GAIN_DERIVATIVE + .00001;
-		*/	
-		if (Robot.logitechJoystick.getRawButton(6))
-			FLYWHEEL_SPEED = FLYWHEEL_SPEED+1;
-		else if (Robot.logitechJoystick.getRawButton(5))
-			FLYWHEEL_SPEED = FLYWHEEL_SPEED-1;
 
-		SmartDashboard.putNumber("Kp*1000", GAIN_PROPORTIONAL*1000);
-		SmartDashboard.putNumber("Kd*1000", GAIN_DERIVATIVE*1000);
-		SmartDashboard.putNumber("Ki*1000", GAIN_INTEGRAL*1000);
+	/*
+	 * public BallShooter(int pwm9, int pwm4, int dio19, int dio20, int pwm10
+	 * ,int dioFF) { testJoy = new Joystick(1); shooterWheel = new
+	 * VictorSP(pwm9); feedingWheel = new VictorSP(pwm4); agitator = new
+	 * VictorSP(pwm10); shooterEncoder = new Encoder(dio19,dio20); // encoder
+	 * feedforward = new DigitalInput(dioFF);
+	 * 
+	 * shooterEncoder.setDistancePerPulse(60.0/1024.0); // encoder RPM
+	 * //shooterToggler = new Toggler(XBox.RTrigger); feederStartDelayTimer =
+	 * new SoftwareTimer(); rateSamples[0] = 0; rateSamples[1] = 0;
+	 * rateSamples[2] = 0; rateSamples[3] = 0; rateSamples[4] = 0; }
+	 */
+	void updateGainsFromDriverInput() {
+		/*
+		 * if (testJoy.getRawButton(7)) GAIN_PROPORTIONAL = GAIN_PROPORTIONAL -
+		 * .00001; else if (testJoy.getRawButton(8)) GAIN_PROPORTIONAL =
+		 * GAIN_PROPORTIONAL + .00001; if (testJoy.getRawButton(9))
+		 * GAIN_INTEGRAL = GAIN_INTEGRAL - .00001; else if
+		 * (testJoy.getRawButton(10)) GAIN_INTEGRAL = GAIN_INTEGRAL + .00001; if
+		 * (testJoy.getRawButton(11)) GAIN_DERIVATIVE = GAIN_DERIVATIVE -
+		 * .00001; else if (testJoy.getRawButton(12)) GAIN_DERIVATIVE =
+		 * GAIN_DERIVATIVE + .00001;
+		 */
+		if (Robot.logitechJoystick.getRawButton(6))
+			FLYWHEEL_SPEED = FLYWHEEL_SPEED + 1;
+		else if (Robot.logitechJoystick.getRawButton(5))
+			FLYWHEEL_SPEED = FLYWHEEL_SPEED - 1;
+
+		SmartDashboard.putNumber("Kp*1000", GAIN_PROPORTIONAL * 1000);
+		SmartDashboard.putNumber("Kd*1000", GAIN_DERIVATIVE * 1000);
+		SmartDashboard.putNumber("Ki*1000", GAIN_INTEGRAL * 1000);
 		SmartDashboard.putNumber("CommandedSpeed", FLYWHEEL_SPEED);
 	}
 
-	void feederManualControl(){
-		if(Robot.XBoxController.getRawAxis(XBox.RStickY)<-.5)
-		{
+	void feederManualControl() {
+		if (Robot.XBoxController.getRawAxis(XBox.RStickY) < -.5) {
 			feedingWheel.set(FEEDER_POWER);
-			//agitator.set(AGITATOR_SPEED);
-			
-		}
-		else if (Robot.XBoxController.getRawAxis(XBox.RStickY)>.5)
-		{
+			// agitator.set(AGITATOR_SPEED);
+
+		} else if (Robot.XBoxController.getRawAxis(XBox.RStickY) > .5) {
 			feedingWheel.set(-FEEDER_POWER);
-			//agitator.set(-AGITATOR_SPEED);
-		}
-		else
-		{
-			feedingWheel.set(0);	
-			//agitator.set(0);
+			// agitator.set(-AGITATOR_SPEED);
+		} else {
+			feedingWheel.set(0);
+			// agitator.set(0);
 		}
 	}
-	
+
 	double computeFlyWheelPower() {
-		//double assignedPower;
+		// double assignedPower;
 
 		if (initializePID == true) {
 			timeNow = Robot.systemTimer.get();
@@ -139,13 +123,12 @@ public class BallShooter {
 			timePrevious = timeNow;
 
 			timeNow = Robot.systemTimer.get();
-			
-			/*if (!feedforward.get())
-				ff_power = FEED_FORWARD_K;
-			else
-				ff_power=0;
-			*/	
-			
+
+			/*
+			 * if (!feedforward.get()) ff_power = FEED_FORWARD_K; else
+			 * ff_power=0;
+			 */
+
 			timeStep = timeNow - timePrevious;
 			errorProportional = FLYWHEEL_SPEED - currentRate;
 			errorIntegral = errorIntegral + errorProportional * timeStep;
@@ -162,48 +145,45 @@ public class BallShooter {
 	}
 
 	void performMainProcessing() {
-		
-		
-			
+
 		feederManualControl();
 		updateGainsFromDriverInput();
-		//shooterToggler.updateMechanismState();
+		// shooterToggler.updateMechanismState();
 		currentRate = shooterEncoder.getRate();
-		
+
 		rateSamples[4] = rateSamples[3];
 		rateSamples[3] = rateSamples[2];
 		rateSamples[2] = rateSamples[1];
 		rateSamples[1] = rateSamples[0];
 		rateSamples[0] = currentRate;
-		
-		filteredRate = (rateSamples[0] + rateSamples[1] + rateSamples[2] + rateSamples[3] + rateSamples[4])/5;
-		
-		if(count%3 == 0)
-		{
-		SmartDashboard.putNumber("Shooter Speed", filteredRate);
+
+		filteredRate = (rateSamples[0] + rateSamples[1] + rateSamples[2] + rateSamples[3] + rateSamples[4]) / 5;
+
+		if (count % 3 == 0) {
+			SmartDashboard.putNumber("Shooter Speed", filteredRate);
 		}
 		count++;
-		
-		//if (shooterToggler.getMechanismState()) {
-		if (Robot.XBoxController.getRawAxis(XBox.RTrigger)>0.5) {
+
+		// if (shooterToggler.getMechanismState()) {
+		if (Robot.XBoxController.getRawAxis(XBox.RTrigger) > 0.5) {
 			if (initializeShooter) {
 				// if initializeShooter is true, then this if statement runs
 				feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
 				initializeShooter = false;
 			} else if (feederStartDelayTimer.isExpired()) {
 				feedingWheel.set(FEEDER_POWER);
-				//agitator.set(AGITATOR_SPEED);
+				// agitator.set(AGITATOR_SPEED);
 			}
 			assignedPower = computeFlyWheelPower();
 			shooterWheel.set(assignedPower);
 		} else {
 			feedingWheel.set(0.0);
 			shooterWheel.set(0.0);
-			//agitator.set(0.0);
+			// agitator.set(0.0);
 			initializePID = true;
 			initializeShooter = true;
 		}
-		
+
 	}
 
 	void giveFeedback() {
@@ -233,30 +213,10 @@ public class BallShooter {
 		 * speed of shooter
 		 */
 
-currentRate = shooterEncoder.getRate();
-		
-		rateSamples[4] = rateSamples[3];
-		rateSamples[3] = rateSamples[2];
-		rateSamples[2] = rateSamples[1];
-		rateSamples[1] = rateSamples[0];
-		rateSamples[0] = currentRate;
-		
-		filteredRate = (rateSamples[0] + rateSamples[1] + rateSamples[2] + rateSamples[3] + rateSamples[4])/5;
-		
-		if(count%3 == 0)
-		{
-		SmartDashboard.putNumber("Shooter Speed", filteredRate);
-		}
-		count++;
-		
-		
-		if (initializeShooter) {
-			// initializes the Shooter
-			feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
-			initializeShooter = false;
-		} else if (feederStartDelayTimer.isExpired()) {
-			feedingWheel.set(FEEDER_POWER);
-		}
+		currentRate = shooterEncoder.getRate();
+
+		feedingWheel.set(FEEDER_POWER);
+
 		assignedPower = computeFlyWheelPower();
 		shooterWheel.set(assignedPower);
 	}

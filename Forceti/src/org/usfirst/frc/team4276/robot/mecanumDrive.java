@@ -418,7 +418,7 @@ public class mecanumDrive {
 		boolean value = false;
 		double rotation = mecanumNavigation.yaw;
 		double rotationDeadband = 2;// degrees, place holder
-		double rotationGoal = routeMapping.findHeading(XGoal, YGoal);
+		double rotationGoal = 0.0;//routeMapping.findHeading(XGoal, YGoal);
 		double RotationDiff = rotationGoal - rotation;
 		double rotationConstant = -0.15;// place holder
 		double rotationPower = rotationConstant * RotationDiff;

@@ -56,10 +56,11 @@ public class AutoCases {
 		 * retrieval zones
 		 */
 
-		final double FRONT_LIFT_DISTANCE = 6.00;
+		final double FRONT_LIFT_DISTANCE = 7.2;
 		final double SIDE_LIFT_PREP_DISTANCE = 8.0;
 
 		final double ARM_DEPOSIT_ANGLE = -20.0;
+		final double DEPOSITING_GEAR_TIME = 1;
 
 		final double BLUE_HOPPER_X = 18.9;
 		final double BLUE_HOPPER_Y = -12.0;
@@ -105,15 +106,17 @@ public class AutoCases {
 		final int testFwd = 42;
 		final int testCoordinateDriveSide = 43;
 
-		int autoMode = redAuto3_GearandZone;
+		int autoMode = autoModeSelector.autonomousModeNumber;
+		
 
+		
 		switch (autoMode) {
 		case nothing:
 			break;
 		case redAuto2_ScoreGear:
 
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, MODE_2_STARTING_Y, 0);
-			gearCollection.setArmPosition(ARM_DEPOSIT_ANGLE);
+			
 			Robot.systemTimer.reset();
 
 			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE) && (Robot.systemTimer.get() < 3))
@@ -121,7 +124,9 @@ public class AutoCases {
 
 			mecanumDrive.driveInit = true;
 
-			gearCollection.autoGearDeposit(.5);
+			gearCollection.autoGearDeposit(DEPOSITING_GEAR_TIME);
+			
+			Robot.systemTimer.delay(1);
 
 			Robot.systemTimer.reset();
 			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 3))
@@ -154,7 +159,7 @@ public class AutoCases {
 
 			mecanumDrive.driveInit = true;
 
-			gearCollection.autoGearDeposit(.5);// deposit gear
+			gearCollection.autoGearDeposit(DEPOSITING_GEAR_TIME);// deposit gear
 
 			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 2))
 				;// drive from lift
@@ -186,7 +191,7 @@ public class AutoCases {
 
 			mecanumDrive.driveInit = true;
 
-			gearCollection.autoGearDeposit(.5);// deposit gear
+			gearCollection.autoGearDeposit(1);// deposit gear
 
 			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 2))
 				;// drive from lift
@@ -199,11 +204,14 @@ public class AutoCases {
 		case justShootRed:
 
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, 0, -135);
-
+		
+			SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
+			Robot.systemTimer.reset();
 			while (Robot.systemTimer.get() < 10) {
+				SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
 				autoShooter.autoShoot();
 			}
-
+			autoShooter.autoShootStop();
 			break;
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// blue
@@ -217,7 +225,7 @@ public class AutoCases {
 
 			mecanumDrive.driveInit = true;
 
-			gearCollection.autoGearDeposit(.5);
+			gearCollection.autoGearDeposit(DEPOSITING_GEAR_TIME);
 
 			Robot.systemTimer.reset();
 			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 3))
@@ -250,7 +258,7 @@ public class AutoCases {
 
 			mecanumDrive.driveInit = true;
 
-			gearCollection.autoGearDeposit(.5);// deposit gear
+			gearCollection.autoGearDeposit(DEPOSITING_GEAR_TIME);// deposit gear
 
 			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 2))
 				;// drive from lift
@@ -281,7 +289,7 @@ public class AutoCases {
 
 			mecanumDrive.driveInit = true;
 
-			gearCollection.autoGearDeposit(.5);// deposit gear
+			gearCollection.autoGearDeposit(DEPOSITING_GEAR_TIME);// deposit gear
 
 			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 2))
 				;// drive from lift
@@ -295,10 +303,13 @@ public class AutoCases {
 
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, 0, -135);
 
+			SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
+			Robot.systemTimer.reset();
 			while (Robot.systemTimer.get() < 10) {
+				SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
 				autoShooter.autoShoot();
 			}
-
+			autoShooter.autoShootStop();
 			break;
 		/*
 		 * case redAuto2_GearandZone:

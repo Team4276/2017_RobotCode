@@ -33,12 +33,12 @@ public class mecanumDrive {
 	double Ynet = 0;
 	double RotateNet = 0;
 	
-	double K_X_INDUCED_BY_Y = -.25;//place holder
+	double K_X_INDUCED_BY_Y = 0.0;//place holder
 	double K_X_INDUCED_BY_Rotate = 0;//place holder
-	double K_Y_INDUCED_BY_X = 0.0;//real chassis = .025
+	double K_Y_INDUCED_BY_X = 0.25;//real chassis = .025
 	double K_Y_INDUCED_BY_Rotate = 0;//place holder
-	double K_ROTATE_INDUCED_BY_X = 0.0;//real chassis = .024
-	double K_ROTATE_INDUCED_BY_Y = 0.0;//real chassis = .01
+	double K_ROTATE_INDUCED_BY_X = 0.024;//real chassis = .024
+	double K_ROTATE_INDUCED_BY_Y = 0.01;//real chassis = .01
 	/////////////////////////////////////////////////////////////////////////
 	double BIAS_X_INDUCED_BY_Y = 0;
 	double BIAS_X_INDUCED_BY_Rotate = 0;
@@ -278,7 +278,7 @@ public class mecanumDrive {
 
 		boolean value = false;
 		
-		distance = distance + (mecanumNavigation.robotDeltaY/48);
+		distance = distance + (mecanumNavigation.robotDeltaY/12.0);
 		
 		double linearDeadband = .1;
 		double driveDiff = distanceGoal - distance;
@@ -292,11 +292,11 @@ public class mecanumDrive {
 		SmartDashboard.putString("auto", "drive");
 		
 
-		if (drivePower > 0.5) {
-			drivePower = 0.5;
+		if (drivePower > 0.45) {
+			drivePower = 0.45;
 		}
-		if (drivePower < -0.5) {
-			drivePower = -0.5;
+		if (drivePower < -0.45) {
+			drivePower = -0.45;
 		}
 		
 		/*

@@ -40,10 +40,12 @@ public class Robot extends SampleRobot {
 	BallShooter Shooter;
 	BallCollector ballCollectingMechanism;
 	AutoCases autonomous;
+	autoModeSelector autoSelect;
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
 	static Joystick autoSelector;
+	static Joystick testJoy;
 
 	static DriverCameraThread driverCameraThread;
 	
@@ -71,13 +73,16 @@ public class Robot extends SampleRobot {
 		
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
 		autonomous = new AutoCases(Shooter);
+		autoSelect = new autoModeSelector();
 		
+		autoSelect.start();
 		robotLocation.start();
 		gearArmControl.start();
 
 		XBoxController = new Joystick(3);
 		logitechJoystick = new Joystick(0);
-		autoSelector = new Joystick(1);
+		//autoSelector = new Joystick(1);
+		testJoy = new Joystick(1);
 
 	}
 
@@ -104,7 +109,7 @@ public class Robot extends SampleRobot {
 			driveSystem.Operatordrive();
 			climbingSystem.performMainProcessing();
 			gearMechanism.performMainProcessing();
-			//Shooter.performMainProcessing();
+			Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.005);
 		}
@@ -114,6 +119,7 @@ public class Robot extends SampleRobot {
 	 * Runs during test mode
 	 */
 	public void test() {
+		
 		// driveSystem.YTest();
 		// driveSystem.XTest();
 		// driveSystem.TwistTest();

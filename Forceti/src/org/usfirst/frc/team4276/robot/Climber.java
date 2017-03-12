@@ -10,6 +10,7 @@ public class Climber {
 
 	final static double LIMIT_SWITCH_DELAY = 1.0; // seconds
 	final static double CLIMBER_POWER = -1.0; // -1.0 to 1.0
+	final static double RELEASE_POWER = 1.0;
 
 	boolean initializeLimitSwitchDelay = true;
 	Toggler climberToggler;
@@ -22,6 +23,16 @@ public class Climber {
 		climberToggler = new Toggler(XBox.DPad);
 	}
 
+	void driveInReverse() {
+		if(Robot.testJoy.getRawButton(1)){
+		climber.set(RELEASE_POWER);
+		}
+		else{
+			climber.set(0);
+			}
+	}
+	
+	
 	void performMainProcessing() {
 		climberToggler.updateMechanismState(XBox.POVup);
 		if (climberToggler.getMechanismState()) {
@@ -34,14 +45,14 @@ public class Climber {
 					climber.set(0.0);
 				}
 			} else {
-				climber.set(CLIMBER_POWER);
+				climber.set(-CLIMBER_POWER);
 			}
 		}
 
 		else {
 			climber.set(0.0);
 		}
-
+       //driveInReverse();
 		SmartDashboard.putBoolean("Climber Status:", climberToggler.getMechanismState());
 	}
 }

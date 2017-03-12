@@ -2,7 +2,8 @@
 package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
-
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,13 +42,12 @@ public class Robot extends SampleRobot {
 	BallCollector ballCollectingMechanism;
 	AutoCases autonomous;
 	autoModeSelector autoSelect;
+	UsbCamera cam;
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
 	static Joystick autoSelector;
 	static Joystick testJoy;
-
-	static DriverCameraThread driverCameraThread;
 	
 	static double yawOffsetToFieldFrame = 0.0;
 	static double xyFieldFrameSpeed = 0.0;
@@ -56,9 +56,9 @@ public class Robot extends SampleRobot {
 	public Robot() {
 		imu = new ADIS16448_IMU();
 		
-	
-		driverCameraThread = new DriverCameraThread(0);
-		driverCameraThread.start();
+		cam=CameraServer.getInstance().startAutomaticCapture();
+		cam.setResolution(420, 240);
+		cam.setFPS(30);
 
 		systemTimer = new Timer();
 		systemTimer.start();

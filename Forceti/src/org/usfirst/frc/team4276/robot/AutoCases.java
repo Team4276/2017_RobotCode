@@ -57,10 +57,10 @@ public class AutoCases {
 		 * retrieval zones
 		 */
 
-		final double FRONT_LIFT_DISTANCE = 7.2;
-		final double SIDE_LIFT_PREP_DISTANCE = 8.0;
+		final double FRONT_LIFT_DISTANCE = 6.4;
+		final double SIDE_LIFT_PREP_DISTANCE = 7.2;
 
-		final double ARM_DEPOSIT_ANGLE = -20.0;
+		final double ARM_DEPOSIT_ANGLE = 0.0;
 		final double DEPOSITING_GEAR_TIME = 1;
 
 		final double BLUE_HOPPER_X = 18.9;
@@ -162,7 +162,7 @@ public class AutoCases {
 
 			gearCollection.autoGearDeposit(DEPOSITING_GEAR_TIME);// deposit gear
 
-			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 2))
+			while (!mecanumDrive.driveStraight(-4.0) && (Robot.systemTimer.get() < 2))
 				;// drive from lift
 
 			mecanumDrive.driveInit = true;
@@ -194,7 +194,7 @@ public class AutoCases {
 
 			gearCollection.autoGearDeposit(1);// deposit gear
 
-			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 2))
+			while (!mecanumDrive.driveStraight(-4.0) && (Robot.systemTimer.get() < 2))
 				;// drive from lift
 
 			mecanumDrive.driveInit = true;

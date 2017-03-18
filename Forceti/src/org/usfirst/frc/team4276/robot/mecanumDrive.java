@@ -24,6 +24,7 @@ public class mecanumDrive {
 	double rotateDeadband = .2;
 	
 	static double distance = 0;
+	static double distancePrev = 0;
 	static boolean driveInit = true;
 	
 	double X = 0;
@@ -273,14 +274,14 @@ public class mecanumDrive {
 	static boolean driveStraight(double distanceGoal)
 	{
 		if(driveInit == true){
-			distance = 0;
+			distancePrev = 0-mecanumNavigation.robotY;
 			driveInit = false;
 		}
 		driveStatus = "driving " + distanceGoal;
 
 		boolean value = false;
 		
-		distance = distance + (mecanumNavigation.robotDeltaY/12.0);
+		distance = distancePrev + mecanumNavigation.robotY;
 		
 		double linearDeadband = .1;
 		double driveDiff = distanceGoal - distance;

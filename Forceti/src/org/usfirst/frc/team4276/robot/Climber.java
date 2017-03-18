@@ -45,7 +45,7 @@ public class Climber {
 					climber.set(0.0);
 				}
 			} else {
-				climber.set(-CLIMBER_POWER);
+				climber.set(CLIMBER_POWER);
 			}
 		}
 

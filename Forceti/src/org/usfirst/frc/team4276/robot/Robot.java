@@ -42,6 +42,7 @@ public class Robot extends SampleRobot {
 	BallCollector ballCollectingMechanism;
 	AutoCases autonomous;
 	autoModeSelector autoSelect;
+	AutoSelector autoSelectorThread;
 	UsbCamera cam;
 	static Timer systemTimer;
 	static Joystick XBoxController;
@@ -59,6 +60,7 @@ public class Robot extends SampleRobot {
 		cam=CameraServer.getInstance().startAutomaticCapture();
 		cam.setResolution(420, 240);
 		cam.setFPS(30);
+		cam.setExposureManual(24);
 
 		systemTimer = new Timer();
 		systemTimer.start();
@@ -75,8 +77,11 @@ public class Robot extends SampleRobot {
 
 		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism);
 		
+		autoSelect.start();
 		robotLocation.start();
 		gearArmControl.start();
+		autoSelectorThread.start();
+		
 
 		XBoxController = new Joystick(3);
 		logitechJoystick = new Joystick(0);
@@ -119,9 +124,14 @@ public class Robot extends SampleRobot {
 	 */
 	public void test() {
 		
-		// driveSystem.YTest();
-		// driveSystem.XTest();
-		// driveSystem.TwistTest();
+		while (isOperatorControl() && isEnabled()) {
+			driveSystem.Operatordrive();
+			climbingSystem.performMainProcessing();
+			gearMechanism.performMainProcessing();
+			Shooter.performMainProcessing();
+			ballCollectingMechanism.performMainProcessing();
+			Timer.delay(.005);
+		}
 
 	}
 }

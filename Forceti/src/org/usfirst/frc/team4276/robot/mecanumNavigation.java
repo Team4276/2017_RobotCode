@@ -38,8 +38,8 @@ public class mecanumNavigation extends Thread implements Runnable  {
 	*/
 
 	
-	double robotX = 0;
-	double robotY = 0;
+	static double robotX = 0;
+	static double robotY = 0;
 	static double robotDeltaX;
 	static double robotDeltaY;
 	

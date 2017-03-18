@@ -2,7 +2,8 @@
 package org.usfirst.frc.team4276.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
-
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,20 +41,24 @@ public class Robot extends SampleRobot {
 	BallShooter Shooter;
 	BallCollector ballCollectingMechanism;
 	AutoCases autonomous;
+	autoModeSelector autoSelect;
+	UsbCamera cam;
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
 	static Joystick autoSelector;
-
-	static DriverCameraThread driverCameraThread;
-	static GripVisionThread gripVisionThread;
+	static Joystick testJoy;
+	
+	static double yawOffsetToFieldFrame = 0.0;
+	static double xyFieldFrameSpeed = 0.0;
+	static double xyFieldFrameHeading = 0.0;
 
 	public Robot() {
 		imu = new ADIS16448_IMU();
 		
-	
-		driverCameraThread = new DriverCameraThread(0);
-		driverCameraThread.start();
+		cam=CameraServer.getInstance().startAutomaticCapture();
+		cam.setResolution(420, 240);
+		cam.setFPS(30);
 
 		systemTimer = new Timer();
 		systemTimer.start();
@@ -67,6 +72,7 @@ public class Robot extends SampleRobot {
 															// dio ports 18, 19, and 20
 		
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
+
 		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism);
 		
 		robotLocation.start();
@@ -74,20 +80,24 @@ public class Robot extends SampleRobot {
 
 		XBoxController = new Joystick(3);
 		logitechJoystick = new Joystick(0);
-		autoSelector = new Joystick(1);
+		//autoSelector = new Joystick(1);
+		testJoy = new Joystick(1);
 
 	}
 
 	public void robotInit() {
-		//gripVisionThread = new GripVisionThread(0);
-		//gripVisionThread.start();
-
+		alignRobotAndField();
 	}
 	
 	public void autonomous() {
 		SmartDashboard.putString("auto", "yes");
 		autonomous.autoModes();
 	}
+	
+	private synchronized void alignRobotAndField() {
+		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
+	}
+
 
 	/**
 	 * Runs the motors with arcade steering.
@@ -98,7 +108,7 @@ public class Robot extends SampleRobot {
 			driveSystem.Operatordrive();
 			climbingSystem.performMainProcessing();
 			gearMechanism.performMainProcessing();
-			//Shooter.performMainProcessing();
+			Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.005);
 		}
@@ -108,6 +118,7 @@ public class Robot extends SampleRobot {
 	 * Runs during test mode
 	 */
 	public void test() {
+		
 		// driveSystem.YTest();
 		// driveSystem.XTest();
 		// driveSystem.TwistTest();

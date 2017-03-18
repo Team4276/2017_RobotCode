@@ -22,7 +22,7 @@ public class ArmPID extends Thread implements Runnable {
 	// final double TARGETING_ERROR = 0.0; // degrees
 
 	final double upperLimit = 0.0;
-	final double lowerLimit = -90.0;
+	final double lowerLimit = -95.0;
 
 	public void run() {
 		double errorProportional = 0;
@@ -111,6 +111,7 @@ public class ArmPID extends Thread implements Runnable {
 
 			armError = true;
 			SmartDashboard.putBoolean("Arm Error", armError);
+			SmartDashboard.putString("Arm Error desc", errorInArm.getMessage());
 
 		}
 	}

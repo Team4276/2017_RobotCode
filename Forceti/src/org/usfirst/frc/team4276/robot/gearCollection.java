@@ -19,7 +19,7 @@ public class gearCollection {
 	static final double INTAKE_POWER = .8; //testing needed
 	static final double OUTTAKE_POWER = -.4; //testing needed
 	static final double OFF = 0;
-	double armPivotDistancePerPulse = 90.0/142.5*16.0/18.0; //16/18 WAS USED FOR PRACTICE BOT
+	double armPivotDistancePerPulse = 90.0/142.5; //16/18 WAS USED FOR PRACTICE BOT
 	
 	static double desiredArmAngle = 0;
 	
@@ -43,13 +43,11 @@ public class gearCollection {
 			{
 				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, .5);
 				gearIntake.set(OFF);
-				gotGear = true;
 			}
 			else
 			{
 				Robot.XBoxController.setRumble(GenericHID.RumbleType.kLeftRumble, 0);
 				gearIntake.set(INTAKE_POWER);
-				gotGear = false;
 			}
 		}
 		
@@ -66,6 +64,18 @@ public class gearCollection {
 			gearIntake.set(OFF);
 
 		}
+		
+		if(!(gearLimitSwitch.get() == true))
+		{
+			
+			gotGear = true;
+		}
+		else
+		{
+			
+			gotGear = false;
+		}
+		
 	}
 
 	static void setArmPosition(double desiredAngle)
@@ -76,8 +86,9 @@ public class gearCollection {
 	static void autoGearDeposit(double timeToRun)
 	{
 		gearIntake.set(OUTTAKE_POWER);
-		setArmPosition(-45);
+		
 		Timer.delay(timeToRun-.05);
+		setArmPosition(-75.0);
 		gearIntake.set(OFF);
 
 	}

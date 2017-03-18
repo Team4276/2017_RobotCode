@@ -32,6 +32,7 @@ public class autoModeSelector extends Thread implements Runnable {
 		{															// Alliance
 			alliance = "BLUE";
 		}
+		//we can probably combine those 2 if statements into 1
 		else if (Robot.autoSelector.getRawButton(allianceColor) == false)//Red
 		{																 //Alliance
 			alliance = "RED";
@@ -72,7 +73,7 @@ public class autoModeSelector extends Thread implements Runnable {
 	int AutonomousMode(Joystick j) {
 		autoSelectError = false;
 		SmartDashboard.putBoolean("Auto Selector Error", autoSelectError);
-		if(!pressed&&j.getRawButton(6))
+		if(!pressed&&j.getRawButton(8))
 		{
 			pressed=true;
 			autoversion++;
@@ -92,17 +93,17 @@ public class autoModeSelector extends Thread implements Runnable {
 				autoversion=35;
 			}
 		}
-		else if(!j.getRawButton(6)&&!j.getRawButton(7))
+		else if(!j.getRawButton(8)&&!j.getRawButton(7))
 			pressed=false;
     	
     	return autoversion;
 	}
 	
-	public void start() {
+	public void run() {
 		try {
 			while (true) {
-				Timer.delay(1.0);
-				
+				Timer.delay(0.1);
+				/*
 				if((AutonomousMode() == 0) ||(AutonomousMode() == 1) ||(AutonomousMode() == 3) ||(AutonomousMode() == 4) ||(AutonomousMode() == 15))
 				{
 					autonomousModeNumber = AutonomousMode();
@@ -114,14 +115,15 @@ public class autoModeSelector extends Thread implements Runnable {
 				else
 				{
 					autonomousModeNumber = 0;
-				}
-				//autonomousModeNumber = AutonomousMode(Robot.logitechJoystick);
+				}*/
+				autonomousModeNumber = AutonomousMode(Robot.logitechJoystick);
 				
 				SmartDashboard.putNumber("Auto Mode", autonomousModeNumber);
 			}
 		} catch (Exception errorInAuto) {
 			autoSelectError = true;
 			SmartDashboard.putBoolean("Auto Selector Error", autoSelectError);
+			SmartDashboard.putString("Auto Selector Error desc", errorInAuto.getMessage());
 		}
 	}
 

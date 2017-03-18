@@ -70,7 +70,7 @@ public class mecanumDrive {
 
 		double yaw = 0.0;
 
-		if (mecanumJoystick.getRawButton(1)) {
+		if (mecanumJoystick.getRawButton(1)) { //precision mode
 			if (Math.abs(mecanumJoystick.getX()) > .1)
 				X = mecanumJoystick.getX() / 4;
 			else
@@ -81,8 +81,10 @@ public class mecanumDrive {
 			else
 				Y = 0;
 			if ((mecanumJoystick.getTwist()) > .1)
+				Rotate = mecanumJoystick.getTwist() / 4;
+			else
 				Rotate = 0;
-		} else {
+		} else {//high speed mode
 			if (Math.abs(mecanumJoystick.getX()) > .1)
 				X = mecanumJoystick.getX();
 			else

@@ -27,12 +27,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class AutoCases {
 
 	BallShooter autoShooter;
+	mecanumDrive autoDrive;
+	gearCollection autoGear;
 
-	public AutoCases(BallShooter a) {
-		autoShooter = a;
-		// Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 8
-		// & 9
-
+	public AutoCases(BallShooter shooterControl, mecanumDrive mecDrive, gearCollection gearArm) {
+		autoShooter = shooterControl;
+		autoDrive = mecDrive;
+		autoGear = gearArm;
 	}
 
 	void autoModes() {

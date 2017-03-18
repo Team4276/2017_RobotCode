@@ -67,7 +67,7 @@ public class Robot extends SampleRobot {
 															// dio ports 18, 19, and 20
 		
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
-		autonomous = new AutoCases(Shooter);
+		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism);
 		
 		robotLocation.start();
 		gearArmControl.start();

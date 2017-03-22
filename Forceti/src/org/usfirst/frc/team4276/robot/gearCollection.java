@@ -17,7 +17,7 @@ public class gearCollection {
 	static boolean gotGear = false;
 	
 	static final double INTAKE_POWER = .8; //testing needed
-	static final double OUTTAKE_POWER = -.4; //testing needed
+	static final double OUTTAKE_POWER = -.8; //testing needed
 	static final double OFF = 0;
 	double armPivotDistancePerPulse = 90.0/142.5; //16/18 WAS USED FOR PRACTICE BOT
 	

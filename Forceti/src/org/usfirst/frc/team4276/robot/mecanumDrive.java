@@ -323,6 +323,114 @@ public class mecanumDrive {
 		
 		return value;
 	}
+	
+	// Drive straight with sonar fine ranging
+	static boolean driveStraight(double distanceGoal, double sonarDistAwayToStop)
+	{
+		if(driveInit == true){
+			distancePrev = 0-mecanumNavigation.robotY;
+			driveInit = false;
+		}
+		driveStatus = "driving " + distanceGoal;
+
+		boolean value = false;
+		
+		distance = distancePrev + mecanumNavigation.robotY;
+		
+		double linearDeadband = .1;
+		double driveDiff = distanceGoal - distance;
+		double driveConstant = -0.14;// place holder
+		double drivePower = driveConstant * driveDiff;
+		
+		SmartDashboard.putNumber("Distance", distance);
+		SmartDashboard.putNumber("Distance Error", driveDiff);
+		SmartDashboard.putNumber("Drive Power", drivePower);
+		
+		SmartDashboard.putString("auto", "drive");
+		
+
+		if (drivePower > 0.45) {
+			drivePower = 0.45;
+		}
+		if (drivePower < -0.45) {
+			drivePower = -0.45;
+		}
+		
+		/*
+		 * This if statement prevent the rotational power from being too high So
+		 * that the robot won't rotate too fast
+		 */
+		
+		mecanumControl.mecanumDrive_Cartesian(0, drivePower, 0, 0);
+		
+		if (Math.abs(driveDiff) < linearDeadband) {
+
+			drivePower = 0;
+			value = true;
+			driveInit = true;
+			SmartDashboard.putString("auto", "finish");
+		} else {
+			value = false;
+		}
+		
+		
+		
+		return value;
+	}
+	
+	static boolean strafeStraight(double distanceGoal)
+	{
+		if(driveInit == true){
+			distancePrev = 0-mecanumNavigation.robotX;
+			driveInit = false;
+		}
+		driveStatus = "driving " + distanceGoal;
+
+		boolean value = false;
+		
+		distance = distancePrev + mecanumNavigation.robotX;
+		
+		double linearDeadband = .1;
+		double driveDiff = distanceGoal - distance;
+		double driveConstant = -0.14;// place holder
+		double drivePower = driveConstant * driveDiff;
+		
+		SmartDashboard.putNumber("Distance", distance);
+		SmartDashboard.putNumber("Distance Error", driveDiff);
+		SmartDashboard.putNumber("Drive Power", drivePower);
+		
+		SmartDashboard.putString("auto", "drive");
+		
+
+		if (drivePower > 0.45) {
+			drivePower = 0.45;
+		}
+		if (drivePower < -0.45) {
+			drivePower = -0.45;
+		}
+		
+		/*
+		 * This if statement prevent the rotational power from being too high So
+		 * that the robot won't rotate too fast
+		 */
+		
+		mecanumControl.mecanumDrive_Cartesian(drivePower, 0, 0, 0);
+		
+		if (Math.abs(driveDiff) < linearDeadband) {
+
+			drivePower = 0;
+			value = true;
+			driveInit = true;
+			SmartDashboard.putString("auto", "finish");
+		} else {
+			value = false;
+		}
+		
+		
+		
+		return value;
+	}
+	
 	static boolean driveToCoordinate(double Xgoal, double Ygoal, double RotationGoal) {
 
 		driveStatus = "Driving to " + Xgoal + ", " + Ygoal + " with a desired rotation of" + RotationGoal;

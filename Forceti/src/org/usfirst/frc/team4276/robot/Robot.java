@@ -41,7 +41,7 @@ public class Robot extends SampleRobot {
 	BallShooter Shooter;
 	BallCollector ballCollectingMechanism;
 	AutoCases autonomous;
-	autoModeSelector autoSelect;
+	//autoModeSelector autoSelect;
 	AutoSelector autoSelectorThread;
 	UsbCamera cam;
 	static Timer systemTimer;
@@ -58,8 +58,8 @@ public class Robot extends SampleRobot {
 		imu = new ADIS16448_IMU();
 		
 		cam=CameraServer.getInstance().startAutomaticCapture();
-		cam.setResolution(420, 240);
-		cam.setFPS(30);
+		cam.setResolution(42, 24);
+		cam.setFPS(20);
 		cam.setExposureManual(24);
 
 		systemTimer = new Timer();
@@ -76,11 +76,13 @@ public class Robot extends SampleRobot {
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
 
 		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism);
+		//autoSelect = new autoModeSelector();
+		autoSelectorThread = new AutoSelector();
 		
-		autoSelect.start();
+		//autoSelect.start();
 		robotLocation.start();
 		gearArmControl.start();
-		autoSelectorThread.start();
+		//autoSelectorThread.start();
 		
 
 		XBoxController = new Joystick(3);

@@ -177,7 +177,7 @@ public class AutoCases {
 		//alliance = AutoSelector.alliance;
 		//autoMode = AutoSelector.autoMode;
 		
-		switch (testAutoRotate) {
+		switch (autoModeToExecute) {
 		case nothing:
 			break;
 		case redAuto2_ScoreGear:

@@ -56,6 +56,7 @@ public class AutoCases {
 	
 	private int alliance = 0;
 	private int autoMode = 0;
+	private int autoModeToExecute = 0;
 	
 	public AutoCases(BallShooter shooterControl, mecanumDrive mecDrive, gearCollection gearArm) {
 		autoShooter = shooterControl;
@@ -97,8 +98,7 @@ public class AutoCases {
 		*/
 	}
 
-	void autoModes() {
-		int autoModeToExecute = AutoSelector.autoModeToExecute;		
+	void autoModes() { 		
 		
 		final double RED_STARTING_X = -25.8;// feet
 		final double BLUE_STARTING_X = 25.8;// feet
@@ -149,7 +149,7 @@ public class AutoCases {
 
 		final int nothing = 0;
 		final int redAuto2_ScoreGear = 1;
-		//final int redAuto2_GearandZone = 2;
+		final int redAuto2_GearandZone = 2;
 		final int redAuto3_GearandZone = 3;
 		final int redAuto1_GearandZone = 4;
 		final int redAuto1_ShootFromHopper = 5;
@@ -158,7 +158,7 @@ public class AutoCases {
 		final int redAuto1_HopperandShootFromBoiler = 8;
 
 		final int blueAuto2_ScoreGear = 21;
-		//final int blueAuto2_GearandZone = 22;
+		final int blueAuto2_GearandZone = 22;
 		final int blueAuto3_GearandZone = 23;
 		final int blueAuto1_GearandZone = 24;
 		final int blueAuto1_ShootFromHopper = 25;
@@ -174,8 +174,9 @@ public class AutoCases {
 		final int testFwd = 42;
 		final int testCoordinateDriveSide = 43;
 
-		//alliance = AutoSelector.alliance;
-		//autoMode = AutoSelector.autoMode;
+		alliance = AutoSelector.alliance;
+		autoMode = AutoSelector.autoMode;
+		autoModeToExecute = AutoSelector.autoModeToExecute;
 		
 		switch (autoModeToExecute) {
 		case nothing:

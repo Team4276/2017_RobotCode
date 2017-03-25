@@ -12,9 +12,10 @@ public class ArmPID extends Thread implements Runnable {
 	final double collectingSetPoint = -90.0;
 	double estimatedArmAngle;
 	double ang;
+	final double armJogSpeed = 7.5;
 
-	final double kUp = .025;
-	final double kDown = .04;
+	final double kUp = .01;
+	final double kDown = .02;
 	double deadband = 1;
 	// final double CHAIN_SLACK_ANGLE = 8.0; // degrees
 	static double initialArmAngle = 0; // degrees
@@ -53,9 +54,9 @@ public class ArmPID extends Thread implements Runnable {
 					gearCollection.armMotor.set(-power);
 
 					if (Robot.XBoxController.getRawAxis(XBox.LStickY) > 0.5) {
-						commandedArmAngle -= 5;
+						commandedArmAngle -= armJogSpeed;
 					} else if (Robot.XBoxController.getRawAxis(XBox.LStickY) < -0.5) {
-						commandedArmAngle += 5;
+						commandedArmAngle += armJogSpeed;
 					}
 
 					if (Robot.XBoxController.getRawButton(XBox.Back) && Robot.XBoxController.getRawButton(XBox.Start)) {

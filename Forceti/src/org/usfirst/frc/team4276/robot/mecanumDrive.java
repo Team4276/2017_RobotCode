@@ -380,6 +380,8 @@ public class mecanumDrive {
 	
 	static boolean strafeStraight(double distanceGoal)
 	{
+		
+		
 		if(driveInit == true){
 			distancePrev = 0-mecanumNavigation.robotX;
 			driveInit = false;
@@ -576,11 +578,12 @@ public class mecanumDrive {
 
 		driveStatus = "Rotating to " + RotationGoal;
 
+		final double rotationRateLimit = .4;
 		boolean value = false;
 		double rotation = mecanumNavigation.yaw;
 		double rotationDeadband = 2;// degrees, place holder
 		double RotationDiff = RotationGoal - rotation;
-		double rotationConstant = -.008;// place holder
+		double rotationConstant = -.01;
 		double rotationPower = rotationConstant * RotationDiff;
 		
 		rotating = true;
@@ -588,11 +591,11 @@ public class mecanumDrive {
 		SmartDashboard.putString("auto", "rotate");
 		
 
-		if (rotationPower > 0.5) {
-			rotationPower = 0.5;
+		if (rotationPower > rotationRateLimit) {
+			rotationPower = rotationRateLimit;
 		}
-		if (rotationPower < -0.5) {
-			rotationPower = -0.5;
+		if (rotationPower < -rotationRateLimit) {
+			rotationPower = -rotationRateLimit;
 		}
 		
 		/*

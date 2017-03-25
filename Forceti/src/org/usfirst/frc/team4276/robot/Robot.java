@@ -82,7 +82,7 @@ public class Robot extends SampleRobot {
 		//autoSelect.start();
 		robotLocation.start();
 		gearArmControl.start();
-		//autoSelectorThread.start();
+		autoSelectorThread.start();
 		
 
 		XBoxController = new Joystick(3);

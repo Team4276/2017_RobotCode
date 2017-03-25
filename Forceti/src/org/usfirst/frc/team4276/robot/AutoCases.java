@@ -177,7 +177,7 @@ public class AutoCases {
 		//alliance = AutoSelector.alliance;
 		//autoMode = AutoSelector.autoMode;
 		
-		switch (autoModeToExecute) {
+		switch (testAutoRotate) {
 		case nothing:
 			break;
 		case redAuto2_ScoreGear:
@@ -558,12 +558,9 @@ public class AutoCases {
 		case testAutoRotate:
 			SmartDashboard.putString("auto", "switch");
 			Robot.systemTimer.reset();
-			while (!mecanumDrive.driveStraight(10) && (Robot.systemTimer.get() < 5))
+			while (!mecanumDrive.rotateToHeading(90))
 				;
-			Robot.systemTimer.delay(2);
-			Robot.systemTimer.reset();
-			while (!mecanumDrive.rotateToHeading(90) && (Robot.systemTimer.get() < 5))
-				;
+			
 
 			/*
 			 * Robot.systemTimer.delay(1); Robot.systemTimer.reset();

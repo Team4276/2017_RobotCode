@@ -57,9 +57,9 @@ public class Robot extends SampleRobot {
 	public Robot() {
 		imu = new ADIS16448_IMU();
 		
-		cam=CameraServer.getInstance().startAutomaticCapture();
-		cam.setResolution(42, 24);
-		cam.setFPS(20);
+		cam=CameraServer.getInstance().startAutomaticCapture(0);
+		cam.setResolution(424, 240);
+		cam.setFPS(30);
 		cam.setExposureManual(24);
 
 		systemTimer = new Timer();

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class mecanumDrive {
 
+	static Sonar sonar;
 	static RobotDrive mecanumControl;
 	Joystick mecanumJoystick;
 	VictorSP forwardRightMotor;
@@ -23,9 +24,13 @@ public class mecanumDrive {
 	double linearDeadband = .1;
 	double rotateDeadband = .2;
 	
+	static final double DISTANCE_ENGAGE_SONAR = 2.0;// FEET
+	static final double SONAR_VALID_RANGE = DISTANCE_ENGAGE_SONAR + 1.0; //FEET
+	
 	static double distance = 0;
 	static double distancePrev = 0;
 	static boolean driveInit = true;
+	static double robotY0 = 0;
 	
 	double X = 0;
 	double Y = 0;
@@ -52,13 +57,14 @@ public class mecanumDrive {
 	
 	int mode = 0;
 
-	public mecanumDrive(int pwm0, int pwm1, int pwm2, int pwm3) {
+	public mecanumDrive(int pwm0, int pwm1, int pwm2, int pwm3, Sonar driveSonar) {
 
 		mecanumJoystick = new Joystick(0);
 		forwardRightMotor = new VictorSP(pwm0);
 		forwardLeftMotor = new VictorSP(pwm1);
 		backRightMotor = new VictorSP(pwm2);
 		backLeftMotor = new VictorSP(pwm3);
+		sonar = driveSonar;
 
 		mecanumControl = new RobotDrive(forwardLeftMotor, backLeftMotor, forwardRightMotor, backRightMotor);
 
@@ -327,32 +333,50 @@ public class mecanumDrive {
 	// Drive straight with sonar fine ranging
 	static boolean driveStraight(double distanceGoal, double sonarDistAwayToStop)
 	{
+		double driveError;
+		double rangeError;
+		double distanceError;
+		double sonarRange;
+		String controlMode;
+		double Kp = -0.14;// (-) because mecanumDrive_Cartesian uses opposite polarity in Y
+		double drivePower;
+		boolean targetReached;
+		double linearDeadband = 0.1;// feet
+
 		if(driveInit == true){
-			distancePrev = 0-mecanumNavigation.robotY;
+			robotY0 = mecanumNavigation.robotY;
 			driveInit = false;
 		}
-		driveStatus = "driving " + distanceGoal;
+		
+		driveStatus = "driving with sonar " + distanceGoal;
+		
+		distance = mecanumNavigation.robotY - robotY0;
+		
+		driveError = distanceGoal - distance;
 
-		boolean value = false;
+		if (driveError >= DISTANCE_ENGAGE_SONAR){
+			distanceError = driveError;
+			controlMode = "encoders";
+		}
+		else {
+			sonarRange = sonar.getRangeFeet();
+			if (sonarRange < SONAR_VALID_RANGE){//if sonar measurements good
+				rangeError = sonar.getRangeFeet() - sonarDistAwayToStop;
+				distanceError = rangeError;
+				controlMode = "sonar";
+			}
+			else{//if sonar measurements bad
+				distanceError = driveError;
+				controlMode = "encoders";
+			}
+		}
 		
-		distance = distancePrev + mecanumNavigation.robotY;
-		
-		double linearDeadband = .1;
-		double driveDiff = distanceGoal - distance;
-		double driveConstant = -0.14;// place holder
-		double drivePower = driveConstant * driveDiff;
-		
-		SmartDashboard.putNumber("Distance", distance);
-		SmartDashboard.putNumber("Distance Error", driveDiff);
-		SmartDashboard.putNumber("Drive Power", drivePower);
-		
-		SmartDashboard.putString("auto", "drive");
-		
+		drivePower = Kp * distanceError;
 
 		if (drivePower > 0.45) {
 			drivePower = 0.45;
 		}
-		if (drivePower < -0.45) {
+		else if (drivePower < -0.45) {
 			drivePower = -0.45;
 		}
 		
@@ -361,21 +385,25 @@ public class mecanumDrive {
 		 * that the robot won't rotate too fast
 		 */
 		
-		mecanumControl.mecanumDrive_Cartesian(0, drivePower, 0, 0);
-		
-		if (Math.abs(driveDiff) < linearDeadband) {
-
+		if (Math.abs(distanceError) < linearDeadband) {
 			drivePower = 0;
-			value = true;
+			mecanumControl.mecanumDrive_Cartesian(0, 0, 0, 0);
+			targetReached = true;
 			driveInit = true;
 			SmartDashboard.putString("auto", "finish");
 		} else {
-			value = false;
+			targetReached = false;
+			mecanumControl.mecanumDrive_Cartesian(0, drivePower, 0, 0);
 		}
 		
+		SmartDashboard.putNumber("Distance", distance);
+		SmartDashboard.putNumber("Distance Error", distanceError);
+		SmartDashboard.putNumber("Drive Power", drivePower);
 		
+		SmartDashboard.putString("Control Mode", controlMode);
+		SmartDashboard.putString("auto", "drive");
 		
-		return value;
+		return targetReached;
 	}
 	
 	static boolean strafeStraight(double distanceGoal)

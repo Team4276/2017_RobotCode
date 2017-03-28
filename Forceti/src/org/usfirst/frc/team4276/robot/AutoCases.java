@@ -118,6 +118,7 @@ public class AutoCases {
 		 * retrieval zones
 		 */
 
+		final double DISTANCE_TO_STOP_GEAR = 7.5/12.0;//FEET
 		final double FRONT_LIFT_DISTANCE = 6.4;
 		final double SIDE_LIFT_PREP_DISTANCE = 7.2;
 		final double BLUE_X_DISTANCE_TO_HOPPER = -7;//place holder
@@ -187,8 +188,7 @@ public class AutoCases {
 			
 			Robot.systemTimer.reset();
 
-			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE) && (Robot.systemTimer.get() < 3))
-				;
+			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE, DISTANCE_TO_STOP_GEAR) && (Robot.systemTimer.get() < 3));
 
 			mecanumDrive.driveInit = true;
 

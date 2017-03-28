@@ -32,7 +32,7 @@ public class Robot extends SampleRobot {
 	static double gearPegOffset = 0; // PLACE HOLDER
 	static double boilerOffset = 0; // PLACE HOLDER
 	
-	
+	Sonar sonar;
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
@@ -58,9 +58,9 @@ public class Robot extends SampleRobot {
 		imu = new ADIS16448_IMU();
 		
 		cam=CameraServer.getInstance().startAutomaticCapture(0);
-		cam.setResolution(424, 240);
+		cam.setResolution(640, 480);
 		cam.setFPS(30);
-		cam.setExposureManual(24);
+		cam.setExposureManual(50);
 
 		systemTimer = new Timer();
 		systemTimer.start();
@@ -68,10 +68,11 @@ public class Robot extends SampleRobot {
 		gearArmControl = new ArmPID();
 		robotLocation = new mecanumNavigation(0, 1, 2, 3);// dio
 		Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 8 & 9
-		driveSystem = new mecanumDrive(0, 1, 2, 3);// pwm ports
+		driveSystem = new mecanumDrive(0, 1, 2, 3, sonar);// pwm ports
 		climbingSystem = new Climber(5, 13);// pwm port 5, dio port 13
 		gearMechanism = new gearCollection(6, 7, 7, 4, 5);// pwm ports 6 and 7,
-															// dio ports 18, 19, and 20
+															// dio ports 4, 5, and 7
+		sonar = new Sonar(18,19);// dio 18,19
 		
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
 

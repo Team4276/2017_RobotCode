@@ -109,7 +109,7 @@ public class Robot extends SampleRobot {
 	}
 	
 	private synchronized void alignRobotAndField() {
-		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
+		yawOffsetToFieldFrame = 0.0 - imu.getAngleZ();
 	}
 
 

@@ -99,6 +99,8 @@ public class Robot extends SampleRobot {
 	public void robotInit() {
 		SmartDashboard.putString("auto", "no");
 		//LEDs.testI2C();
+
+		alignRobotAndField();
 	}
 	
 	public void autonomous() {
@@ -106,7 +108,9 @@ public class Robot extends SampleRobot {
 		//autonomous.autoModes();
 	}
 	
-	
+	private synchronized void alignRobotAndField() {
+		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
+	}
 
 
 	/**

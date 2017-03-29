@@ -349,13 +349,23 @@ public class ADIS16448_IMU extends GyroBase implements Gyro, PIDSource, LiveWind
     Timer.delay(kCalibrationSampleTime);
 
     synchronized (this) {
-      m_gyro_offset_x = m_accum_gyro_x / m_accum_count;
-      m_gyro_offset_y = m_accum_gyro_y / m_accum_count;
-      m_gyro_offset_z = m_accum_gyro_z / m_accum_count;
+    	if(m_accum_count == 0) {
+    	  m_gyro_offset_x = 0.0;
+    	  m_gyro_offset_y = 0.0;
+    	  m_gyro_offset_z = 0.0;
+    	     
+    	  m_accel_offset_x = 0.0;
+    	  m_accel_offset_y = 0.0;
+    	  m_accel_offset_z = 0.0; 		
+    	} else {
+	      m_gyro_offset_x = m_accum_gyro_x / m_accum_count;
+	      m_gyro_offset_y = m_accum_gyro_y / m_accum_count;
+	      m_gyro_offset_z = m_accum_gyro_z / m_accum_count;
      
-      m_accel_offset_x = m_accum_accel_x / m_accum_count;
-      m_accel_offset_y = m_accum_accel_y / m_accum_count;
-      m_accel_offset_z = m_accum_accel_z / m_accum_count;
+	      m_accel_offset_x = m_accum_accel_x / m_accum_count;
+	      m_accel_offset_y = m_accum_accel_y / m_accum_count;
+	      m_accel_offset_z = m_accum_accel_z / m_accum_count;
+    	}
     }
   }
 

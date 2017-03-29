@@ -40,6 +40,6 @@ public class RoboRioPorts {
 	static int flyWheel_channelB = 9;
 	
 		//sonar
-	static int sonar_channelA = 18;
-	static int sonar_channelB = 19;
+	static int sonar_channelA = 8;
+	static int sonar_channelB = 9;
 }

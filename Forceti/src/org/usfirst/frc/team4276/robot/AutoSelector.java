@@ -100,6 +100,7 @@ public class AutoSelector extends Thread implements Runnable {
 			SmartDashboard.putString("Selection mode", selectionModeArray[selectionMode]);
 			SmartDashboard.putString("Alliance color", allianceArray[alliance]);
 			SmartDashboard.putString("Auto mode", autoModeArray[autoMode]);
+			SmartDashboard.putNumber("Auto", autoModeToExecute);
 			
 			Robot.systemTimer.delay(0.1);
 			SmartDashboard.putBoolean("AutoSelector Error", false);

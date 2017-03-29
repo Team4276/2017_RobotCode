@@ -94,7 +94,7 @@ public class mecanumDrive {
 		} else {//high speed mode
 			if (Math.abs(mecanumJoystick.getX()) > .1)
 				X = mecanumJoystick.getX();
-			else
+			//else
 				X = 0;
 
 			if (Math.abs(mecanumJoystick.getY()) > .1)
@@ -338,7 +338,7 @@ public class mecanumDrive {
 		double distanceError;
 		double sonarRange;
 		String controlMode;
-		double Kp = -0.14;// (-) because mecanumDrive_Cartesian uses opposite polarity in Y
+		double Kp = -0.17;// (-) because mecanumDrive_Cartesian uses opposite polarity in Y
 		double drivePower;
 		boolean targetReached;
 		double linearDeadband = 0.1;// feet
@@ -353,15 +353,16 @@ public class mecanumDrive {
 		distance = mecanumNavigation.robotY - robotY0;
 		
 		driveError = distanceGoal - distance;
+		
+		sonarRange = sonar.getRangeFeet();
 
 		if (driveError >= DISTANCE_ENGAGE_SONAR){
 			distanceError = driveError;
 			controlMode = "encoders";
 		}
 		else {
-			sonarRange = sonar.getRangeFeet();
 			if (sonarRange < SONAR_VALID_RANGE){//if sonar measurements good
-				rangeError = sonar.getRangeFeet() - sonarDistAwayToStop;
+				rangeError = sonarRange - sonarDistAwayToStop;
 				distanceError = rangeError;
 				controlMode = "sonar";
 			}
@@ -399,7 +400,8 @@ public class mecanumDrive {
 		SmartDashboard.putNumber("Distance", distance);
 		SmartDashboard.putNumber("Distance Error", distanceError);
 		SmartDashboard.putNumber("Drive Power", drivePower);
-		
+		SmartDashboard.putNumber("Sonar Range (ft)", sonarRange);
+
 		SmartDashboard.putString("Control Mode", controlMode);
 		SmartDashboard.putString("auto", "drive");
 		

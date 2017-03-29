@@ -129,7 +129,7 @@ public class AutoCases {
 		final double RED_HOPPER_DISTANCE_TO_BOILER = 5;//place holder
 
 		final double ARM_DEPOSIT_ANGLE = 0.0;
-		final double DEPOSITING_GEAR_TIME = 1;
+		final double DEPOSITING_GEAR_TIME = .3;
 
 		final double BLUE_HOPPER_X = 18.9;
 		final double BLUE_HOPPER_Y = -12.0;
@@ -183,18 +183,16 @@ public class AutoCases {
 		case nothing:
 			break;
 		case redAuto2_ScoreGear:
-
+			SmartDashboard.putString("auto", "1");
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, MODE_2_STARTING_Y, 0);
 			
 			Robot.systemTimer.reset();
 
-			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE, DISTANCE_TO_STOP_GEAR) && (Robot.systemTimer.get() < 3));
+			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE, DISTANCE_TO_STOP_GEAR) && (Robot.systemTimer.get() < 2.5));
 
 			mecanumDrive.driveInit = true;
 
 			gearCollection.autoGearDeposit(DEPOSITING_GEAR_TIME);
-			
-			Robot.systemTimer.delay(1);
 
 			Robot.systemTimer.reset();
 			while (!mecanumDrive.driveStraight(-2.0) && (Robot.systemTimer.get() < 3))

@@ -13,10 +13,9 @@ public class LEDi2cInterface {
 	
 	void testI2C()
 	{
-		for(int i = 1; i<20; i++)
-		{
-		wire.write(42, i);
-		}
+		
+		wire.write(42, 5);
+		
 	}
 	
 }

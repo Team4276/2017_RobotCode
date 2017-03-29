@@ -98,10 +98,10 @@ public class BallShooter {
 	}
 
 	void feederManualControl() {
-		if (Robot.XBoxController.getRawAxis(XBox.RStickY) < -0.5) {
+		if (Robot.XBoxController.getPOV(XBox.DPad) == XBox.POVup) {
 			feedingWheel.set(FEEDER_POWER);
 			// agitator.set(AGITATOR_SPEED);
-		} else if (Robot.XBoxController.getRawAxis(XBox.RStickY) > 0.5) {
+		} else if (Robot.XBoxController.getPOV(XBox.DPad) == XBox.POVdown) {
 			feedingWheel.set(-FEEDER_POWER);
 			// agitator.set(-AGITATOR_SPEED);
 		} else {

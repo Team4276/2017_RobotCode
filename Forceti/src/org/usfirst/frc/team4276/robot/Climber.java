@@ -5,54 +5,53 @@ import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber {
-	DigitalInput climberLimitSwitch;
+
 	VictorSP climber;
 
 	final static double LIMIT_SWITCH_DELAY = 1.0; // seconds
-	final static double CLIMBER_POWER = -1.0; // -1.0 to 1.0
-	final static double RELEASE_POWER = 1.0;
+	final static double CLIMBER_POWER_FAST = -1.0; // -1.0 to 1.0
+	final static double CLIMBER_POWER_SLOW = -.25;
+	final static double RELEASE_POWER = .40;
 
-	boolean initializeLimitSwitchDelay = true;
-	Toggler climberToggler;
-	SoftwareTimer limitSwitchDelayTimer;
 
-	public Climber(int pwm5, int dio13) {
-		limitSwitchDelayTimer = new SoftwareTimer();
+	public Climber(int pwm5) {
+
 		climber = new VictorSP(pwm5);
-		climberLimitSwitch = new DigitalInput(dio13);
-		climberToggler = new Toggler(XBox.DPad);
+		
 	}
 
 	void driveInReverse() {
-		if(Robot.testJoy.getRawButton(1)){
-		climber.set(RELEASE_POWER);
+
+		if ((Robot.XBoxController.getRawAxis(XBox.RStickY) > 0.5)) {
+			
+				climber.set(RELEASE_POWER);
+			
 		}
-		else{
-			climber.set(0);
-			}
+
+		else {
+			climber.set(0.0);
+		}
+		// driveInReverse();
+		SmartDashboard.putBoolean("Climber Status:", (Robot.XBoxController.getRawAxis(XBox.RStickY) > 0.5));
 	}
-	
-	
+
 	void performMainProcessing() {
-		climberToggler.updateMechanismState(XBox.POVup);
-		if (climberToggler.getMechanismState()) {
-			//if (climberLimitSwitch.get() == false) {
-			if (false){
-				if (initializeLimitSwitchDelay) {
-					limitSwitchDelayTimer.setTimer(LIMIT_SWITCH_DELAY);
-					initializeLimitSwitchDelay = false;
-				} else if (limitSwitchDelayTimer.isExpired()) {
-					climber.set(0.0);
-				}
-			} else {
-				climber.set(CLIMBER_POWER);
+
+		if (Robot.XBoxController.getRawAxis(XBox.RStickY) > 0.5) {
+
+			if (Robot.XBoxController.getRawButton(XBox.RStick) == true) {
+				climber.set(CLIMBER_POWER_FAST);
+			}
+			else
+			{
+				climber.set(CLIMBER_POWER_SLOW);
 			}
 		}
 
 		else {
 			climber.set(0.0);
 		}
-       //driveInReverse();
-		SmartDashboard.putBoolean("Climber Status:", climberToggler.getMechanismState());
+		// driveInReverse();
+		//SmartDashboard.putBoolean("Climber Status:", climberToggler.getMechanismState());
 	}
 }

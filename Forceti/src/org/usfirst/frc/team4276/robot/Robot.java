@@ -44,6 +44,7 @@ public class Robot extends SampleRobot {
 	//autoModeSelector autoSelect;
 	AutoSelector autoSelectorThread;
 	UsbCamera cam;
+	//LEDi2cInterface LEDs;
 	static Timer systemTimer;
 	static Joystick XBoxController;
 	static Joystick logitechJoystick;
@@ -64,15 +65,17 @@ public class Robot extends SampleRobot {
 
 		systemTimer = new Timer();
 		systemTimer.start();
+		
+		sonar = new Sonar(8,9);// dio 8,9
 
 		gearArmControl = new ArmPID();
 		robotLocation = new mecanumNavigation(0, 1, 2, 3);// dio
 		Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 8 & 9
 		driveSystem = new mecanumDrive(0, 1, 2, 3, sonar);// pwm ports
-		climbingSystem = new Climber(5, 13);// pwm port 5, dio port 13
+		climbingSystem = new Climber(5);// pwm port 5, dio port 13
 		gearMechanism = new gearCollection(6, 7, 7, 4, 5);// pwm ports 6 and 7,
 															// dio ports 4, 5, and 7
-		sonar = new Sonar(18,19);// dio 18,19
+		//LEDs = new LEDi2cInterface();
 		
 		ballCollectingMechanism = new BallCollector(8);// pwm port 8
 
@@ -94,17 +97,16 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
-		alignRobotAndField();
+		SmartDashboard.putString("auto", "no");
+		//LEDs.testI2C();
 	}
 	
 	public void autonomous() {
 		SmartDashboard.putString("auto", "yes");
-		autonomous.autoModes();
+		//autonomous.autoModes();
 	}
 	
-	private synchronized void alignRobotAndField() {
-		yawOffsetToFieldFrame = 0.0 - imu.getYaw();
-	}
+	
 
 
 	/**
@@ -118,7 +120,9 @@ public class Robot extends SampleRobot {
 			gearMechanism.performMainProcessing();
 			Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();
+			SmartDashboard.putNumber("Sonar Range: ", sonar.getRangeFeet());
 			Timer.delay(.005);
+			//LEDs.testI2C();
 		}
 	}
 
@@ -127,9 +131,9 @@ public class Robot extends SampleRobot {
 	 */
 	public void test() {
 		
-		while (isOperatorControl() && isEnabled()) {
+		while (isEnabled()) {
 			driveSystem.Operatordrive();
-			climbingSystem.performMainProcessing();
+			climbingSystem.driveInReverse();
 			gearMechanism.performMainProcessing();
 			Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();

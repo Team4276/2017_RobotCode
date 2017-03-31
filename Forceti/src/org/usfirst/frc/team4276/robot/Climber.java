@@ -61,6 +61,7 @@ public class Climber {
 				climbSlow = true;
 				climbRev = false;
 			}
+			LEDi2cInterface.climbing = true;
 		}
 
 		else {
@@ -68,6 +69,7 @@ public class Climber {
 			climbFast = false;
 			climbSlow = false;
 			climbRev = false;
+			LEDi2cInterface.climbing = false;
 		}
 		// driveInReverse();
 		SmartDashboard.putBoolean("Climb Fast:", climbFast);

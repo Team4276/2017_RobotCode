@@ -183,6 +183,7 @@ public class BallShooter {
 			}
 			assignedPower = computeFlyWheelPower();
 			shooterWheel.set(assignedPower);
+			LEDi2cInterface.shooting=true;
 		} else {
 			shooterWheel.set(0.0);
 			feederManualControl();
@@ -190,6 +191,7 @@ public class BallShooter {
 			initializeShooter = true;
 			feederUp = false;
 			feederDown = false;
+			LEDi2cInterface.shooting=false;
 		}
 		SmartDashboard.putBoolean("Feed Up:", feederUp);
 		SmartDashboard.putBoolean("Feed Down:", feederDown);
@@ -243,6 +245,7 @@ public class BallShooter {
 		SmartDashboard.putString("AUTO SHOOT ERROR", "function on");
 		assignedPower = computeFlyWheelPower();
 		shooterWheel.set(assignedPower);
+		LEDi2cInterface.shooting=true;
 	}
 
 	void autoShootStop() {
@@ -251,5 +254,6 @@ public class BallShooter {
 		SmartDashboard.putString("AUTO SHOOT ERROR", "function off");
 		assignedPower = 0.0;
 		shooterWheel.set(assignedPower);
+		LEDi2cInterface.shooting=false;
 	}
 }

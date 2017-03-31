@@ -11,7 +11,7 @@ public class gearCollection {
 
 	static VictorSP armMotor;
 	static VictorSP gearIntake;
-	DigitalInput gearLimitSwitch;
+	static DigitalInput gearLimitSwitch;
 	static Encoder armAngle;
 	
 	static boolean gotGear = false;
@@ -65,16 +65,7 @@ public class gearCollection {
 
 		}
 		
-		if(!(gearLimitSwitch.get() == true))
-		{
-			
-			gotGear = true;
-		}
-		else
-		{
-			
-			gotGear = false;
-		}
+		
 		
 	}
 

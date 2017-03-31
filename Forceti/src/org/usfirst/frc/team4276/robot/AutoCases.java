@@ -29,6 +29,7 @@ public class AutoCases {
 	BallShooter autoShooter;
 	mecanumDrive autoDrive;
 	gearCollection autoGear;
+	BallCollector autoBall;
 	
 	// Alliances
 	static final int RED = 0;
@@ -58,10 +59,11 @@ public class AutoCases {
 	private int autoMode = 0;
 	private int autoModeToExecute = 0;
 	
-	public AutoCases(BallShooter shooterControl, mecanumDrive mecDrive, gearCollection gearArm) {
+	public AutoCases(BallShooter shooterControl, mecanumDrive mecDrive, gearCollection gearArm, BallCollector ballz) {
 		autoShooter = shooterControl;
 		autoDrive = mecDrive;
 		autoGear = gearArm;
+		autoBall = ballz;
 		
 		/*
 		autoModeToExecute[RED][NOTHING] = 0;
@@ -291,12 +293,14 @@ public class AutoCases {
 			autoDrive.driveInit = true;
 			Robot.systemTimer.delay(TIME_TO_COLLECT_HOPPER);
 			Robot.systemTimer.reset();
-			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_FROM_HOPPER)&&Robot.systemTimer.get()<2);
+			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_FROM_HOPPER)&&Robot.systemTimer.get()<1);
 			autoDrive.driveInit = true;
+			autoBall.ballCollector.set(autoBall.COLLECTOR_SPEED);
 			Robot.systemTimer.reset();
 			while(!autoDrive.driveStraight(RED_HOPPER_DISTANCE_TO_BOILER)&&Robot.systemTimer.get()<2);
 			autoDrive.driveInit = true;
 			Robot.systemTimer.reset();
+			autoBall.ballCollector.set(0);
 			while(!autoDrive.rotateToHeading(0)&&Robot.systemTimer.get()<2);
 			autoDrive.driveInit = true;
 			Robot.systemTimer.reset();

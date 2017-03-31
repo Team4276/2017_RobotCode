@@ -424,7 +424,7 @@ public class mecanumDrive {
 		
 		double linearDeadband = .1;
 		double driveDiff = distanceGoal - distance;
-		double driveConstant = -0.14;// place holder
+		double driveConstant = -0.3;// place holder
 		double drivePower = driveConstant * driveDiff;
 		
 		SmartDashboard.putNumber("Distance", distance);

@@ -90,6 +90,20 @@ public class ArmPID extends Thread implements Runnable {
 					} else if (commandedArmAngle <= lowerLimit) {
 						commandedArmAngle = lowerLimit;
 					}
+					
+					
+					if(!(gearCollection.gearLimitSwitch.get() == true))
+					{
+						
+						gearCollection.gotGear = true;
+						LEDi2cInterface.gearCollected = true;
+					}
+					else
+					{
+						
+						gearCollection.gotGear = false;
+						LEDi2cInterface.gearCollected = false;
+					}
 
 					SmartDashboard.putNumber("Arm Offset: ", errorProportional);
 					SmartDashboard.putNumber("Setpoint: ", commandedArmAngle);

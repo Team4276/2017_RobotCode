@@ -51,7 +51,7 @@ public class Robot extends SampleRobot {
 	//autoModeSelector autoSelect;
 	AutoSelector autoSelectorThread;
 	UsbCamera cam;
-	//LEDi2cInterface LEDs;
+	LEDi2cInterface LEDs;
 	
 	
 	static double yawOffsetToFieldFrame = 0.0;
@@ -76,7 +76,7 @@ public class Robot extends SampleRobot {
 		systemTimer = new Timer();
 		systemTimer.start();
 		
-		sonar = new Sonar(20,21);// dio 8,9
+		sonar = new Sonar(20,21);
 
 		gearArmControl = new ArmPID();
 		robotLocation = new mecanumNavigation(DIO_DRIVE_FL_A, DIO_DRIVE_FL_B, DIO_DRIVE_BL_A, DIO_DRIVE_BL_B);
@@ -85,11 +85,11 @@ public class Robot extends SampleRobot {
 		climbingSystem = new Climber(PWM_CLIMBER);
 		gearMechanism = new gearCollection(PWM_GEAR_ANGLE, PWM_GEAR_INTAKE, DIO_GEAR_LIMIT, DIO_GEAR_ANGLE_A, DIO_GEAR_ANGLE_B);
 															
-		//LEDs = new LEDi2cInterface();
+		LEDs = new LEDi2cInterface();
 		
 		ballCollectingMechanism = new BallCollector(PWM_BALL_INTAKE);
 
-		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism);
+		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism,ballCollectingMechanism);
 		//autoSelect = new autoModeSelector();
 		autoSelectorThread = new AutoSelector();
 		
@@ -97,18 +97,21 @@ public class Robot extends SampleRobot {
 		robotLocation.start();
 		gearArmControl.start();
 		autoSelectorThread.start();
+		LEDs.start();
 		
-
 
 	}
 
 	public void robotInit() {
 		SmartDashboard.putString("auto", "no");
+
+		LEDi2cInterface.enabled=false;
 		//LEDs.testI2C();
 	}
 	
 	public void autonomous() {
 		SmartDashboard.putString("auto", "yes");
+		LEDi2cInterface.enabled=true;
 		autonomous.autoModes();
 	}
 	
@@ -127,6 +130,7 @@ public class Robot extends SampleRobot {
 			Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.005);
+			LEDi2cInterface.enabled=true;
 			//LEDs.testI2C();
 		}
 	}
@@ -143,6 +147,7 @@ public class Robot extends SampleRobot {
 			Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();
 			Timer.delay(.005);
+			LEDi2cInterface.enabled=true;
 		}
 
 	}

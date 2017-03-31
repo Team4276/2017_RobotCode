@@ -94,7 +94,7 @@ public class mecanumDrive {
 		} else {//high speed mode
 			if (Math.abs(mecanumJoystick.getX()) > .1)
 				X = mecanumJoystick.getX();
-			//else
+			else
 				X = 0;
 
 			if (Math.abs(mecanumJoystick.getY()) > .1)
@@ -434,11 +434,11 @@ public class mecanumDrive {
 		SmartDashboard.putString("auto", "drive");
 		
 
-		if (drivePower > 0.45) {
-			drivePower = 0.45;
+		if (drivePower > 0.75) {
+			drivePower = 0.75;
 		}
-		if (drivePower < -0.45) {
-			drivePower = -0.45;
+		if (drivePower < -0.75) {
+			drivePower = -0.75;
 		}
 		
 		/*

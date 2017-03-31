@@ -22,15 +22,15 @@ public class ArmPID extends Thread implements Runnable {
 	static double commandedArmAngle = initialArmAngle;
 	// final double TARGETING_ERROR = 0.0; // degrees
 
-	final double upperLimit = 0.0;
-	final double lowerLimit = -95.0;
+	final double upperLimit = 10.0;
+	final double lowerLimit = -105.0;
 
 	public void run() {
 		double errorProportional = 0;
 
 		double power;
 
-		try {
+		//try {
 			armError = false;
 
 			while (true) {
@@ -106,15 +106,15 @@ public class ArmPID extends Thread implements Runnable {
 				Timer.delay(0.05);
 			}
 
-		}
+		//}
 
-		catch (Exception errorInArm) {
+		/*catch (Exception errorInArm) {
 
 			armError = true;
 			SmartDashboard.putBoolean("Arm Error", armError);
 			SmartDashboard.putString("Arm Error desc", errorInArm.getMessage());
 
-		}
+		}*/
 	}
 
 }

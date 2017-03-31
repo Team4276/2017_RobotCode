@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import static org.usfirst.frc.team4276.robot.RoboRioPorts.*;
 
 /**
  * This is a demo program showing the use of the RobotDrive class. The
@@ -32,6 +33,12 @@ public class Robot extends SampleRobot {
 	static double gearPegOffset = 0; // PLACE HOLDER
 	static double boilerOffset = 0; // PLACE HOLDER
 	
+	static Timer systemTimer;
+	static Joystick XBoxController;
+	static Joystick logitechJoystick;
+	static Joystick autoSelector;
+	static Joystick testJoy;
+	
 	Sonar sonar;
 	mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
@@ -45,54 +52,53 @@ public class Robot extends SampleRobot {
 	AutoSelector autoSelectorThread;
 	UsbCamera cam;
 	//LEDi2cInterface LEDs;
-	static Timer systemTimer;
-	static Joystick XBoxController;
-	static Joystick logitechJoystick;
-	static Joystick autoSelector;
-	static Joystick testJoy;
+	
 	
 	static double yawOffsetToFieldFrame = 0.0;
 	static double xyFieldFrameSpeed = 0.0;
 	static double xyFieldFrameHeading = 0.0;
 
 	public Robot() {
-		imu = new ADIS16448_IMU();
-		
-		cam=CameraServer.getInstance().startAutomaticCapture(0);
-		cam.setResolution(640, 480);
-		cam.setFPS(30);
-		cam.setExposureManual(50);
-
-		systemTimer = new Timer();
-		systemTimer.start();
-		
-		sonar = new Sonar(8,9);// dio 8,9
-
-		gearArmControl = new ArmPID();
-		robotLocation = new mecanumNavigation(0, 1, 2, 3);// dio
-		Shooter = new BallShooter(9, 4, 8, 9);// pwm ports 4 & 9, dio ports 8 & 9
-		driveSystem = new mecanumDrive(0, 1, 2, 3, sonar);// pwm ports
-		climbingSystem = new Climber(5);// pwm port 5, dio port 13
-		gearMechanism = new gearCollection(6, 7, 7, 4, 5);// pwm ports 6 and 7,
-															// dio ports 4, 5, and 7
-		//LEDs = new LEDi2cInterface();
-		
-		ballCollectingMechanism = new BallCollector(8);// pwm port 8
-
-		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism);
-		//autoSelect = new autoModeSelector();
-		autoSelectorThread = new AutoSelector();
-		
-		//autoSelect.start();
-		robotLocation.start();
-		gearArmControl.start();
-		autoSelectorThread.start();
 		
 
 		XBoxController = new Joystick(3);
 		logitechJoystick = new Joystick(0);
 		//autoSelector = new Joystick(1);
 		testJoy = new Joystick(1);
+		
+		imu = new ADIS16448_IMU();
+		
+		cam=CameraServer.getInstance().startAutomaticCapture(0);
+		cam.setResolution(320, 240);
+		cam.setFPS(30);
+		cam.setExposureManual(30);
+
+		systemTimer = new Timer();
+		systemTimer.start();
+		
+		sonar = new Sonar(20,21);// dio 8,9
+
+		gearArmControl = new ArmPID();
+		robotLocation = new mecanumNavigation(DIO_DRIVE_FL_A, DIO_DRIVE_FL_B, DIO_DRIVE_BL_A, DIO_DRIVE_BL_B);
+		Shooter = new BallShooter(PWM_SHOOTER_FLYWHEEL, PWM_SHOOTER_FEEDER, DIO_SHOOTER_FLYWHEEL_A, DIO_SHOOTER_FLYWHEEL_B);
+		driveSystem = new mecanumDrive(PWM_DRIVE_FR, PWM_DRIVE_FL, PWM_DRIVE_BR, PWM_DRIVE_BL,sonar);
+		climbingSystem = new Climber(PWM_CLIMBER);
+		gearMechanism = new gearCollection(PWM_GEAR_ANGLE, PWM_GEAR_INTAKE, DIO_GEAR_LIMIT, DIO_GEAR_ANGLE_A, DIO_GEAR_ANGLE_B);
+															
+		//LEDs = new LEDi2cInterface();
+		
+		ballCollectingMechanism = new BallCollector(PWM_BALL_INTAKE);
+
+		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism);
+		//autoSelect = new autoModeSelector();
+		autoSelectorThread = new AutoSelector();
+		
+		                         //autoSelect.start();
+		robotLocation.start();
+		gearArmControl.start();
+		autoSelectorThread.start();
+		
+
 
 	}
 
@@ -103,7 +109,7 @@ public class Robot extends SampleRobot {
 	
 	public void autonomous() {
 		SmartDashboard.putString("auto", "yes");
-		//autonomous.autoModes();
+		autonomous.autoModes();
 	}
 	
 	
@@ -120,7 +126,6 @@ public class Robot extends SampleRobot {
 			gearMechanism.performMainProcessing();
 			Shooter.performMainProcessing();
 			ballCollectingMechanism.performMainProcessing();
-			SmartDashboard.putNumber("Sonar Range: ", sonar.getRangeFeet());
 			Timer.delay(.005);
 			//LEDs.testI2C();
 		}

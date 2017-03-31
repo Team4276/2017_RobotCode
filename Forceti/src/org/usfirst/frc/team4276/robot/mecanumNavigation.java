@@ -112,7 +112,6 @@ double findDeltaY_RobotFrame(double FL,double BL,double FR,double BR)
 void correctYawAngle(){
 	
 	yaw = -1*Robot.imu.getAngleZ()/4;
-
 	yaw = yaw + yawStartingOffset;
 	
 	while (yaw > 180)
@@ -234,7 +233,7 @@ void findAbsoluteLocation_FieldFrame()
 
 public void run()
 {
-	
+	ERROR=true;
 	try
 	{
 		resetDriveEncoders();

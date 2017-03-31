@@ -4,42 +4,42 @@ public class RoboRioPorts {
 
 	//PWMs
 		//drive system
-	static int forwardRightDrive = 0;
-	static int forwardLeftDrive = 1;
-	static int backRightDrive = 2;
-	static int backLeftDrive = 3;
+	static final int PWM_DRIVE_FR = 0; // drive - front left
+	static final int PWM_DRIVE_FL = 1; // drive - front right
+	static final int PWM_DRIVE_BR = 2; // drive - back right
+	static final int PWM_DRIVE_BL = 3; // drive - back left
 	
 		//shooter
-	static int feederControl = 4;
-	static int flyWheelControl = 9;
+	static final int PWM_SHOOTER_FEEDER = 4;
+	static final int PWM_SHOOTER_FLYWHEEL = 9;
 	
 		//climber
-	static int climberControl = 5;
+	static final int PWM_CLIMBER = 5;
 	
 		//gear arm
-	static int pivotControl = 6;
-	static int gearIntake = 7;
+	static final int PWM_GEAR_ANGLE = 6;
+	static final int PWM_GEAR_INTAKE = 7;
 	
 		//ball intake
-	static int intakeControl = 8;
+	static final int PWM_BALL_INTAKE = 8;
 	
 	//DIOs
 		//drive system
-	static int forwardLeft_channelA = 0;
-	static int forwardLeft_channelB = 1;
-	static int backLeft_channelA = 2;
-	static int backLeft_channelB = 3;
+	static final int DIO_DRIVE_FL_A = 0;
+	static final int DIO_DRIVE_FL_B = 1;
+	static final int DIO_DRIVE_BL_A = 2;
+	static final int DIO_DRIVE_BL_B = 3;
 	
 		//gear arm
-	static int gearArmPivot_channelA = 4;
-	static int gearArmPivot_channelB = 5;
-	static int gearBumperSwitch = 7;
+	static final int DIO_GEAR_ANGLE_A = 4;
+	static final int DIO_GEAR_ANGLE_B = 5;
+	static final int DIO_GEAR_LIMIT = 7;
 		
 		//shooter
-	static int flyWheel_channelA = 8;
-	static int flyWheel_channelB = 9;
+	static final int DIO_SHOOTER_FLYWHEEL_A = 8;
+	static final int DIO_SHOOTER_FLYWHEEL_B = 9;
 	
 		//sonar
-	static int sonar_channelA = 8;
-	static int sonar_channelB = 9;
+	static final int DIO_SONAR_A = 19;
+	static final int DIO_SONAR_B = 20;
 }

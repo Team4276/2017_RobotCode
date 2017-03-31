@@ -121,10 +121,11 @@ public class AutoCases {
 		final double DISTANCE_TO_STOP_GEAR = 7.5/12.0;//FEET
 		final double FRONT_LIFT_DISTANCE = 6.4;
 		final double SIDE_LIFT_PREP_DISTANCE = 7.2;
-		final double BLUE_X_DISTANCE_TO_HOPPER = -7;//place holder
-		final double RED_X_DISTANCE_TO_HOPPER = -7;//place holder
-		final double BLUE_STRAFE_DISTANCE_TO_HOPPER = -6;//place holder
-		final double RED_STRAFE_DISTANCE_TO_HOPPER = 6;//place holder
+		final double BLUE_X_DISTANCE_TO_HOPPER = -7.0;//place holder
+		final double RED_X_DISTANCE_TO_HOPPER = -7.0;//place holder
+		final double BLUE_STRAFE_DISTANCE_TO_HOPPER = -6.0;//place holder
+		final double RED_STRAFE_DISTANCE_FROM_HOPPER = -1.0;
+		final double RED_STRAFE_DISTANCE_TO_HOPPER = 6.0;//place holder
 		final double BLUE_HOPPER_DISTANCE_TO_BOILER = 5;//place holder
 		final double RED_HOPPER_DISTANCE_TO_BOILER = 5;//place holder
 
@@ -188,7 +189,7 @@ public class AutoCases {
 			
 			Robot.systemTimer.reset();
 
-			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE, DISTANCE_TO_STOP_GEAR) && (Robot.systemTimer.get() < 2.5));
+			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE) && (Robot.systemTimer.get() < 2.5));
 
 			mecanumDrive.driveInit = true;
 
@@ -281,6 +282,7 @@ public class AutoCases {
 			break;
 			
 		case redAuto1_HopperandShootFromBoiler:
+			mecanumNavigation.setStartingPosition(RED_STARTING_X, 0, 0);
 			Robot.systemTimer.reset();
 			while(!autoDrive.driveStraight(RED_X_DISTANCE_TO_HOPPER)&&Robot.systemTimer.get()<3);
 			autoDrive.driveInit = true;
@@ -289,7 +291,13 @@ public class AutoCases {
 			autoDrive.driveInit = true;
 			Robot.systemTimer.delay(TIME_TO_COLLECT_HOPPER);
 			Robot.systemTimer.reset();
+			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_FROM_HOPPER)&&Robot.systemTimer.get()<2);
+			autoDrive.driveInit = true;
+			Robot.systemTimer.reset();
 			while(!autoDrive.driveStraight(RED_HOPPER_DISTANCE_TO_BOILER)&&Robot.systemTimer.get()<2);
+			autoDrive.driveInit = true;
+			Robot.systemTimer.reset();
+			while(!autoDrive.rotateToHeading(0)&&Robot.systemTimer.get()<2);
 			autoDrive.driveInit = true;
 			Robot.systemTimer.reset();
 			while(Robot.systemTimer.get()<7)

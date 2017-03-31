@@ -13,8 +13,8 @@ public class BallShooter {
 
 	final double FEEDER_DELAY_TIME = 1.0; // seconds
 	final double FEEDER_POWER = 1.0; // -1 to 1
-	final double AGITATOR_SPEED = 1.0;
-	double FLYWHEEL_SPEED = 2800; // rpm
+	//final double AGITATOR_SPEED = 1.0;
+	double FLYWHEEL_SPEED = 2700; // rpm
 	double GAIN_PROPORTIONAL = 0.5e-3;
 	double GAIN_INTEGRAL = 10.0e-3;
 	double GAIN_DERIVATIVE = 0.0;
@@ -36,6 +36,8 @@ public class BallShooter {
 	static double timeStep;
 	static boolean initializePID = true;
 	static boolean initializeShooter = true;
+	boolean feederUp = false;
+	boolean feederDown = false;
 
 	double ff_power = 0.0;
 	DigitalInput feedforward;
@@ -101,12 +103,18 @@ public class BallShooter {
 		if (Robot.XBoxController.getPOV(XBox.DPad) == XBox.POVup) {
 			feedingWheel.set(FEEDER_POWER);
 			// agitator.set(AGITATOR_SPEED);
+			feederUp = true;
+			feederDown = false;
 		} else if (Robot.XBoxController.getPOV(XBox.DPad) == XBox.POVdown) {
 			feedingWheel.set(-FEEDER_POWER);
 			// agitator.set(-AGITATOR_SPEED);
+			feederUp = false;
+			feederDown = true;
 		} else {
 			feedingWheel.set(0.0);
 			// agitator.set(0.0);
+			feederUp = false;
+			feederDown = false;
 		}
 	}
 
@@ -170,6 +178,8 @@ public class BallShooter {
 			} else if (feederStartDelayTimer.isExpired()) {
 				feedingWheel.set(FEEDER_POWER);
 				// agitator.set(AGITATOR_SPEED);
+				feederUp = true;
+				feederDown = false;
 			}
 			assignedPower = computeFlyWheelPower();
 			shooterWheel.set(assignedPower);
@@ -178,7 +188,11 @@ public class BallShooter {
 			feederManualControl();
 			initializePID = true;
 			initializeShooter = true;
+			feederUp = false;
+			feederDown = false;
 		}
+		SmartDashboard.putBoolean("Feed Up:", feederUp);
+		SmartDashboard.putBoolean("Feed Down:", feederDown);
 	}
 
 	void giveFeedback() {
@@ -208,6 +222,15 @@ public class BallShooter {
 		} // distanceToGoal can be used to calculate speed of shooter
 		*/
 
+		currentRate = shooterEncoder.getRate();
+		rateSamples[4] = rateSamples[3];
+		rateSamples[3] = rateSamples[2];
+		rateSamples[2] = rateSamples[1];
+		rateSamples[1] = rateSamples[0];
+		rateSamples[0] = currentRate;
+		filteredRate = (rateSamples[0] + rateSamples[1] + rateSamples[2] + rateSamples[3] + rateSamples[4]) / 5;
+		SmartDashboard.putNumber("Shooter Speed", filteredRate);
+		
 		if (initializeShooter) {
 			// if initializeShooter is true, then this if statement runs
 			feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);

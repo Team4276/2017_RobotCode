@@ -107,6 +107,8 @@ public class Robot extends SampleRobot {
 
 		LEDi2cInterface.enabled=false;
 		//LEDs.testI2C();
+
+		alignRobotAndField();
 	}
 	
 	public void autonomous() {
@@ -115,7 +117,9 @@ public class Robot extends SampleRobot {
 		autonomous.autoModes();
 	}
 	
-	
+	private synchronized void alignRobotAndField() {
+		yawOffsetToFieldFrame = 0.0 - imu.getAngleZ();
+	}
 
 
 	/**

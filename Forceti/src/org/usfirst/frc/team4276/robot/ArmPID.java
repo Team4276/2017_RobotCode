@@ -7,7 +7,7 @@ public class ArmPID extends Thread implements Runnable {
 
 	boolean armError;
 
-	final double raisedSetPoint = 0.0;
+	final double raisedSetPoint = -5.0;
 	final double middleSetPoint = -45.0;
 	final double collectingSetPoint = -90.0;
 	double estimatedArmAngle;
@@ -22,7 +22,7 @@ public class ArmPID extends Thread implements Runnable {
 	static double commandedArmAngle = initialArmAngle;
 	// final double TARGETING_ERROR = 0.0; // degrees
 
-	final double upperLimit = 10.0;
+	final double upperLimit = 1;
 	final double lowerLimit = -105.0;
 
 	public void run() {
@@ -113,6 +113,13 @@ public class ArmPID extends Thread implements Runnable {
 					SmartDashboard.putNumber("Arm Start Angle", initialArmAngle);
 					SmartDashboard.putBoolean("WHERE'S MY DAMN GEAR?", gearCollection.gotGear);
 
+					
+					if(Robot.XBoxController.getRawButton(XBox.Back)){
+						LEDi2cInterface.awesome=true;
+					}else{
+						LEDi2cInterface.awesome=false;
+					}
+					
 				}
 
 				SmartDashboard.putBoolean("Arm Error", armError);

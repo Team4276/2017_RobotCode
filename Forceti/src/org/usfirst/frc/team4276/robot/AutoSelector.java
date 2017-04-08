@@ -52,15 +52,15 @@ public class AutoSelector extends Thread implements Runnable {
 		allianceArray[BLUE] = "Blue";
 
 		autoModeArray[NOTHING] = "Nothing";
-		autoModeArray[POS_2_GEAR] = "2 gear";
-		autoModeArray[POS_2_GEAR_AND_ZONE] = "2 gear and zone";
-		autoModeArray[POS_3_GEAR_AND_ZONE] = "3 gear and zone";
-		autoModeArray[POS_1_GEAR_AND_ZONE] = "1 gear and zone";
-		autoModeArray[POS_1_SHOOT_FROM_HOPPER] = "1 shoot from hopper";
-		autoModeArray[POS_2_SHOOT_FROM_HOPPER] = "2 shoot from hopper";
-		autoModeArray[POS_1_GEAR_AND_SHOOT_FROM_HOPPER] = "1 gear and shoot from hopper";
-		autoModeArray[POS_1_HOPPER_AND_SHOOT_FROM_BOILER] = "1 hopper and shoot from boiler";
-		autoModeArray[SHOOT_FROM_BOILER] = "shoot from boiler";
+		autoModeArray[POS_2_GEAR] = "Center: gear only";
+		autoModeArray[POS_2_GEAR_AND_ZONE] = "Not applicable 1";
+		autoModeArray[POS_3_GEAR_AND_ZONE] = "Feeder: gear only";
+		autoModeArray[POS_1_GEAR_AND_ZONE] = "Boiler: gear only";
+		autoModeArray[POS_1_SHOOT_FROM_HOPPER] = "Boiler: shoot from hopper";
+		autoModeArray[POS_2_SHOOT_FROM_HOPPER] = "Center: shoot from hopper";
+		autoModeArray[POS_1_GEAR_AND_SHOOT_FROM_HOPPER] = "Boiler: gear + shoot from hopper";
+		autoModeArray[POS_1_HOPPER_AND_SHOOT_FROM_BOILER] = "Boiler: hopper + shoot from boiler";
+		autoModeArray[SHOOT_FROM_BOILER] = "Corner: shoot from boiler";
 
 		selectionModeChooser = new SendableChooser<Integer>();
 		selectionModeChooser.addDefault(selectionModeArray[COMMIT_MODE], COMMIT_MODE);

@@ -36,8 +36,8 @@ public class RoboRioPorts {
 	static final int DIO_GEAR_LIMIT = 7;
 		
 		//shooter
-	static final int DIO_SHOOTER_FLYWHEEL_A = 8;
-	static final int DIO_SHOOTER_FLYWHEEL_B = 9;
+	static final int DIO_SHOOTER_FLYWHEEL_A = 0;
+	static final int DIO_SHOOTER_FLYWHEEL_B = 1;
 	
 		//sonar
 	static final int DIO_SONAR_A = 19;

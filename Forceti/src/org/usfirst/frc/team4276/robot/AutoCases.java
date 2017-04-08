@@ -126,10 +126,10 @@ public class AutoCases {
 		final double BLUE_X_DISTANCE_TO_HOPPER = -7.0;//place holder
 		final double RED_X_DISTANCE_TO_HOPPER = -7.0;//place holder
 		final double BLUE_STRAFE_DISTANCE_TO_HOPPER = -6.0;//place holder
-		final double RED_STRAFE_DISTANCE_FROM_HOPPER = -1.0;
+		final double RED_STRAFE_DISTANCE_FROM_HOPPER = -0.50;
 		final double RED_STRAFE_DISTANCE_TO_HOPPER = 6.0;//place holder
 		final double BLUE_HOPPER_DISTANCE_TO_BOILER = 5;//place holder
-		final double RED_HOPPER_DISTANCE_TO_BOILER = 5;//place holder
+		final double RED_HOPPER_DISTANCE_TO_BOILER = 5.5;//place holder
 
 		final double ARM_DEPOSIT_ANGLE = 0.0;
 		final double DEPOSITING_GEAR_TIME = .3;
@@ -211,7 +211,7 @@ public class AutoCases {
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, MODE_3_STARTING_Y, 0);
 			Robot.systemTimer.reset();
 
-			while (!mecanumDrive.driveStraight(SIDE_LIFT_PREP_DISTANCE) && (Robot.systemTimer.get() < 3))
+			while (!mecanumDrive.driveStraight(SIDE_LIFT_PREP_DISTANCE) && (Robot.systemTimer.get() < 2))
 				;// drive forward
 
 			mecanumDrive.driveInit = true;
@@ -223,7 +223,7 @@ public class AutoCases {
 				;// rotate to face lift
 
 			Robot.systemTimer.reset();
-			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 2))
+			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 1.5))
 				;// drive to lift
 
 			mecanumDrive.driveInit = true;
@@ -255,7 +255,7 @@ public class AutoCases {
 				;// rotate to face lift
 
 			Robot.systemTimer.reset();
-			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 2))
+			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 1.5))
 				;// drive to lift
 
 			mecanumDrive.driveInit = true;
@@ -289,25 +289,25 @@ public class AutoCases {
 			while(!autoDrive.driveStraight(RED_X_DISTANCE_TO_HOPPER)&&Robot.systemTimer.get()<3);
 			autoDrive.driveInit = true;
 			Robot.systemTimer.reset();
-			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_TO_HOPPER)&&Robot.systemTimer.get()<2);
+			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_TO_HOPPER)&&Robot.systemTimer.get()<0.5);
 			autoDrive.driveInit = true;
 			Robot.systemTimer.delay(TIME_TO_COLLECT_HOPPER);
 			Robot.systemTimer.reset();
-			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_FROM_HOPPER)&&Robot.systemTimer.get()<1);
+			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_FROM_HOPPER)&&Robot.systemTimer.get()<0.5);
 			autoDrive.driveInit = true;
 			autoBall.ballCollector.set(autoBall.COLLECTOR_SPEED);
 			Robot.systemTimer.reset();
-			while(!autoDrive.driveStraight(RED_HOPPER_DISTANCE_TO_BOILER)&&Robot.systemTimer.get()<2);
+			while(!autoDrive.driveStraight(RED_HOPPER_DISTANCE_TO_BOILER)&&Robot.systemTimer.get()<2.0);
 			autoDrive.driveInit = true;
 			Robot.systemTimer.reset();
-			autoBall.ballCollector.set(0);
-			while(!autoDrive.rotateToHeading(0)&&Robot.systemTimer.get()<2);
-			autoDrive.driveInit = true;
+			
 			Robot.systemTimer.reset();
 			while(Robot.systemTimer.get()<7)
 			{
 				autoShooter.autoShoot();
 			}
+
+			autoBall.ballCollector.set(0);
 			autoShooter.autoShootStop();
 			break;
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ public class AutoCases {
 				;// rotate to face lift
 
 			Robot.systemTimer.reset();
-			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 2))
+			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 1.5))
 				;// drive to lift
 
 			mecanumDrive.driveInit = true;
@@ -381,7 +381,7 @@ public class AutoCases {
 				;// rotate to face lift
 
 			Robot.systemTimer.reset();
-			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 2))
+			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 1.5))
 				;// drive to lift
 
 			mecanumDrive.driveInit = true;
@@ -427,6 +427,10 @@ public class AutoCases {
 			}
 			autoShooter.autoShootStop();
 			break;
+			
+			
+			
+			
 		/*
 		 * case redAuto2_GearandZone:
 		 * mecanumNavigation.setStartingPosition(RED_STARTING_X,

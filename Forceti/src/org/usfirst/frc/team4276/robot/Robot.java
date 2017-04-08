@@ -40,7 +40,7 @@ public class Robot extends SampleRobot {
 	static Joystick testJoy;
 	
 	Sonar sonar;
-	mecanumNavigation robotLocation;
+	//mecanumNavigation robotLocation;
 	mecanumDrive driveSystem;
 	Climber climbingSystem;
 	gearCollection gearMechanism;
@@ -79,13 +79,13 @@ public class Robot extends SampleRobot {
 		sonar = new Sonar(20,21);
 
 		gearArmControl = new ArmPID();
-		robotLocation = new mecanumNavigation(DIO_DRIVE_FL_A, DIO_DRIVE_FL_B, DIO_DRIVE_BL_A, DIO_DRIVE_BL_B);
+		//robotLocation = new mecanumNavigation(DIO_DRIVE_FL_A, DIO_DRIVE_FL_B, DIO_DRIVE_BL_A, DIO_DRIVE_BL_B);
 		Shooter = new BallShooter(PWM_SHOOTER_FLYWHEEL, PWM_SHOOTER_FEEDER, DIO_SHOOTER_FLYWHEEL_A, DIO_SHOOTER_FLYWHEEL_B);
 		driveSystem = new mecanumDrive(PWM_DRIVE_FR, PWM_DRIVE_FL, PWM_DRIVE_BR, PWM_DRIVE_BL,sonar);
 		climbingSystem = new Climber(PWM_CLIMBER);
 		gearMechanism = new gearCollection(PWM_GEAR_ANGLE, PWM_GEAR_INTAKE, DIO_GEAR_LIMIT, DIO_GEAR_ANGLE_A, DIO_GEAR_ANGLE_B);
 															
-		LEDs = new LEDi2cInterface();
+		LEDs = new LEDi2cInterface(0,1,2,3);
 		
 		ballCollectingMechanism = new BallCollector(PWM_BALL_INTAKE);
 
@@ -94,7 +94,7 @@ public class Robot extends SampleRobot {
 		autoSelectorThread = new AutoSelector();
 		
 		                         //autoSelect.start();
-		robotLocation.start();
+		//robotLocation.start();
 		gearArmControl.start();
 		autoSelectorThread.start();
 		LEDs.start();
@@ -132,7 +132,8 @@ public class Robot extends SampleRobot {
 			climbingSystem.performMainProcessing();
 			gearMechanism.performMainProcessing();
 			Shooter.performMainProcessing();
-			ballCollectingMechanism.performMainProcessing();
+			//ballCollectingMechanism.performMainProcessing();
+			ballCollectingMechanism.pushButtonBallIntake();
 			Timer.delay(.005);
 			LEDi2cInterface.enabled=true;
 			//LEDs.testI2C();

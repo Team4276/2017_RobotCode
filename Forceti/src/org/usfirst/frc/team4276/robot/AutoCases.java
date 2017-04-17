@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutoCases {
 
-	BallShooter autoShooter;
+	autoShooter shooter;
 	mecanumDrive autoDrive;
 	gearCollection autoGear;
 	BallCollector autoBall;
@@ -59,8 +59,8 @@ public class AutoCases {
 	private int autoMode = 0;
 	private int autoModeToExecute = 0;
 	
-	public AutoCases(BallShooter shooterControl, mecanumDrive mecDrive, gearCollection gearArm, BallCollector ballz) {
-		autoShooter = shooterControl;
+	public AutoCases(autoShooter shooterControl, mecanumDrive mecDrive, gearCollection gearArm, BallCollector ballz) {
+		shooter = shooterControl;
 		autoDrive = mecDrive;
 		autoGear = gearArm;
 		autoBall = ballz;
@@ -122,7 +122,9 @@ public class AutoCases {
 
 		final double DISTANCE_TO_STOP_GEAR = 7.5/12.0;//FEET
 		final double FRONT_LIFT_DISTANCE = 6.4;
+		final double FRONT_LIFT_TIME = 2.5;
 		final double SIDE_LIFT_PREP_DISTANCE = 7.2;
+		final double SIDE_LIFT_PREP_TIME = 3.0;
 		final double BLUE_X_DISTANCE_TO_HOPPER = -7.0;//place holder
 		final double RED_X_DISTANCE_TO_HOPPER = -7.0;//place holder
 		final double BLUE_STRAFE_DISTANCE_TO_HOPPER = -6.0;//place holder
@@ -191,7 +193,7 @@ public class AutoCases {
 			
 			Robot.systemTimer.reset();
 
-			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE) && (Robot.systemTimer.get() < 2.5));
+			while (!mecanumDrive.driveStraight(FRONT_LIFT_DISTANCE) && (Robot.systemTimer.get() < FRONT_LIFT_TIME));
 
 			mecanumDrive.driveInit = true;
 
@@ -251,7 +253,7 @@ public class AutoCases {
 			gearCollection.setArmPosition(ARM_DEPOSIT_ANGLE);// lower arm
 
 			Robot.systemTimer.reset();
-			while (!mecanumDrive.rotateToHeading(60) && (Robot.systemTimer.get() < 1.5))
+			while (!mecanumDrive.rotateToHeading(60) && (Robot.systemTimer.get() < 0.5))
 				;// rotate to face lift
 
 			Robot.systemTimer.reset();
@@ -273,14 +275,18 @@ public class AutoCases {
 		case justShootRed:
 
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, 0, -135);
-		
+			shooter.setFlywheelState(true);
 			SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
+			Robot.systemTimer.delay(1);
+			
 			Robot.systemTimer.reset();
 			while (Robot.systemTimer.get() < 10) {
 				SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
-				autoShooter.autoShoot();
+				shooter.setFeederState(true);
+				//shooter.startFlywheel();
 			}
-			autoShooter.autoShootStop();
+			//shooter.stopFlywheel();
+			shooter.allStop();
 			break;
 			
 		case redAuto1_HopperandShootFromBoiler:
@@ -291,6 +297,7 @@ public class AutoCases {
 			Robot.systemTimer.reset();
 			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_TO_HOPPER)&&Robot.systemTimer.get()<0.5);
 			autoDrive.driveInit = true;
+			shooter.setFlywheelState(true);
 			Robot.systemTimer.delay(TIME_TO_COLLECT_HOPPER);
 			Robot.systemTimer.reset();
 			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_FROM_HOPPER)&&Robot.systemTimer.get()<0.5);
@@ -304,12 +311,79 @@ public class AutoCases {
 			Robot.systemTimer.reset();
 			while(Robot.systemTimer.get()<7)
 			{
-				autoShooter.autoShoot();
+				shooter.setFeederState(true);
+				//shooter.startFlywheel();
 			}
 
 			autoBall.ballCollector.set(0);
-			autoShooter.autoShootStop();
+			shooter.allStop();
+			//shooter.stopFlywheel();
 			break;
+			
+		case redAuto1_GearandShootFromHopper:
+			
+			mecanumNavigation.setStartingPosition(RED_STARTING_X, MODE_1_STARTING_Y, 0);
+			Robot.systemTimer.reset();
+
+			while (!mecanumDrive.driveStraight(SIDE_LIFT_PREP_DISTANCE) && (Robot.systemTimer.get() < 3))
+				;// drive forward
+
+			mecanumDrive.driveInit = true;
+
+			gearCollection.setArmPosition(ARM_DEPOSIT_ANGLE);// lower arm
+
+			Robot.systemTimer.reset();
+			while (!mecanumDrive.rotateToHeading(60) && (Robot.systemTimer.get() < 0.5))
+				;// rotate to face lift
+
+			Robot.systemTimer.reset();
+			while (!mecanumDrive.driveStraight(2.5) && (Robot.systemTimer.get() < 1.0))
+				;// drive to lift
+
+			mecanumDrive.driveInit = true;
+
+			gearCollection.autoGearDeposit(.4);// deposit gear
+
+
+			shooter.setFlywheelState(true);
+			
+			while (!mecanumDrive.driveStraight(-6.0) && (Robot.systemTimer.get() < 1.5))
+				;// drive from lift
+
+			mecanumDrive.driveInit = true;
+
+			Robot.systemTimer.reset();
+			
+			while (!mecanumDrive.rotateToHeading(180) && (Robot.systemTimer.get() < 0.5))
+				;
+			
+			Robot.systemTimer.reset();
+			
+			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_TO_HOPPER+3)&&Robot.systemTimer.get()<1);
+			autoDrive.driveInit = true;
+			shooter.setFlywheelState(true);
+			Robot.systemTimer.delay(TIME_TO_COLLECT_HOPPER);
+			Robot.systemTimer.reset();
+			while(!autoDrive.strafeStraight(RED_STRAFE_DISTANCE_FROM_HOPPER)&&Robot.systemTimer.get()<0.5);
+			autoDrive.driveInit = true;
+			autoBall.ballCollector.set(autoBall.COLLECTOR_SPEED);
+			Robot.systemTimer.reset();
+			while(!autoDrive.driveStraight(RED_HOPPER_DISTANCE_TO_BOILER)&&Robot.systemTimer.get()<2.0);
+			autoDrive.driveInit = true;
+			Robot.systemTimer.reset();
+			
+			Robot.systemTimer.reset();
+			while(Robot.systemTimer.get()<4)
+			{
+				shooter.setFeederState(true);
+				//shooter.startFlywheel();
+			}
+
+			autoBall.ballCollector.set(0);
+			shooter.allStop();
+			//shooter.stopFlywheel();
+			break;
+			
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// blue
 		case blueAuto2_ScoreGear:
@@ -399,14 +473,17 @@ public class AutoCases {
 		case justShootBlue:
 
 			mecanumNavigation.setStartingPosition(RED_STARTING_X, 0, -135);
-
+			shooter.setFlywheelState(true);
 			SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
+			Robot.systemTimer.delay(1);
 			Robot.systemTimer.reset();
 			while (Robot.systemTimer.get() < 10) {
 				SmartDashboard.putNumber("AUTO timer", Robot.systemTimer.get());
-				autoShooter.autoShoot();
+				//shooter.startFlywheel();
+				shooter.setFeederState(true);
 			}
-			autoShooter.autoShootStop();
+			shooter.allStop();
+			//shooter.stopFlywheel();
 			break;
 			
 		case blueAuto1_HopperandShootFromBoiler:
@@ -416,6 +493,7 @@ public class AutoCases {
 			Robot.systemTimer.reset();
 			while(!autoDrive.strafeStraight(BLUE_STRAFE_DISTANCE_TO_HOPPER)&&Robot.systemTimer.get()<2);
 			autoDrive.driveInit = true;
+			shooter.setFlywheelState(true);
 			Robot.systemTimer.delay(TIME_TO_COLLECT_HOPPER);
 			Robot.systemTimer.reset();
 			while(!autoDrive.driveStraight(BLUE_HOPPER_DISTANCE_TO_BOILER)&&Robot.systemTimer.get()<2);
@@ -423,9 +501,11 @@ public class AutoCases {
 			Robot.systemTimer.reset();
 			while(Robot.systemTimer.get()<7)
 			{
-				autoShooter.autoShoot();
+				shooter.setFeederState(true);
+				//shooter.startFlywheel();
 			}
-			autoShooter.autoShootStop();
+			shooter.allStop();
+			//shooter.stopFlywheel();
 			break;
 			
 			

@@ -20,8 +20,8 @@ public class BallShooter {
 	// final double AGITATOR_SPEED = 1.0;
 	double FLYWHEEL_SPEED = 2600; // rpm
 	double GAIN_PROPORTIONAL = 0.44e-3;
-	double GAIN_INTEGRAL = 1.96e-3;
-	double GAIN_DERIVATIVE = 3.127e-9;
+	double GAIN_INTEGRAL = 1.2e-3;
+	double GAIN_DERIVATIVE = 350.0e-9;
 	double FEED_FORWARD_K = 0.0;
 
 	VictorSP shooterWheel;
@@ -84,9 +84,9 @@ public class BallShooter {
 		else if (Robot.testJoy.getRawButton(10))
 			GAIN_INTEGRAL = GAIN_INTEGRAL + 1e-5;
 		if (Robot.testJoy.getRawButton(11))
-			GAIN_DERIVATIVE = GAIN_DERIVATIVE - 1e-12;
+			GAIN_DERIVATIVE = GAIN_DERIVATIVE - 1e-10;
 		else if (Robot.testJoy.getRawButton(12))
-			GAIN_DERIVATIVE = GAIN_DERIVATIVE + 1e-12;
+			GAIN_DERIVATIVE = GAIN_DERIVATIVE + 1e-10;
 
 		if (Robot.logitechJoystick.getRawButton(6))
 			FLYWHEEL_SPEED = FLYWHEEL_SPEED + 1;
@@ -231,7 +231,20 @@ public class BallShooter {
 		SmartDashboard.putNumber("R Trigger", Robot.XBoxController.getRawAxis(XBox.RTrigger));
 	}
 
-	void autoShoot() {
+
+
+	void stopFlywheel() {
+		double filteredRate = 0.0;
+		feedingWheel.set(0.0);
+		assignedPower = 0.0;
+		shooterWheel.set(assignedPower);
+		LEDi2cInterface.shooting = false;
+
+		SmartDashboard.putNumber("Shooter Speed", filteredRate);
+		SmartDashboard.putString("AUTO SHOOT ERROR", "function off");
+	}
+	
+	void startFlywheel() {
 
 		/*
 		 * double RobotXposition = mecanumNavigation.currentFieldX; double
@@ -250,14 +263,14 @@ public class BallShooter {
 		 */
 		double filteredRate = estimateFlywheelRate();
 
-		if (initializeShooter) {
+		//if (initializeShooter) {
 			// if initializeShooter is true, then this if statement runs
-			feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
+			//feederStartDelayTimer.setTimer(FEEDER_DELAY_TIME);
 			initializeShooter = false;
-		} else if (feederStartDelayTimer.isExpired()) {
-			feedingWheel.set(FEEDER_POWER);
+		//} else if (feederStartDelayTimer.isExpired()) {
+			//feedingWheel.set(FEEDER_POWER);
 			// agitator.set(AGITATOR_SPEED);
-		}
+		//}
 
 		assignedPower = computeFlyWheelPower(filteredRate);
 		shooterWheel.set(assignedPower);
@@ -267,14 +280,22 @@ public class BallShooter {
 		SmartDashboard.putString("AUTO SHOOT ERROR", "function on");
 	}
 
-	void autoShootStop() {
-		double filteredRate = 0.0;
-		feedingWheel.set(0.0);
-		assignedPower = 0.0;
-		shooterWheel.set(assignedPower);
-		LEDi2cInterface.shooting = false;
+	void stopFeeder() {
 
-		SmartDashboard.putNumber("Shooter Speed", filteredRate);
-		SmartDashboard.putString("AUTO SHOOT ERROR", "function off");
+		
+		LEDi2cInterface.shooting = false;
+		feedingWheel.set(0);
+
+		
+		SmartDashboard.putString("Auto Feeder", "Off");
+	}
+	void startFeeder() {
+
+		
+		LEDi2cInterface.shooting = true;
+		feedingWheel.set(FEEDER_POWER);
+
+		
+		SmartDashboard.putString("Auto Feeder", "On");
 	}
 }

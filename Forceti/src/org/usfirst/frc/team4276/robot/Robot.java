@@ -46,6 +46,7 @@ public class Robot extends SampleRobot {
 	gearCollection gearMechanism;
 	ArmPID gearArmControl;
 	BallShooter Shooter;
+	autoShooter smartShoot;
 	BallCollector ballCollectingMechanism;
 	AutoCases autonomous;
 	//autoModeSelector autoSelect;
@@ -89,7 +90,8 @@ public class Robot extends SampleRobot {
 		
 		ballCollectingMechanism = new BallCollector(PWM_BALL_INTAKE);
 
-		autonomous = new AutoCases(Shooter,driveSystem,gearMechanism,ballCollectingMechanism);
+		smartShoot = new autoShooter(Shooter);
+		autonomous = new AutoCases(smartShoot,driveSystem,gearMechanism,ballCollectingMechanism);
 		//autoSelect = new autoModeSelector();
 		autoSelectorThread = new AutoSelector();
 		
